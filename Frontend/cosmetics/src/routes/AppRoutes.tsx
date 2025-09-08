@@ -1,28 +1,101 @@
-// Định nghĩa các tuyến đường của ứng dụng
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { MainLayout } from '../components/layout/MainLayout';
-import { LoginPage } from '../features/auth/LoginPage';
-import { ProductPage } from '../features/products/ProductPage';
-import { POSPage } from '../features/pos/POSPage';
-import { OrderHistoryPage } from '../features/orders/OrderHistoryPage';
+import { useAuth } from '../contexts/AuthProvider';
+
+import { AuthLayout } from '../layouts/AuthLayout';
+import { AdminLayout } from '../layouts/AdminLayout';
+import { UserLayout } from '../layouts/UserLayout';
+import { ProtectedRoute } from '../components/auth/ProtectedRoute';
+
+
+// Auth components
+import { Login } from '../features/auth/Login';
+import { Register } from '../features/auth/Register';
+
+// Admin routes
+import { AdminRoutes } from './adminRoutes';
+
+// User routes
+import { UserRoutes } from './userRoutes';
 
 export const AppRoutes = () => {
+  const {  isAuthenticated, isAdmin, isUser } = useAuth();
+
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
-        <Route path="/login" element={<LoginPage />} />
-        
-        {/* Protected routes with layout */}
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Navigate to="/pos" replace />} />
-          <Route path="pos" element={<POSPage />} />
-          <Route path="products" element={<ProductPage />} />
-          <Route path="orders" element={<OrderHistoryPage />} />
+        {/* Auth Routes */}
+        <Route path="/auth" element={<AuthLayout />}>
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
         </Route>
-        
-        {/* Catch all */}
-        <Route path="*" element={<Navigate to="/pos" replace />} />
+
+        {/* Admin Routes */}
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedRoute>
+              {isAdmin() ? (
+                <AdminLayout>
+                  <AdminRoutes />
+                </AdminLayout>
+              ) : (
+                <Navigate to="/user/home" replace />
+              )}
+            </ProtectedRoute>
+          }
+        />
+
+        {/* User Routes */}
+        <Route
+          path="/user/*"
+          element={
+            <ProtectedRoute>
+              {isUser() && !isAdmin() ? (
+                <UserLayout>
+                  <UserRoutes />
+                </UserLayout>
+              ) : isAdmin() ? (
+                <Navigate to="/admin/dashboard" replace />
+              ) : (
+                <Navigate to="/auth/login" replace />
+              )}
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Root Route - Redirect based on role */}
+        <Route 
+          path="/" 
+          element={
+            isAuthenticated ? (
+              isAdmin() ? (
+                <Navigate to="/admin/dashboard" replace />
+              ) : (
+                <Navigate to="/user/home" replace />
+              )
+            ) : (
+              <Navigate to="/auth/login" replace />
+            )
+          } 
+        />
+
+        {/* Catch all route */}
+        <Route 
+          path="*" 
+          element={
+            isAuthenticated ? (
+              isAdmin() ? (
+                <Navigate to="/admin/dashboard" replace />
+              ) : (
+                <Navigate to="/user/home" replace />
+              )
+            ) : (
+              <Navigate to="/auth/login" replace />
+            )
+          } 
+        />
       </Routes>
     </BrowserRouter>
   );

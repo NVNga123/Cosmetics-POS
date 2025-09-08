@@ -1,18 +1,19 @@
 import axios from 'axios';
 
-// Tạo một instance của axios với cấu hình mặc định
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8888/api/v1';
+
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
-  timeout: 10000,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000,
 });
 
-// Interceptor cho request - thêm token vào header
+// Request interceptor
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,17 +24,44 @@ axiosClient.interceptors.request.use(
   }
 );
 
-// Interceptor cho response - xử lý lỗi chung
+// Response interceptor
 axiosClient.interceptors.response.use(
-  (response) => {
-    return response.data;
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      // Token hết hạn hoặc không hợp lệ
-      localStorage.removeItem('accessToken');
-      window.location.href = '/login';
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
+          const response = await axiosClient.post('/auth/refresh', {
+            refreshToken: refreshToken
+          });
+          
+          const newToken = response.data.result.token;
+          localStorage.setItem('token', newToken);
+          
+          // Retry original request
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return axiosClient(originalRequest);
+        }
+      } catch (refreshError) {
+        // Refresh failed, redirect to login
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/auth/login';
+        return Promise.reject(refreshError);
+      }
     }
+
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      window.location.href = '/auth/login';
+    }
+    
     return Promise.reject(error);
   }
 );
