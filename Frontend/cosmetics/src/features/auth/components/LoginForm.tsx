@@ -14,29 +14,29 @@ export const LoginForm: React.FC = () => {
 
   // Watch for authentication changes
   useEffect(() => {
-    console.log('LoginForm useEffect triggered:', { isAuthenticated, user });
+    // console.log('LoginForm useEffect triggered:', { isAuthenticated, user });
     
     if (isAuthenticated && user) {
       const userIsAdmin = isAdmin();
       const userIsUser = isUser();
       
-      console.log('User authenticated, checking roles:', { 
-        user, 
-        userIsAdmin,
-        userIsUser,
-        roles: user.roles 
-      });
+      // console.log('User authenticated, checking roles:', { 
+      //   user, 
+      //   userIsAdmin,
+      //   userIsUser,
+      //   roles: user.roles 
+      // });
       
       // Small delay để đảm bảo state đã update hoàn toàn
       setTimeout(() => {
         if (userIsAdmin) {
-          console.log('Redirecting to admin dashboard');
+          // console.log('Redirecting to admin dashboard');
           navigate('/admin/dashboard', { replace: true });
         } else if (userIsUser) {
-          console.log('Redirecting to user home');
+          // console.log('Redirecting to user home');
           navigate('/user/home', { replace: true });
         } else {
-          console.log('User has no valid roles:', user.roles);
+          // console.log('User has no valid roles:', user.roles);
           setError('Tài khoản không có quyền truy cập hợp lệ');
         }
       }, 200); // Tăng delay lên 200ms
@@ -49,9 +49,9 @@ export const LoginForm: React.FC = () => {
     setLoading(true);
 
     try {
-      console.log('Attempting login for:', username);
+      // console.log('Attempting login for:', username);
       await login(username, password);
-      console.log('Login completed, waiting for redirect...');
+      // console.log('Login completed, waiting for redirect...');
       // Redirect will be handled by useEffect above
     } catch (error: any) {
       console.error('Login error:', error);

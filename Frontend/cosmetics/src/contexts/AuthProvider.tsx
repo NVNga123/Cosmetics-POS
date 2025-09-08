@@ -66,12 +66,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const userResponse = await axiosClient.get('/identity/users/my-info');
         const userInfo = userResponse.data.result;
         
-        console.log('Raw user info:', userInfo);
-        console.log('Raw roles:', userInfo.roles);
+
         
         // Parse roles từ object format thành string array
         const parsedRoles = parseRoles(userInfo.roles);
-        console.log('Parsed roles:', parsedRoles);
         
         setUser({
           id: userInfo.id,
@@ -105,12 +103,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userResponse = await axiosClient.get('/identity/users/my-info');
       const userInfo = userResponse.data.result;
       
-      console.log('User info after login:', userInfo);
-      console.log('Raw roles after login:', userInfo.roles);
-      
       // Parse roles từ object format thành string array
       const parsedRoles = parseRoles(userInfo.roles);
-      console.log('Parsed roles after login:', parsedRoles);
       
       setUser({
         id: userInfo.id,
@@ -148,21 +142,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const isAdmin = (): boolean => {
     const hasAdminRole = user?.roles?.includes('ADMIN') || false;
-    console.log('isAdmin check:', { 
-      userRoles: user?.roles, 
-      hasAdminRole,
-      username: user?.username 
-    });
+    
     return hasAdminRole;
   };
 
   const isUser = (): boolean => {
     const hasUserRole = user?.roles?.includes('USER') || false;
-    console.log('isUser check:', { 
-      userRoles: user?.roles, 
-      hasUserRole,
-      username: user?.username 
-    });
+    
     return hasUserRole;
   };
 
