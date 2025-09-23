@@ -1,11 +1,19 @@
 import { ReactNode } from 'react';
 import { Header } from '../components/layout/Header';
+import {useLocation} from "react-router-dom";
 
 interface UserLayoutProps {
   children: ReactNode;
 }
 
 export const UserLayout = ({ children }: UserLayoutProps) => {
+  const location = useLocation();
+  const isSalesScreen = location.pathname === '/user/sales';
+  // For sales screen, render without header and footer
+  if (isSalesScreen) {
+      return <div className="sales-layout">{children}</div>;
+  }
+
   return (
     <div className="user-layout">
       <Header />

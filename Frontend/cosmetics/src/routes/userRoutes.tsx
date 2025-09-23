@@ -5,7 +5,7 @@ import { ProductDetail } from '../pages/ProductDetail';
 import { Cart } from '../pages/Cart';
 import { Orders } from '../pages/Orders';
 import { Invoice } from '../pages/Invoice';
-
+import { SalesScreen } from '../pages/SalesScreen';
 
 export const UserRoutes = () => {
   return (
@@ -17,6 +17,7 @@ export const UserRoutes = () => {
       <Route path="cart" element={<Cart />} />
       <Route path="orders" element={<Orders />} />
       <Route path="invoice/:id" element={<Invoice />} />
+      <Route path="sales" element={<SalesScreen />} />
     </Routes>
   );
 };
