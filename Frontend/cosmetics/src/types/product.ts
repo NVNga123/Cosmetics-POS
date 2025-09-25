@@ -1,11 +1,17 @@
+
 export interface Product {
-    id: string;
+    id: number;
+    brand?: string;
+    category?: string;
+    description?: string;
+    discount?: number;
     name: string;
     price: number;
+    slug?: string;
+    stock?: number;
     image?: string;
-    category: string;
-    stock: number;
 }
+
 
 export interface ProductCardProps {
     product: Product;
