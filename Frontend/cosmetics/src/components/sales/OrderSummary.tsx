@@ -32,6 +32,28 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
 
       {/* Order Items */}
       <div className="pos-sidebar-body">
+        <div className="order-datetime">
+          <div className="customer-section">
+            <div className="customer-tag">
+              <div className="tag-container">
+                <input 
+                  type="text" 
+                  placeholder="Nhập tên khách hàng"
+                  className="tag-input"
+                />
+                <button className="tag-remove" type="button">
+                  <i className="fa fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <button className="add-customer-btn" type="button">
+              <i className="fa fa-plus"></i>
+            </button>
+          </div>
+          <div className="datetime-display">
+            <span>{new Date().toLocaleString('vi-VN')}</span>
+          </div>
+        </div>
         <div className="tab-content">
           <div className="tab-pane fade show active">
             <div className="order-items">
@@ -82,25 +104,42 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
       <div className="wrap-pos-sidebar-footer">
         <div className="pos-sidebar-footer">
           <div className="checkout-detail">
+            <span>Chi tiết thanh toán</span>
+          </div>
+          
+          <div className="flex-between-center">
             <span>Tạm tính</span>
             <span>{order.subtotal.toLocaleString()}đ</span>
+          </div>
+          
+          <div className="flex-between-center">
+            <span>Khuyến mãi</span>
+            <span>0đ</span>
           </div>
           
           <div className="flex-between-center">
             <span>Thuế VAT (10%)</span>
             <span>{order.tax.toLocaleString()}đ</span>
           </div>
-          
+
           <div className="total-amount">
             <span>Tổng tiền thanh toán</span>
             <span>{order.total.toLocaleString()}đ</span>
           </div>
-        </div>
-
-        <div className="pos-sidebar-footer">
+          
+          <div className="order-notes">
+            <div className="notes-input-container">
+              <i className="fa-solid fa-pen notes-icon"></i>
+              <textarea 
+                placeholder="Nhập ghi chú..."
+                className="notes-input"
+              />
+            </div>
+          </div>
+          
           <div className="btn-row">
-            <button 
-              className="btn btn-outline-primary cancel-order"
+            <button
+                className="btn btn-outline-primary cancel-order"
               onClick={onCancel}
             >
               <i className="fa fa-times"></i>

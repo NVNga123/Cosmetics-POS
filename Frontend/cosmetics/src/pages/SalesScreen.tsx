@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './SalesScreen.css';
-import type { Order , OrderItem} from '../types/order';
+import type { Order, OrderItem } from '../types/order';
 import type { Product } from '../types/product';
 import { ProductCard } from '../components/sales/ProductCard';
 import { OrderSummary } from '../components/sales/OrderSummary';
+import { productApi } from '../api/productApi';
 
 export const SalesScreen: React.FC = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+
     const [currentOrder, setCurrentOrder] = useState<Order>({
         id: 'ORD-001',
         items: [],
@@ -21,63 +25,47 @@ export const SalesScreen: React.FC = () => {
         notes: ''
     });
 
-    // Fake data - tạm thời để test
-    // const categories = [
-    //     { id: 'all', name: 'Tất cả' },
-    //     { id: 'skincare', name: 'Chăm sóc da' },
-    //     { id: 'makeup', name: 'Trang điểm' },
-    //     { id: 'hair', name: 'Chăm sóc tóc' },
-    //     { id: 'fragrance', name: 'Nước hoa' }
-    // ];
+    // Fetch products từ API
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const data = await productApi.getAll();
+                console.log('Fetched products:', data);
+                setProducts(data);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const products: Product[] = [
-        {
-            id: '1',
-            name: 'Kem dưỡng ẩm',
-            price: 250000,
-            category: 'skincare',
-            stock: 50,
-            image: '/api/placeholder/200/200'
-        },
-        {
-            id: '2',
-            name: 'Son môi matte',
-            price: 180000,
-            category: 'makeup',
-            stock: 30,
-            image: '/api/placeholder/200/200'
-        },
-        {
-            id: '3',
-            name: 'Dầu gội dưỡng tóc',
-            price: 120000,
-            category: 'hair',
-            stock: 25,
-            image: '/api/placeholder/200/200'
-        },
-        {
-            id: '4',
-            name: 'Nước hoa nữ',
-            price: 450000,
-            category: 'fragrance',
-            stock: 15,
-            image: '/api/placeholder/200/200'
-        }
-    ];
+        fetchProducts();
+    }, []);
 
+    // Lọc sản phẩm theo category + search
     const filteredProducts = products.filter(product => {
-        const matchesCategory = selectedCategory === null || product.category === selectedCategory;
-        const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCategory =
+            selectedCategory === null || product.category === selectedCategory;
+        const matchesSearch = product.name
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
     });
 
+    // Thêm sản phẩm vào order
     const addToOrder = (product: Product) => {
-        const existingItem = currentOrder.items.find(item => item.product.id === product.id);
+        const existingItem = currentOrder.items.find(
+            item => item.product.id === product.id
+        );
 
         if (existingItem) {
             const updatedItems = currentOrder.items.map(item =>
                 item.product.id === product.id
-                    ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * item.product.price }
+                    ? {
+                        ...item,
+                        quantity: item.quantity + 1,
+                        total: (item.quantity + 1) * item.product.price
+                    }
                     : item
             );
             updateOrder(updatedItems);
@@ -91,9 +79,10 @@ export const SalesScreen: React.FC = () => {
         }
     };
 
+    // Cập nhật order
     const updateOrder = (items: OrderItem[]) => {
         const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-        const tax = subtotal * 0.1; // 10% VAT
+        const tax = subtotal * 0.1; // VAT 10%
         const total = subtotal + tax;
 
         setCurrentOrder(prev => ({
@@ -105,12 +94,16 @@ export const SalesScreen: React.FC = () => {
         }));
     };
 
-    const removeFromOrder = (productId: string) => {
-        const updatedItems = currentOrder.items.filter(item => item.product.id !== productId);
+    // Xóa khỏi order
+    const removeFromOrder = (productId: number) => {
+        const updatedItems = currentOrder.items.filter(
+            item => item.product.id !== productId
+        );
         updateOrder(updatedItems);
     };
 
-    const updateQuantity = (productId: string, quantity: number) => {
+    // Update số lượng trong order
+    const updateQuantity = (productId: number, quantity: number) => {
         if (quantity <= 0) {
             removeFromOrder(productId);
             return;
@@ -127,20 +120,32 @@ export const SalesScreen: React.FC = () => {
     return (
         <div
             className={`pos-customer ${!sidebarOpen ? 'hidden-sidebar' : ''}`}
-            style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 1000 }}
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                zIndex: 1000
+            }}
         >
-
             {/* Main Content */}
-            <div className={`pos-item pos-info ${!sidebarOpen ? 'spread-width' : ''}`} >
+            <div
+                className={`pos-item pos-info ${!sidebarOpen ? 'spread-width' : ''}`}
+            >
                 <div className="wrap-right-content panel-custom">
                     {/* Header */}
                     <ul className="nav nav-tabs">
                         <li className="flex-start-center col-12">
-
-                            {/* Logo CosmeticsPOS */}
+                            {/* Logo */}
                             <div
                                 className="logo-container"
-                                style={{ marginRight: '16px', fontWeight: 'bold', fontSize: '25px', color: '#2c3e50' }}
+                                style={{
+                                    marginRight: '16px',
+                                    fontWeight: 'bold',
+                                    fontSize: '25px',
+                                    color: '#2c3e50'
+                                }}
                             >
                                 CosmeticsPOS
                             </div>
@@ -153,17 +158,12 @@ export const SalesScreen: React.FC = () => {
                                             type="search"
                                             placeholder="Tìm kiếm sản phẩm..."
                                             value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            onChange={e => setSearchQuery(e.target.value)}
                                         />
                                     </div>
                                     <i className="fa-solid fa-magnifying-glass"></i>
                                 </form>
                             </div>
-
-                            <div className="nav-item">
-                                <a className="nav-link active">Sản phẩm</a>
-                            </div>
-
                         </li>
                     </ul>
 
@@ -172,15 +172,19 @@ export const SalesScreen: React.FC = () => {
                         <div className="pos-stock-body">
                             <div className="pos-stock-content">
                                 <div className="pos-stock-content-container">
-                                    <div className="product-row">
-                                        {filteredProducts.map(product => (
-                                            <ProductCard
-                                                key={product.id}
-                                                product={product}
-                                                onAddToOrder={addToOrder}
-                                            />
-                                        ))}
-                                    </div>
+                                    {loading ? (
+                                        <p>Đang tải sản phẩm...</p>
+                                    ) : (
+                                        <div className="product-row">
+                                            {filteredProducts.map(product => (
+                                                <ProductCard
+                                                    key={product.id}
+                                                    product={product}
+                                                    onAddToOrder={addToOrder}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
