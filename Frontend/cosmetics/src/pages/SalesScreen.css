@@ -88,9 +88,11 @@
 
 /* Search Form */
 .search-form {
-  width: 100%;
-  padding: 0.5rem;
-  border-bottom: 1px solid #e9ecef;
+  border: 1px solid #265B9F;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 350px;
+  transition: all 0.2s ease;
 }
 
 .search-product-order {
@@ -102,10 +104,8 @@
   justify-content: flex-end;
   align-items: center;
   position: relative;
-  background: transparent;
-  margin: 0;
+  background: #ffffff;
   font-size: 14px;
-  color: inherit;
   border-radius: 8px;
   flex-wrap: wrap;
   gap: 10px;
@@ -122,7 +122,7 @@
   margin: 0;
   font-size: 14px;
   color: inherit;
-  border: 1px solid #0074bd;
+  border: 1px solid #F2F1F1;
   border-radius: 8px;
 }
 
@@ -131,8 +131,8 @@
 }
 
 .search-input input:focus {
-  box-shadow: 0 0 3px 0 #1183d6;
-  border-color: #1183d6;
+  box-shadow: 0 0 3px 0 #ffffff;
+  border-color: #ffffff;
   outline: none;
 }
 
@@ -142,7 +142,7 @@
   left: 15px;
   top: 50%;
   transform: translate(0px, -50%);
-  color: #0074bd;
+  color: #ffffff;
 }
 
 /* Categories */
@@ -228,7 +228,7 @@
   display: flex;
   align-items: center;
   border-color: transparent;
-  background-color: white;
+  background-color: #3C95FB;
   margin: 0;
   padding: 0 20px;
 }
@@ -253,19 +253,19 @@
 }
 
 .wrap-right-content .nav-item a:hover {
-  color: #0074bd !important;
-  border-color: #0074bd;
+  color: #3C95FB !important;
+  border-color: #3C95FB;
 }
 
 .wrap-right-content .nav-item a.active {
-  color: #0074bd !important;
-  border-color: #0074bd;
-  border-bottom: 2px solid #0074bd;
+  color: #F2F1F1 !important;
+  border-color: #F2F1F1;
+  border-bottom: 2px solid #F2F1F1;
 }
 
 /* Products Grid */
 .pos-stock {
-  background-color: #d9eaf5;
+  background-color: #F2F1F1;
   padding-top: 0 !important;
   min-height: calc(100vh - 60px);
   height: 100%;
@@ -377,7 +377,7 @@
 
 .pos-sidebar-nav {
   padding: 0 !important;
-  background-color: #0074bd;
+  background-color: #3C95FB;
   height: 60px;
   display: flex;
   align-items: center;
@@ -440,7 +440,7 @@
 
 .right-header .icon {
   background-color: #ffffff;
-  color: #004671;
+  color: #3C95FB;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -578,7 +578,7 @@
 .checkout-detail {
   margin: -10px -20px 5px;
   padding: 8px 25px;
-  background-color: #0074bd;
+  background-color: #3C95FB;
   color: #ffffff;
   display: flex;
   justify-content: space-between;
@@ -594,7 +594,7 @@
 }
 
 .total-amount {
-  color: #004671;
+  color: #3C95FB;
   font-size: 18px;
   font-weight: bold;
   display: flex;
@@ -637,8 +637,8 @@
 }
 
 .btn-success {
-  background-color: #0074bd !important;
-  border: 1px solid #0074bd;
+  background-color: #3C95FB !important;
+  border: 1px solid #3C95FB;
   color: white;
 }
 

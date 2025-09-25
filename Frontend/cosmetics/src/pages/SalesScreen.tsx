@@ -21,14 +21,14 @@ export const SalesScreen: React.FC = () => {
         notes: ''
     });
 
-    // Fake data
-    const categories = [
-        { id: 'all', name: 'Tất cả' },
-        { id: 'skincare', name: 'Chăm sóc da' },
-        { id: 'makeup', name: 'Trang điểm' },
-        { id: 'hair', name: 'Chăm sóc tóc' },
-        { id: 'fragrance', name: 'Nước hoa' }
-    ];
+    // Fake data - tạm thời để test
+    // const categories = [
+    //     { id: 'all', name: 'Tất cả' },
+    //     { id: 'skincare', name: 'Chăm sóc da' },
+    //     { id: 'makeup', name: 'Trang điểm' },
+    //     { id: 'hair', name: 'Chăm sóc tóc' },
+    //     { id: 'fragrance', name: 'Nước hoa' }
+    // ];
 
     const products: Product[] = [
         {
@@ -125,67 +125,45 @@ export const SalesScreen: React.FC = () => {
     };
 
     return (
-        <div className={`pos-customer ${!sidebarOpen ? 'hidden-sidebar' : ''}`} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 1000 }}>
-            {/* Left Sidebar */}
-            <div className={`pos-menu pos-item ${sidebarOpen ? '' : 'hidden'}`}>
-                <div className="nav-container">
-                    <ul className="nav nav-tabs">
-                        <div className="dashboard">
-                            <img src="/logo.png" alt="Logo" />
-                        </div>
-
-                        {/* Search */}
-                        <div className="search-form">
-                            <form className="search-product-order">
-                                <div className="search-input">
-                                    <input
-                                        type="search"
-                                        placeholder="Tìm kiếm sản phẩm..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                    />
-                                </div>
-                                <i className="fa-solid fa-magnifying-glass"></i>
-                            </form>
-                        </div>
-
-                        {/* Categories */}
-                        <div className="wrap-list-nav-link">
-                            <div className="product-group">Danh mục sản phẩm</div>
-                            {categories.map(category => (
-                                <li key={category.id} className="nav-item">
-                                    <input
-                                        type="radio"
-                                        id={category.id}
-                                        name="category"
-                                        checked={selectedCategory === category.id}
-                                        onChange={() => setSelectedCategory(category.id === 'all' ? null : category.id)}
-                                    />
-                                    <label className="nav-link" htmlFor={category.id}>
-                                        {category.name}
-                                    </label>
-                                </li>
-                            ))}
-                        </div>
-                    </ul>
-                </div>
-            </div>
+        <div
+            className={`pos-customer ${!sidebarOpen ? 'hidden-sidebar' : ''}`}
+            style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 1000 }}
+        >
 
             {/* Main Content */}
-            <div className={`pos-item pos-info ${!sidebarOpen ? 'spread-width' : ''}`}>
+            <div className={`pos-item pos-info ${!sidebarOpen ? 'spread-width' : ''}`} >
                 <div className="wrap-right-content panel-custom">
                     {/* Header */}
                     <ul className="nav nav-tabs">
                         <li className="flex-start-center col-12">
-                            <div className="flex-center-center cursor-pointer" style={{ width: '8%' }}>
-                                <i
-                                    className="fa-solid fa-bars"
-                                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                                ></i>
+
+                            {/* Logo CosmeticsPOS */}
+                            <div
+                                className="logo-container"
+                                style={{ marginRight: '16px', fontWeight: 'bold', fontSize: '25px', color: '#2c3e50' }}
+                            >
+                                CosmeticsPOS
                             </div>
+
+                            {/* Search */}
+                            <div className="search-form">
+                                <form className="search-product-order">
+                                    <div className="search-input">
+                                        <input
+                                            type="search"
+                                            placeholder="Tìm kiếm sản phẩm..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                        />
+                                    </div>
+                                    <i className="fa-solid fa-magnifying-glass"></i>
+                                </form>
+                            </div>
+
                             <div className="nav-item">
                                 <a className="nav-link active">Sản phẩm</a>
                             </div>
+
                         </li>
                     </ul>
 
@@ -215,11 +193,9 @@ export const SalesScreen: React.FC = () => {
                     onUpdateQuantity={updateQuantity}
                     onRemoveItem={removeFromOrder}
                     onCheckout={() => {
-                        // TODO: Implement checkout logic
                         console.log('Checkout:', currentOrder);
                     }}
                     onCancel={() => {
-                        // TODO: Implement cancel logic
                         console.log('Cancel order');
                     }}
                 />
