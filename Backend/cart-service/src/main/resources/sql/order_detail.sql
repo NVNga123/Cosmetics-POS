@@ -8,7 +8,7 @@ CREATE TABLE order_detail (
                               total_price DECIMAL(18,2),
                               discount_amount DECIMAL(18,2),
 
-                              created_by VARCHAR(50) NOT NULL,
+                              created_by VARCHAR(50) NOT NULL DEFAULT 'system',
                               created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                               last_modified_by VARCHAR(50),
                               last_modified_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

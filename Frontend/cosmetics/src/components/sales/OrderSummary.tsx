@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { OrderSummaryProps } from '../../types/order';
+import { orderApi } from '../../api/orderApi';
 
 export const OrderSummary: React.FC<OrderSummaryProps> = ({
   order,
@@ -8,6 +9,46 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   onCheckout,
   onCancel
 }) => {
+  const [customerName, setCustomerName] = useState('');
+  const [notes, setNotes] = useState('');
+
+  const handleCheckout = async () => {
+    try {
+      console.log('Starting checkout process...');
+      console.log('Order items:', order.items);
+      console.log('Customer name:', customerName);
+      console.log('Notes:', notes);
+
+      const orderData = {
+        items: order.items.map(item => ({
+          productId: item.product.id,
+          productName: item.product.name,
+          price: item.product.price,
+          quantity: item.quantity,
+          subtotal: item.total
+        })),
+        subtotal: order.subtotal,
+        discount: 0, // Khuyến mãi
+        tax: order.tax,
+        total: order.total,
+        customerName: customerName,
+        notes: notes
+      };
+
+      console.log('Order data to send:', orderData);
+
+      const result = await orderApi.submitOrder(orderData);
+      console.log('Order submitted successfully:', result);
+      
+      alert('Đơn hàng đã được gửi thành công!');
+      onCheckout();
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      console.error('Error details:', error.response?.data);
+      alert(`Có lỗi xảy ra khi gửi đơn hàng: ${error.message}`);
+    }
+  };
+
   return (
     <div className="pos-sidebar">
       {/* Header */}
@@ -36,11 +77,13 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           <div className="customer-section">
             <div className="customer-tag">
               <div className="tag-container">
-                <input 
-                  type="text" 
-                  placeholder="Nhập tên khách hàng"
-                  className="tag-input"
-                />
+              <input 
+                type="text" 
+                placeholder="Nhập tên khách hàng"
+                className="tag-input"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+              />
                 <button className="tag-remove" type="button">
                   <i className="fa fa-times"></i>
                 </button>
@@ -133,6 +176,8 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
               <textarea 
                 placeholder="Nhập ghi chú..."
                 className="notes-input"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
               />
             </div>
           </div>
@@ -145,11 +190,12 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
               <i className="fa fa-times"></i>
               <span>Hủy</span>
             </button>
-            <button 
-              className="btn btn-success checkout-order"
-              onClick={onCheckout}
-              disabled={order.items.length === 0}
-            >
+              <button
+                className="btn btn-success checkout-order"
+                onClick={handleCheckout}
+                disabled={order.items.length === 0}
+                title={order.items.length === 0 ? 'Vui lòng thêm sản phẩm vào giỏ hàng' : 'Thanh toán đơn hàng'}
+              >
               <i className="fa fa-dollar"></i>
               <span>Thanh toán</span>
             </button>

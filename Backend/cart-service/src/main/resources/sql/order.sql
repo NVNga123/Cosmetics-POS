@@ -17,7 +17,7 @@ CREATE TABLE orders (
                         payment_method VARCHAR(50),
                         final_price DOUBLE,
 
-                        created_by VARCHAR(50) NOT NULL,
+                        created_by VARCHAR(50) NOT NULL DEFAULT 'system',
                         created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         last_modified_by VARCHAR(50),
                         last_modified_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

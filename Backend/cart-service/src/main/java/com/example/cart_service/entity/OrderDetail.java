@@ -84,6 +84,14 @@ public class OrderDetail extends AbstractAuditing<Integer> {
         this.discountAmount = discountAmount;
     }
 
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

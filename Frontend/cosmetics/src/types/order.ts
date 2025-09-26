@@ -7,15 +7,30 @@ export interface OrderItem {
 }
 
 export interface Order {
-    id: string;
+    id: number;
     items: OrderItem[];
     subtotal: number;
     discount: number;
     tax: number;
     total: number;
     customerName: string;
-    customerPhone: string;
     notes: string;
+}
+
+export interface OrderSubmitData {
+  items: {
+    productId: number;
+    productName: string;
+    price: number;
+    quantity: number;
+    subtotal: number;
+  }[];
+  subtotal: number;
+  discount: number;
+  tax: number;
+  total: number;
+  customerName: string;
+  notes: string;
 }
 
 export interface OrderSummaryProps {

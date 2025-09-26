@@ -174,6 +174,14 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
         this.userName = userName;
     }
 
+    public List<OrderDetail> getOrderDetails() {
+        return orderDetails;
+    }
+
+    public void setOrderDetails(List<OrderDetail> orderDetails) {
+        this.orderDetails = orderDetails;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

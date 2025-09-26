@@ -1,6 +1,7 @@
 package com.example.cart_service.controller;
 
 
+import com.example.cart_service.dto.OrderSubmitDTO;
 import com.example.cart_service.service.OrderService;
 import org.junit.platform.commons.logging.Logger;
 import com.example.cart_service.entity.Order;
@@ -26,16 +27,13 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Order> create(@RequestBody Order order) throws URISyntaxException {
-        LOG.debug(() -> "REST request to save Order : " + order);
-        if(order.getId() != null) {
-           return ResponseEntity.badRequest().build();
-        }
-        Order result = orderService.save(order); // goi ham save trong OrderService de luu don hang
+    public ResponseEntity<Order> create(@RequestBody OrderSubmitDTO orderSubmitDTO) throws URISyntaxException {
+        LOG.debug(() -> "REST request to save Order : " + orderSubmitDTO);
+        Order result = orderService.save(orderSubmitDTO);
         return ResponseEntity.created(new URI("/api/orders/" + result.getId())).body(result);
     }
 
-    @PutMapping("/{id}")
+    /*@PutMapping("/{id}")
     public ResponseEntity<Order> update(@PathVariable Integer id, @RequestBody Order order) throws URISyntaxException {
         LOG.debug(() -> "REST request to update Order : " + order);
         if(order.getId() == null || !order.getId().equals(id)) {
@@ -43,7 +41,7 @@ public class OrderController {
         }
         Order result = orderService.save(order);
         return ResponseEntity.ok(result);
-    }
+    }*/
 
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders(){
