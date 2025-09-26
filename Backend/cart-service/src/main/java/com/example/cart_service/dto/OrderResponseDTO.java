@@ -6,6 +6,7 @@ import java.util.Objects;
 
 public class OrderResponseDTO {
     private Integer orderId;
+    private  String code;
     private String customerName;
     private double total;
     private String status;
@@ -17,7 +18,6 @@ public class OrderResponseDTO {
     public String getNotes() {
         return notes;
     }
-
 
     public Integer getOrderId() {
         return orderId;
@@ -65,6 +65,16 @@ public class OrderResponseDTO {
 
     public void setItems(List<OrderItemDTO> items) {
         this.items = items;
+    }
+
+    public String getCode() {
+        return code;
+    }
+    public void setCode(String code) {
+        this.code = code;
+    }
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     @Override

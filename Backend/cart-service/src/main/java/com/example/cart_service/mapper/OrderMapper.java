@@ -38,4 +38,27 @@ public class OrderMapper {
         order.setOrderDetails(items);
         return order;
     }
+
+    public static OrderResponseDTO toDTO(Order order) {
+        OrderResponseDTO dto = new OrderResponseDTO();
+        dto.setOrderId(order.getId());
+        dto.setCode(order.getCode());
+        dto.setCustomerName(order.getCustomerName());
+        dto.setTotal(order.getFinalPrice());
+        dto.setStatus(order.getStatus());
+        dto.setCreatedAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(order.getCreatedDate().toEpochMilli()), java.time.ZoneId.systemDefault()));
+        dto.setNotes(order.getNote());
+
+        List<OrderItemDTO> items = order.getOrderDetails().stream().map(item -> {
+            OrderItemDTO itemDTO = new OrderItemDTO();
+            itemDTO.setProductId(item.getProductId());
+            itemDTO.setPrice(item.getUnitPrice());
+            itemDTO.setQuantity(item.getQuantityProduct());
+            itemDTO.setSubtotal(item.getTotalPrice());
+            return itemDTO;
+        }).collect(Collectors.toList());
+
+        dto.setItems(items);
+        return dto;
+    }
 }

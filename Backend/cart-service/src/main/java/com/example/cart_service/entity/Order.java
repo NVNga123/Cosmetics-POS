@@ -19,6 +19,9 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "code")
+    private String code;
+
     @Column(name = "customer_id")
     private String customerId;
 
@@ -182,25 +185,35 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
         this.orderDetails = orderDetails;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Order that = (Order) o;
-        return Objects.equals(id, that.id) && Objects.equals(customerId, that.customerId) && Objects.equals(customerName, that.customerName) && Objects.equals(note, that.note) && Objects.equals(status, that.status) && Objects.equals(quantity, that.quantity) && Objects.equals(discountId, that.discountId) && Objects.equals(totalDiscount, that.totalDiscount) && Objects.equals(taxRate, that.taxRate) && Objects.equals(taxAmount, that.taxAmount) && Objects.equals(totalAmount, that.totalAmount) && Objects.equals(paymentMethod, that.paymentMethod) && Objects.equals(finalPrice, that.finalPrice);
+        Order order = (Order) o;
+        return Objects.equals(id, order.id) && Objects.equals(code, order.code) && Objects.equals(customerId, order.customerId) && Objects.equals(customerName, order.customerName) && Objects.equals(userName, order.userName) && Objects.equals(note, order.note) && Objects.equals(status, order.status) && Objects.equals(quantity, order.quantity) && Objects.equals(discountId, order.discountId) && Objects.equals(totalDiscount, order.totalDiscount) && Objects.equals(taxRate, order.taxRate) && Objects.equals(taxAmount, order.taxAmount) && Objects.equals(totalAmount, order.totalAmount) && Objects.equals(paymentMethod, order.paymentMethod) && Objects.equals(finalPrice, order.finalPrice) && Objects.equals(orderDetails, order.orderDetails);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, customerId, customerName, note, status, quantity, discountId, totalDiscount, taxRate, taxAmount, totalAmount, paymentMethod, finalPrice);
+        return Objects.hash(id, code, customerId, customerName, userName, note, status, quantity, discountId, totalDiscount, taxRate, taxAmount, totalAmount, paymentMethod, finalPrice, orderDetails);
     }
 
     @Override
     public String toString() {
-        return "OrderEntity{" +
+        return "Order{" +
                 "id=" + id +
+                ", code='" + code + '\'' +
                 ", customerId='" + customerId + '\'' +
                 ", customerName='" + customerName + '\'' +
+                ", userName='" + userName + '\'' +
                 ", note='" + note + '\'' +
                 ", status='" + status + '\'' +
                 ", quantity=" + quantity +
@@ -211,6 +224,7 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
                 ", totalAmount=" + totalAmount +
                 ", paymentMethod='" + paymentMethod + '\'' +
                 ", finalPrice=" + finalPrice +
+                ", orderDetails=" + orderDetails +
                 '}';
     }
 }

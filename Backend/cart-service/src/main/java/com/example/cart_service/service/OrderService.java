@@ -1,5 +1,6 @@
 package com.example.cart_service.service;
 
+import com.example.cart_service.dto.OrderResponseDTO;
 import com.example.cart_service.dto.OrderSubmitDTO;
 import com.example.cart_service.entity.Order;
 
@@ -13,7 +14,7 @@ public interface OrderService {
 
     Optional<Order> findOne(Integer id);
 
-    List<Order> findAll();
+    List<OrderResponseDTO> findAll();
 
 
 }

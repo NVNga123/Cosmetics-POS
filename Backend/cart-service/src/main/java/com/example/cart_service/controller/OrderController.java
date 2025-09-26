@@ -1,6 +1,7 @@
 package com.example.cart_service.controller;
 
 
+import com.example.cart_service.dto.OrderResponseDTO;
 import com.example.cart_service.dto.OrderSubmitDTO;
 import com.example.cart_service.service.OrderService;
 import org.junit.platform.commons.logging.Logger;
@@ -44,9 +45,9 @@ public class OrderController {
     }*/
 
     @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders(){
+    public ResponseEntity<List<OrderResponseDTO>> getAllOrders(){
         LOG.debug(() -> "REST request to get all Orders");
-        List<Order> orders = orderService.findAll();
+        List<OrderResponseDTO> orders = orderService.findAll();
         return ResponseEntity.ok(orders);
     }
 
