@@ -1,19 +1,21 @@
-import type {Product} from "./product.ts";
+// import type {Product} from "./product.ts";
 
 export interface OrderItem {
-    product: Product;
+    productId: number;
+    productName: string | null;
+    price: number;
     quantity: number;
-    total: number;
+    subtotal: number;
 }
 
 export interface Order {
-    id: number;
-    items: OrderItem[];
-    subtotal: number;
-    discount: number;
-    tax: number;
-    total: number;
+    orderId: number;
+    code: string;
     customerName: string;
+    total: number;
+    status: string;
+    createdAt: string;
+    items: OrderItem[];
     notes: string;
 }
 

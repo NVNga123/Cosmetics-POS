@@ -61,7 +61,12 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           borderBottom: '1px solid #eee',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          position: 'fixed',
+          top: 0,
+          left: '250px',
+          right: 0,
+          zIndex: 999
         }}>
           <h1>Quản trị hệ thống</h1>
           <div className="admin-user" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -83,7 +88,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         </header>
 
         {/* Page Content */}
-        <main className="admin-main" style={{ padding: '2rem' }}>
+        <main className="admin-main" style={{ padding: '2rem', marginTop: '30px' }}>
           {children}
         </main>
       </div>

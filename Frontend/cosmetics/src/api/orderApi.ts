@@ -18,7 +18,7 @@ export const orderApi = {
       
       console.log('Response received:', response.data);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting order:', error);
       console.error('Error response:', error.response);
       console.error('Error status:', error.response?.status);
@@ -29,8 +29,22 @@ export const orderApi = {
 
   // Lấy danh sách đơn hàng
   getAll: async (): Promise<Order[]> => {
-    const response = await axios.get<Order[]>(API_URL);
-    return response.data;
+    try {
+      console.log('Fetching orders from:', API_URL);
+      const response = await axios.get<Order[]>(API_URL, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('Orders fetched successfully:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error fetching orders:', error);
+      console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      throw error;
+    }
   },
 
   // Lấy đơn hàng theo ID
