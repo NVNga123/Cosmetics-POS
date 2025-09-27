@@ -8,6 +8,7 @@ export const Header = () => {
   const menuItems = [
     { path: '/user/home', label: 'Trang chủ' },
     { path: '/user/products', label: 'Sản phẩm' },
+    { path: '/user/sales', label: 'Bán hàng' },
     { path: '/user/cart', label: 'Giỏ hàng' },
     { path: '/user/orders', label: 'Đơn hàng' },
     { path: '/user/profile', label: 'Thông tin' },
