@@ -155,7 +155,7 @@ export const LoginForm: React.FC = () => {
       <style>
         {`
           .login-form-container {
-            padding: 5px;
+            padding: 2rem;
             height: 100%;
             display: flex;
             flex-direction: column;

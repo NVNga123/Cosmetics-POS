@@ -19,19 +19,23 @@ export const Login = () => {
         {`
           .login-page {
             width: 100%;
+            height: 100vh;
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
           }
           
           .login-container {
             width: 100%;
+            max-width: 1200px;
             background: white;
             border-radius: 24px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             display: flex;
+            min-height: 700px;
           }
           
           .login-form {
@@ -55,11 +59,17 @@ export const Login = () => {
          
           
           @media (max-width: 1024px) {
-            .login-container {
+            .login-page {
+              height:100% !important;
+              padding:0;
             }
           }
           
           @media (max-width: 768px) {
+            .login-page {
+              height:100% !important;
+              padding:0;
+            }
             .login-container {
               flex-direction: column;
               max-width: 100%;
@@ -78,6 +88,10 @@ export const Login = () => {
           }
           
           @media (max-width: 480px) {
+          .login-page {
+              height:100% !important;
+              padding:0;
+            }
             .login-container {
               border-radius: 16px;
               box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
@@ -85,6 +99,10 @@ export const Login = () => {
           }
           
           @media (max-width: 320px) {
+          .login-page {
+              height:100% !important;
+              padding:0;
+            }
             .login-container {
               border-radius: 12px;
             }
