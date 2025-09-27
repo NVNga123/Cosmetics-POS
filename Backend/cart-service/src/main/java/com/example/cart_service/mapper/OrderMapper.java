@@ -23,7 +23,7 @@ public class OrderMapper {
         order.setTaxAmount(dto.getTax());
         order.setFinalPrice(dto.getTotal());
         order.setNote(dto.getNotes());
-        order.setStatus("NEW");
+        order.setStatus(dto.getStatus() != null ? dto.getStatus() : "DRAFT");
 
         List<OrderDetail> items = dto.getItems().stream().map(itemDTO -> {
             OrderDetail item = new OrderDetail();

@@ -17,3 +17,5 @@ CREATE TABLE order_detail (
 
 );
 
+ALTER TABLE order_detail
+    MODIFY COLUMN product_id VARCHAR(255) NOT NULL;

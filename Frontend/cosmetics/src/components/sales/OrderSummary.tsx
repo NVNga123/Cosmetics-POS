@@ -7,45 +7,64 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
-  onCancel
+  onSaveOrder,
 }) => {
   const [customerName, setCustomerName] = useState('');
   const [notes, setNotes] = useState('');
 
-  const handleCheckout = async () => {
-    try {
-      console.log('Starting checkout process...');
-      console.log('Order items:', order.items);
-      console.log('Customer name:', customerName);
-      console.log('Notes:', notes);
-
-      const orderData = {
-        items: order.items.map(item => ({
-          productId: item.product.id,
-          productName: item.product.name,
-          price: item.product.price,
-          quantity: item.quantity,
-          subtotal: item.total
+  const buildOrderData = (status: string) => ({
+    items: order.items.map(item => ({
+      productId: item.product.id,
+      productName: item.product.name,
+      price: item.product.price,
+      quantity: item.quantity,
+      subtotal: item.total,
         })),
         subtotal: order.subtotal,
-        discount: 0, // Khuyến mãi
+        discount: 0,
         tax: order.tax,
         total: order.total,
         customerName: customerName,
-        notes: notes
-      };
+        notes: notes,
+        status: status,
+      });
 
-      console.log('Order data to send:', orderData);
-
+  const handleSaveOrder = async () => {
+    try {
+      const orderData = buildOrderData('DRAFT');
+      console.log('Saving draft order:', orderData);
       const result = await orderApi.submitOrder(orderData);
+
+      if (result?.id) {
+        order.id = result.id;
+      }
+
+      console.log('Draft order saved:', result);
+      alert('Đơn hàng đã được lưu dưới dạng nháp!');
+      onSaveOrder();
+    } catch (error: any) {
+      console.error('Error saving draft order:', error);
+      alert(`Có lỗi khi lưu đơn: ${error.message}`);
+    }
+  };
+
+  // Thanh toán đơn
+  const handleCheckout = async () => {
+    try {
+      const orderData = buildOrderData('COMPLETED');
+      console.log('Submitting completed order:', orderData);
+      const result = await orderApi.submitOrder(orderData);
+
+      if (result?.id) {
+        order.id = result.id;
+      }
+
       console.log('Order submitted successfully:', result);
-      
-      alert('Đơn hàng đã được gửi thành công!');
+      alert('Đơn hàng đã được thanh toán thành công!');
       onCheckout();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting order:', error);
-      console.error('Error details:', error.response?.data);
-      alert(`Có lỗi xảy ra khi gửi đơn hàng: ${error.message}`);
+      alert(`Có lỗi xảy ra khi thanh toán: ${error.message}`);
     }
   };
 
@@ -77,8 +96,8 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           <div className="customer-section">
             <div className="customer-tag">
               <div className="tag-container">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Nhập tên khách hàng"
                 className="tag-input"
                 value={customerName}
@@ -112,20 +131,20 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                       <p>{item.product.price.toLocaleString()}đ</p>
                     </div>
                     <div className="item-controls">
-                      <button 
+                      <button
                         onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)}
                         className="btn-quantity"
                       >
                         -
                       </button>
                       <span className="quantity">{item.quantity}</span>
-                      <button 
+                      <button
                         onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)}
                         className="btn-quantity"
                       >
                         +
                       </button>
-                      <button 
+                      <button
                         onClick={() => onRemoveItem(item.product.id)}
                         className="btn-remove"
                       >
@@ -149,17 +168,17 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           <div className="checkout-detail">
             <span>Chi tiết thanh toán</span>
           </div>
-          
+
           <div className="flex-between-center">
             <span>Tạm tính</span>
             <span>{order.subtotal.toLocaleString()}đ</span>
           </div>
-          
+
           <div className="flex-between-center">
             <span>Khuyến mãi</span>
             <span>0đ</span>
           </div>
-          
+
           <div className="flex-between-center">
             <span>Thuế VAT (10%)</span>
             <span>{order.tax.toLocaleString()}đ</span>
@@ -169,11 +188,11 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
             <span>Tổng tiền thanh toán</span>
             <span>{order.total.toLocaleString()}đ</span>
           </div>
-          
+
           <div className="order-notes">
             <div className="notes-input-container">
               <i className="fa-solid fa-pen notes-icon"></i>
-              <textarea 
+              <textarea
                 placeholder="Nhập ghi chú..."
                 className="notes-input"
                 value={notes}
@@ -181,14 +200,16 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
               />
             </div>
           </div>
-          
+
           <div className="btn-row">
             <button
-                className="btn btn-outline-primary cancel-order"
-              onClick={onCancel}
+              className="btn btn-outline-primary cancel-order"
+              onClick={handleSaveOrder}
+              disabled={order.items.length === 0}
+              title={order.items.length === 0 ? 'Vui lòng thêm sản phẩm vào giỏ hàng' : 'Hủy đơn hàng'}
             >
-              <i className="fa fa-times"></i>
-              <span>Hủy</span>
+              <i className="fa fa-download"></i>
+              <span>Lưu đơn</span>
             </button>
               <button
                 className="btn btn-success checkout-order"

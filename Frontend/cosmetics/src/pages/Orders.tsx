@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { orderApi } from "../api/orderApi";
 import type { Order } from "../types/order";
 import { OrderDetailModal } from "../features/orders/components/OrderDetailModal";
+import "./Orders.css";
 
 export const Orders: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -9,7 +10,6 @@ export const Orders: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("all");
-    const [filterCount, setFilterCount] = useState(2);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -127,16 +127,11 @@ export const Orders: React.FC = () => {
             <div className="orders-header">
             <h1>Danh sách đơn hàng</h1>
                 <div className="header-actions">
-                    <button className="btn btn-secondary" onClick={fetchOrders} disabled={loading}>
-                        <span className="icon">🔄</span>
-                        {loading ? 'Đang tải...' : 'Làm mới'}
-                    </button>
                     <button className="btn btn-primary">
                         <span className="icon">+</span>
                         Thêm ĐH
                     </button>
                     <button className="btn btn-primary">
-                        <span className="icon">📊</span>
                         Xuất Excel
                         <span className="dropdown-arrow">▼</span>
                     </button>
@@ -174,7 +169,6 @@ export const Orders: React.FC = () => {
                     </button>
                     <button className="filter-btn">
                         <span className="icon">🔽</span>
-                        <span className="badge">{filterCount}</span>
                     </button>
                 </div>
             </div>
@@ -203,10 +197,6 @@ export const Orders: React.FC = () => {
                                         <div className="empty-icon">📦</div>
                                         <h3>Chưa có đơn hàng nào</h3>
                                         <p>Khi có đơn hàng mới, chúng sẽ xuất hiện ở đây.</p>
-                                        <button className="btn btn-primary" onClick={fetchOrders}>
-                                            <span className="icon">🔄</span>
-                                            Làm mới
-                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -260,362 +250,6 @@ export const Orders: React.FC = () => {
                 onClose={handleCloseModal}
             />
 
-            <style jsx>{`
-                .orders-page {
-                    padding: 20px;
-                    background: #f8fafc;
-                    min-height: 100vh;
-                }
-
-                .orders-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 20px;
-                    position: sticky;
-                    top: 50px;
-                    background: #f8fafc;
-                    z-index: 99;
-                    padding: 10px 0;
-                }
-
-                .orders-header h1 {
-                    color: #2563eb;
-                    font-size: 24px;
-                    font-weight: 600;
-                    margin: 0;
-                }
-
-                .header-actions {
-                    display: flex;
-                    gap: 12px;
-                }
-
-                .btn {
-                    padding: 8px 16px;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-size: 14px;
-                    font-weight: 500;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                }
-
-                .btn-primary {
-                    background: #2563eb;
-                    color: white;
-                }
-
-                .btn-primary:hover {
-                    background: #1d4ed8;
-                }
-
-                .btn-secondary {
-                    background: #6b7280;
-                    color: white;
-                }
-
-                .btn-secondary:hover:not(:disabled) {
-                    background: #4b5563;
-                }
-
-                .btn-secondary:disabled {
-                    background: #9ca3af;
-                    cursor: not-allowed;
-                }
-
-                .icon {
-                    font-size: 16px;
-                }
-
-                .dropdown-arrow {
-                    font-size: 10px;
-                    margin-left: 4px;
-                }
-
-                .status-tabs {
-                    display: flex;
-                    gap: 0;
-                    margin-bottom: 20px;
-                    border-bottom: 1px solid #e5e7eb;
-                    position: sticky;
-                    top: 100px;
-                    background: #f8fafc;
-                    z-index: 98;
-                    padding: 5px 0;
-                }
-
-                .tab {
-                    padding: 12px 20px;
-                    border: none;
-                    background: none;
-                    cursor: pointer;
-                    font-size: 14px;
-                    color: #6b7280;
-                    border-bottom: 2px solid transparent;
-                    transition: all 0.2s;
-                }
-
-                .tab:hover {
-                    color: #2563eb;
-                }
-
-                .tab.active {
-                    color: #2563eb;
-                    border-bottom-color: #2563eb;
-                    font-weight: 500;
-                }
-
-                .search-filter-bar {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 20px;
-                    padding: 16px;
-                    background: white;
-                    border-radius: 8px;
-                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                    position: sticky;
-                    top: 150px;
-                    z-index: 97;
-                }
-
-                .search-container {
-                    position: relative;
-                    flex: 1;
-                    max-width: 400px;
-                }
-
-                .search-icon {
-                    position: absolute;
-                    left: 12px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    color: #6b7280;
-                }
-
-                .search-input {
-                    width: 100%;
-                    padding: 10px 12px 10px 40px;
-                    border: 1px solid #9ca3af;
-                    border-radius: 6px;
-                    font-size: 14px;
-                    background: white;
-                    color: #000000;
-                }
-
-                .search-input:focus {
-                    outline: none;
-                    border-color: #6b7280;
-                    box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
-                }
-
-                .filter-actions {
-                    display: flex;
-                    gap: 8px;
-                }
-
-                .filter-btn {
-                    width: 40px;
-                    height: 40px;
-                    border: 1px solid #d1d5db;
-                    background: white;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    position: relative;
-                }
-
-                .filter-btn:hover {
-                    background: #f9fafb;
-                }
-
-                .badge {
-                    position: absolute;
-                    top: -4px;
-                    right: -4px;
-                    background: #ef4444;
-                    color: white;
-                    border-radius: 50%;
-                    width: 18px;
-                    height: 18px;
-                    font-size: 10px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .orders-table-container {
-                    background: white;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                }
-
-                .orders-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-
-                .orders-table th {
-                    background: #f8fafc;
-                    padding: 12px 16px;
-                    text-align: left;
-                    font-weight: 600;
-                    color: #374151;
-                    border-bottom: 1px solid #e5e7eb;
-                    font-size: 14px;
-                }
-
-                .orders-table td {
-                    padding: 12px 16px;
-                    border-bottom: 1px solid #f3f4f6;
-                    font-size: 14px;
-                    color: #374151;
-                }
-
-                .orders-table tr:hover {
-                    background: #f9fafb;
-                }
-
-                .customer-info {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-
-                .link-icon {
-                    font-size: 12px;
-                    color: #6b7280;
-                }
-
-                .status-badge {
-                    font-weight: 500;
-                }
-
-                .action-buttons {
-                    display: flex;
-                    gap: 4px;
-                }
-
-                .action-btn {
-                    width: 28px;
-                    height: 28px;
-                    border: 1px solid #d1d5db;
-                    background: white;
-                    border-radius: 50%;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 12px;
-                }
-
-                .action-btn:hover {
-                    background: #f3f4f6;
-                }
-
-                .loading-container {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 60px 20px;
-                }
-
-                .loading-spinner {
-                    width: 40px;
-                    height: 40px;
-                    border: 4px solid #e5e7eb;
-                    border-top: 4px solid #2563eb;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                    margin-bottom: 16px;
-                }
-
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-
-                .error-container {
-                    padding: 40px 20px;
-                    background: #fef2f2;
-                    border: 1px solid #fecaca;
-                    border-radius: 8px;
-                    text-align: center;
-                    max-width: 500px;
-                    margin: 40px auto;
-                }
-
-                .error-content h3 {
-                    margin: 0 0 12px 0;
-                    color: #dc2626;
-                    font-size: 18px;
-                }
-
-                .error-content p {
-                    margin: 0 0 16px 0;
-                    font-size: 14px;
-                    line-height: 1.5;
-                }
-
-                .empty-state {
-                    text-align: center;
-                    padding: 20px;
-                }
-
-                .empty-icon {
-                    font-size: 48px;
-                    margin-bottom: 16px;
-                }
-
-                .empty-state h3 {
-                    margin: 0 0 8px 0;
-                    color: #374151;
-                    font-size: 18px;
-                }
-
-                .empty-state p {
-                    margin: 0 0 16px 0;
-                    color: #6b7280;
-                    font-size: 14px;
-                }
-
-                @media (max-width: 768px) {
-                    .orders-page {
-                        padding: 16px;
-                    }
-
-                    .orders-header {
-                        flex-direction: column;
-                        gap: 16px;
-                        align-items: flex-start;
-                    }
-
-                    .status-tabs {
-                        overflow-x: auto;
-                        white-space: nowrap;
-                    }
-
-                    .search-filter-bar {
-                        flex-direction: column;
-                        gap: 12px;
-                    }
-
-                    .search-container {
-                        max-width: none;
-                    }
-
-                    .orders-table-container {
-                        overflow-x: auto;
-                    }
-                }
-            `}</style>
         </div>
     );
 };

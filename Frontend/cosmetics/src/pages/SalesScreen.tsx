@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './SalesScreen.css';
 import type { Order, OrderItem } from '../types/order';
 import type { Product } from '../types/product';
@@ -7,6 +8,7 @@ import { OrderSummary } from '../components/sales/OrderSummary';
 import { productApi } from '../api/productApi';
 
 export const SalesScreen: React.FC = () => {
+    const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -97,7 +99,7 @@ export const SalesScreen: React.FC = () => {
     // Xóa khỏi order
     const removeFromOrder = (productId: number) => {
         const updatedItems = currentOrder.items.filter(
-            item => item.product.id !== productId
+            item => item.productId.id !== productId
         );
         updateOrder(updatedItems);
     };
@@ -144,8 +146,10 @@ export const SalesScreen: React.FC = () => {
                                     marginRight: '16px',
                                     fontWeight: 'bold',
                                     fontSize: '25px',
-                                    color: '#2c3e50'
+                                    color: '#2c3e50',
+                                    cursor: 'pointer'
                                 }}
+                                onClick={() => navigate('/')}
                             >
                                 CosmeticsPOS
                             </div>
@@ -164,6 +168,29 @@ export const SalesScreen: React.FC = () => {
                                     <i className="fa-solid fa-magnifying-glass"></i>
                                 </form>
                             </div>
+
+                            {/* Filter Icon */}
+                            <button
+                                className="filter-icon-btn"
+                                style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    border: 'none',
+                                    borderRadius: '0px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: 'transparent',
+                                    color: '#ffffff',   // màu trắng
+                                    marginLeft: '12px',
+                                    fontSize: '18px',
+                                    outline: 'none'
+                                }}
+                            >
+                                <i className="fa-solid fa-filter"></i>
+                            </button>
+
                         </li>
                     </ul>
 

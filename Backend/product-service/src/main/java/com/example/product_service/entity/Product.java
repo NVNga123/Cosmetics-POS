@@ -1,53 +1,49 @@
 package com.example.product_service.entity;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.DynamicUpdate;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
 @Table(name = "product")
-@DynamicUpdate
-public class Product extends AbstractAuditing<Integer> {
+public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "id", nullable = false, length = 255)
+    private String id;
 
-    @Column(name = "brand")
+    @Column(name = "brand", length = 255)
     private String brand;
 
-    @Column(name = "category")
+    @Column(name = "category", length = 255)
     private String category;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(name = "description", length = 255)
     private String description;
 
     @Column(name = "discount")
-    private BigDecimal discount;   // có thể là số tiền giảm hoặc % giảm
+    private Double discount;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", length = 255)
     private String name;
 
-    @Column(name = "price", precision = 18, scale = 2, nullable = false)
-    private BigDecimal price;
+    @Column(name = "price")
+    private Long price;
 
-    @Column(name = "slug", unique = true)
+    @Column(name = "slug", length = 255)
     private String slug;
 
     @Column(name = "stock")
     private Integer stock;
 
-    @Column(name = "image")
+    @Column(name = "image", length = 255)
     private String image;
 
-    @Override
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -75,11 +71,11 @@ public class Product extends AbstractAuditing<Integer> {
         this.description = description;
     }
 
-    public BigDecimal getDiscount() {
+    public Double getDiscount() {
         return discount;
     }
 
-    public void setDiscount(BigDecimal discount) {
+    public void setDiscount(Double discount) {
         this.discount = discount;
     }
 
@@ -91,11 +87,11 @@ public class Product extends AbstractAuditing<Integer> {
         this.name = name;
     }
 
-    public BigDecimal getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 
@@ -139,7 +135,7 @@ public class Product extends AbstractAuditing<Integer> {
     @Override
     public String toString() {
         return "Product{" +
-                "id=" + id +
+                "id='" + id + '\'' +
                 ", brand='" + brand + '\'' +
                 ", category='" + category + '\'' +
                 ", description='" + description + '\'' +
