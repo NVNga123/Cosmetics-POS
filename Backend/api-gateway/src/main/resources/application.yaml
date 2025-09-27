@@ -47,4 +47,9 @@ spring:
             - Path=${app.api-prefix}/identity/**
           filters:
             - StripPrefix=2
-
+        - id: product_service
+          uri: lb://product_service
+          predicates:
+            - Path=${app.api-prefix}/products/**
+          filters:
+            - StripPrefix=2
