@@ -945,4 +945,305 @@
   }
 }
 
+/* Logo Container */
+.logo-container {
+  margin-right: 16px;
+  font-weight: bold;
+  font-size: 25px;
+  color: #2c3e50;
+  cursor: pointer;
+}
+
+/* Filter Icon Button */
+.filter-icon-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 0px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #ffffff;
+  margin-left: 12px;
+  font-size: 18px;
+  outline: none;
+}
+
+.filter-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Order Selection */
+.order-selection {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  align-items: center;
+  min-height: 40px;
+}
+
+
+/* Order Tab Container */
+.order-tab-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 100%;
+}
+
+/* Order Tab */
+.order-tab {
+  padding: 8px 20px;
+  margin-left: -20px;
+  border: none;
+  background: #3C95FB;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: white;
+  transition: all 0.2s;
+  position: relative;
+  padding-right: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  line-height: 1;
+  outline: none;
+  box-shadow: none;
+  min-width: 60px;
+}
+
+.order-tab:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.order-tab:hover {
+  background: #1E5BB8 !important;
+  border: none !important;
+  outline: none !important;
+  padding: 28.5px 24px !important;
+  padding-right: 34px !important; /* More space for X button */
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.order-tab.active {
+  background: #1E5BB8 !important;
+  border: none !important;
+  outline: none !important;
+  padding: 28px 30px !important;
+  padding-right: 34px !important; /* More space for X button */
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+/* Delete Order Button - Inside Tab */
+.delete-order-btn {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 30px;
+  height: 30px;
+  background: none;
+  color: #dc3545;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  transition: all 0.2s;
+  opacity: 0.9;
+}
+
+/* Current Order Tab */
+.current-order-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 100%;
+}
+
+/* Order Dropdown */
+.order-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #3C95FB;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  position: relative;
+  outline: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.dropdown-trigger:hover {
+  background: #2B7CE8;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.dropdown-trigger:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.dropdown-trigger:active {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.badge {
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 200px;
+  display: none;
+}
+
+.order-dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-header {
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  font-weight: 600;
+  color: #333;
+  font-size: 12px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background: #f8f9fa;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item span {
+  font-size: 14px;
+  color: #333;
+}
+
+.remove-order-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: #dc3545;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: all 0.2s;
+}
+
+.remove-order-btn:hover {
+  background-color: #dcdcdc;
+  color: #1c3cca;
+}
+
+/* Add Order Button */
+.add-order-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  color: white;
+  border: 1px dashed #3C95FB;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  outline: none;
+  box-shadow: none;
+}
+
+.add-order-btn:hover {
+  background: #3C95FB;
+  color: white;
+  border: 1px dashed #3C95FB;
+  outline: none;
+  box-shadow: none;
+}
+
+.add-order-btn:focus {
+  outline: none;
+  border: 1px dashed #3C95FB;
+  box-shadow: none;
+}
 

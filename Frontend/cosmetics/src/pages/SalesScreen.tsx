@@ -6,6 +6,7 @@ import type { Product } from '../types/product';
 import { ProductCard } from '../components/sales/ProductCard';
 import { OrderSummary } from '../components/sales/OrderSummary';
 import { productApi } from '../api/productApi';
+import { orderApi } from '../api/orderApi';
 
 export const SalesScreen: React.FC = () => {
     const navigate = useNavigate();
@@ -15,17 +16,58 @@ export const SalesScreen: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const [currentOrder, setCurrentOrder] = useState<Order>({
-        id: 'ORD-001',
+    const createNewOrder = (index: number): Order => ({
+        orderId: index,
+        code: `ĐH-${index}`,
+        customerName: '',
+        total: 0,
+        status: 'NEW',
+        createdAt: new Date().toISOString(),
         items: [],
+        notes: '',
         subtotal: 0,
         discount: 0,
         tax: 0,
-        total: 0,
-        customerName: '',
-        customerPhone: '',
-        notes: ''
     });
+
+    const [orders, setOrders] = useState<Order[]>([createNewOrder(1)]);
+    const [activeOrderIndex, setActiveOrderIndex] = useState(0);
+
+    const onSwitchOrder = (index: number) => {
+        setActiveOrderIndex(index);
+    };
+
+    const [customerName, setCustomerName] = useState('Khách lẻ');
+    const [notes, setNotes] = useState('');
+
+    // new order
+    const handleAddOrder = () => {
+        const newIndex = Math.max(...orders.map(o => o.orderId)) + 1;
+        const newOrder = createNewOrder(newIndex);
+        console.log('Creating new order:', newOrder);
+        setOrders(prev => {
+            const newOrders = [...prev, newOrder];
+            console.log('Updated orders:', newOrders);
+            return newOrders;
+        });
+        setActiveOrderIndex(orders.length);
+    };
+
+    // delete order
+    const handleDeleteOrder = (index: number) => {
+        if (orders.length <= 1) return; // Không cho xóa đơn cuối cùng
+        
+        const newOrders = orders.filter((_, i) => i !== index);
+        setOrders(newOrders);
+        
+        // Điều chỉnh activeOrderIndex nếu cần
+        if (activeOrderIndex >= newOrders.length) {
+            setActiveOrderIndex(newOrders.length - 1);
+        } else if (activeOrderIndex > index) {
+            setActiveOrderIndex(activeOrderIndex - 1);
+        }
+    };
+
 
     // Fetch products từ API
     useEffect(() => {
@@ -44,7 +86,7 @@ export const SalesScreen: React.FC = () => {
         fetchProducts();
     }, []);
 
-    // Lọc sản phẩm theo category + search
+    // filter category + search
     const filteredProducts = products.filter(product => {
         const matchesCategory =
             selectedCategory === null || product.category === selectedCategory;
@@ -56,12 +98,12 @@ export const SalesScreen: React.FC = () => {
 
     // Thêm sản phẩm vào order
     const addToOrder = (product: Product) => {
-        const existingItem = currentOrder.items.find(
+        const existingItem = orders[activeOrderIndex].items.find(
             item => item.product.id === product.id
         );
 
         if (existingItem) {
-            const updatedItems = currentOrder.items.map(item =>
+            const updatedItems = orders[activeOrderIndex].items.map(item =>
                 item.product.id === product.id
                     ? {
                         ...item,
@@ -77,7 +119,7 @@ export const SalesScreen: React.FC = () => {
                 quantity: 1,
                 total: product.price
             };
-            updateOrder([...currentOrder.items, newItem]);
+            updateOrder([...orders[activeOrderIndex].items, newItem]);
         }
     };
 
@@ -87,31 +129,35 @@ export const SalesScreen: React.FC = () => {
         const tax = subtotal * 0.1; // VAT 10%
         const total = subtotal + tax;
 
-        setCurrentOrder(prev => ({
-            ...prev,
-            items,
-            subtotal,
-            tax,
-            total
-        }));
+        setOrders(prev => {
+            const newOrders = [...prev];
+            newOrders[activeOrderIndex] = {
+                ...orders[activeOrderIndex],
+                items,
+                subtotal,
+                tax,
+                total,
+            };
+            return newOrders;
+        });
     };
 
     // Xóa khỏi order
-    const removeFromOrder = (productId: number) => {
-        const updatedItems = currentOrder.items.filter(
-            item => item.productId.id !== productId
+    const removeFromOrder = (productId: string) => {
+        const updatedItems = orders[activeOrderIndex].items.filter(
+            item => item.product.id !== productId
         );
         updateOrder(updatedItems);
     };
 
     // Update số lượng trong order
-    const updateQuantity = (productId: number, quantity: number) => {
+    const updateQuantity = (productId: string, quantity: number) => {
         if (quantity <= 0) {
             removeFromOrder(productId);
             return;
         }
 
-        const updatedItems = currentOrder.items.map(item =>
+        const updatedItems = orders[activeOrderIndex].items.map(item =>
             item.product.id === productId
                 ? { ...item, quantity, total: quantity * item.product.price }
                 : item
@@ -119,17 +165,87 @@ export const SalesScreen: React.FC = () => {
         updateOrder(updatedItems);
     };
 
+    // Build order data for API
+    const buildOrderData = (status: string) => ({
+        items: orders[activeOrderIndex].items.map(item => ({
+            productId: item.product.id,
+            productName: item.product.name,
+            price: item.product.price,
+            quantity: item.quantity,
+            subtotal: item.total,
+        })),
+        subtotal: orders[activeOrderIndex].subtotal,
+        discount: 0,
+        tax: orders[activeOrderIndex].tax,
+        total: orders[activeOrderIndex].total,
+        customerName: customerName,
+        notes: notes,
+        status: status,
+    });
+
+    // Handle save order
+    const handleSaveOrder = async () => {
+        try {
+            const orderData = buildOrderData('DRAFT');
+            console.log('Saving draft order:', orderData);
+            const result = await orderApi.submitOrder(orderData);
+
+            if (result?.id) {
+                setOrders(prev => {
+                    const newOrders = [...prev];
+                    newOrders[activeOrderIndex] = {
+                        ...orders[activeOrderIndex],
+                        orderId: result.id,
+                    };
+                    return newOrders;
+                });
+            }
+
+            alert('Đơn hàng đã được lưu dưới dạng nháp!');
+        } catch (error: any) {
+            console.error('Error saving draft order:', error);
+            alert(`Có lỗi khi lưu đơn: ${error.message}`);
+        }
+    };
+
+    // Handle checkout
+    const handleCheckout = async () => {
+        try {
+            const orderData = buildOrderData('COMPLETED');
+            console.log('Submitting completed order:', orderData);
+            const result = await orderApi.submitOrder(orderData);
+
+            if (result?.id) {
+                setOrders(prev => {
+                    const newOrders = [...prev];
+                    newOrders[activeOrderIndex] = {
+                        ...orders[activeOrderIndex],
+                        orderId: result.id,
+                        status: 'COMPLETED',
+                    };
+                    return newOrders;
+                });
+            }
+
+            alert('Đơn hàng đã được thanh toán thành công!');
+            
+            // Reset order after successful checkout
+            const newIndex = Math.max(...orders.map(o => o.orderId)) + 1;
+            const newOrder = createNewOrder(newIndex);
+            setOrders(prev => [...prev, newOrder]);
+            setActiveOrderIndex(orders.length);
+            setCustomerName('Khách lẻ');
+            setNotes('');
+        } catch (error: any) {
+            console.error('Error submitting order:', error);
+            alert(`Có lỗi xảy ra khi thanh toán: ${error.message}`);
+        }
+    };
+
+
     return (
         <div
             className={`pos-customer ${!sidebarOpen ? 'hidden-sidebar' : ''}`}
-            style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                zIndex: 1000
-            }}
         >
             {/* Main Content */}
             <div
@@ -142,13 +258,6 @@ export const SalesScreen: React.FC = () => {
                             {/* Logo */}
                             <div
                                 className="logo-container"
-                                style={{
-                                    marginRight: '16px',
-                                    fontWeight: 'bold',
-                                    fontSize: '25px',
-                                    color: '#2c3e50',
-                                    cursor: 'pointer'
-                                }}
                                 onClick={() => navigate('/')}
                             >
                                 CosmeticsPOS
@@ -172,21 +281,6 @@ export const SalesScreen: React.FC = () => {
                             {/* Filter Icon */}
                             <button
                                 className="filter-icon-btn"
-                                style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    border: 'none',
-                                    borderRadius: '0px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    background: 'transparent',
-                                    color: '#ffffff',   // màu trắng
-                                    marginLeft: '12px',
-                                    fontSize: '18px',
-                                    outline: 'none'
-                                }}
                             >
                                 <i className="fa-solid fa-filter"></i>
                             </button>
@@ -220,15 +314,20 @@ export const SalesScreen: React.FC = () => {
 
                 {/* Right Sidebar - Order Summary */}
                 <OrderSummary
-                    order={currentOrder}
+                    order={orders[activeOrderIndex]}
+                    orders={orders}
+                    activeOrderIndex={activeOrderIndex}
+                    customerName={customerName}
+                    notes={notes}
                     onUpdateQuantity={updateQuantity}
                     onRemoveItem={removeFromOrder}
-                    onCheckout={() => {
-                        console.log('Checkout:', currentOrder);
-                    }}
-                    onCancel={() => {
-                        console.log('Cancel order');
-                    }}
+                    onCheckout={handleCheckout}
+                    onSaveOrder={handleSaveOrder}
+                    onCustomerNameChange={setCustomerName}
+                    onNotesChange={setNotes}
+                    onAddOrder={handleAddOrder}
+                    onSwitchOrder={setActiveOrderIndex}
+                    onDeleteOrder={handleDeleteOrder}
                 />
             </div>
         </div>
