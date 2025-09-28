@@ -3,9 +3,11 @@ import { orderApi } from "../api/orderApi";
 import type { Order } from "../types/order";
 import { OrderDetailModal } from "../features/orders/components/OrderDetailModal";
 import "./Orders.css";
+import {useNavigate} from "react-router-dom";
 
 export const Orders: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -127,7 +129,10 @@ export const Orders: React.FC = () => {
             <div className="orders-header">
             <h1>Danh sách đơn hàng</h1>
                 <div className="header-actions">
-                    <button className="btn btn-primary">
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => navigate("/user/sales")}
+                    >
                         <span className="icon">+</span>
                         Thêm ĐH
                     </button>
