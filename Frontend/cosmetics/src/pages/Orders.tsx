@@ -151,30 +151,24 @@ export const Orders: React.FC = () => {
                 ))}
             </div>
 
-            {/* Search and Filter Bar */}
-            <div className="search-filter-bar">
-                <div className="search-container">
-                    <span className="search-icon">🔍</span>
-                    <input
-                        type="text"
-                        placeholder="Tên KH, mã ĐH, mã CQT"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="search-input"
-                    />
+            {/* Main Content Container */}
+            <div className="main-content-container">
+                {/* Search Bar */}
+                <div className="search-filter-bar">
+                    <div className="search-container">
+                        <span className="fa fa-search search-icon"></span>
+                        <input
+                            type="text"
+                            placeholder="Tên KH, mã ĐH, mã CQT"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="search-input"
+                        />
+                    </div>
                 </div>
-                <div className="filter-actions">
-                    <button className="filter-btn">
-                        <span className="icon">⚙️</span>
-                    </button>
-                    <button className="filter-btn">
-                        <span className="icon">🔽</span>
-                    </button>
-                </div>
-            </div>
 
-            {/* Orders Table */}
-            <div className="orders-table-container">
+                {/* Orders Table */}
+                <div className="orders-table-container">
                 <table className="orders-table">
                     <thead>
                     <tr>
@@ -183,9 +177,9 @@ export const Orders: React.FC = () => {
                             <th>Thông tin KH</th>
                             <th>Ngày tạo</th>
                             <th>Mã cơ quan thuế</th>
-                        <th>Tổng tiền</th>
+                            <th>Tổng tiền</th>
                             <th>Hình thức TT</th>
-                        <th>Trạng thái</th>
+                            <th>Trạng thái</th>
                             <th>Thao tác</th>
                     </tr>
                     </thead>
@@ -241,6 +235,7 @@ export const Orders: React.FC = () => {
                         )}
                     </tbody>
                 </table>
+                </div>
             </div>
 
             {/* Order Detail Modal */}

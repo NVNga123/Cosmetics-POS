@@ -2,6 +2,7 @@
     padding: 20px;
     background: #f8fafc;
     min-height: 100vh;
+    position: relative;
 }
 
 .orders-header {
@@ -9,11 +10,11 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    position: sticky;
-    top: 50px;
-    left: 0;
-    right: 0;
-    background: transparent;
+    position: fixed;
+    top: 70px;
+    left: 20px;
+    right: 20px;
+    background: #f8fafc;
     z-index: 99;
     padding: 10px 20px;
 }
@@ -31,24 +32,26 @@
 }
 
 .btn {
-    padding: 8px 16px;
+    padding: 10px 12px;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    height: 32px;
+    white-space: nowrap;
 }
 
 .btn-primary {
-    background: #2563eb;
+    background: #2c77d5;
     color: white;
 }
 
 .btn-primary:hover {
-    background: #1d4ed8;
+    background: #1a4a87;
 }
 
 .btn-secondary {
@@ -66,12 +69,12 @@
 }
 
 .icon {
-    font-size: 16px;
+    font-size: 12px;
 }
 
 .dropdown-arrow {
-    font-size: 10px;
-    margin-left: 4px;
+    font-size: 8px;
+    margin-left: 2px;
 }
 
 .status-tabs {
@@ -81,7 +84,7 @@
     margin-bottom: 20px;
     border-bottom: 1px solid #e5e7eb;
     position: fixed;
-    top: 100px;
+    top: 120px;
     left: 20px;
     right: 20px;
     background: #ffffff;
@@ -90,10 +93,13 @@
     border-radius: 3px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     max-width: calc(100% - 40px);
+    justify-content: flex-start;
+    width: 90%;
+    margin-left: 3.5%;
 }
 
 .tab {
-    padding: 12px 20px;
+    padding: 12px 16px;
     border: none;
     background: none;
     cursor: pointer;
@@ -102,6 +108,8 @@
     border-bottom: 1px solid transparent;
     transition: all 0.2s;
     outline: none;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .tab:hover {
@@ -120,22 +128,28 @@
     outline: none;
 }
 
+/* Main Content Container */
+.main-content-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-top: 170px;
+    margin-left: 20px;
+    margin-right: 20px;
+    width: calc(100% - 40px);
+    overflow: hidden;
+}
+
 .search-filter-bar {
     display: flex;
+    height: 40px;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    margin-top: 60px;
-    padding: 2px 10px;
+    padding: 12px 16px;
     background: white;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 150px;
-    z-index: 97;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative;
+    z-index: 1;
 }
 
 .search-container {
@@ -146,21 +160,24 @@
 
 .search-icon {
     position: absolute;
-    left: 8px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
     color: #6b7280;
     font-size: 12px;
+    z-index: 2;
 }
 
 .search-input {
     width: 100%;
-    padding: 1px 2px 1px 15px;
-    border: none;
+    height: 30px;
+    padding: 1px 2px 1px 30px;
+    border: 1px solid #d1d5db;
     border-radius: 4px;
     font-size: 12px;
     background: white;
     color: #000000;
+    text-align: left;
 }
 
 .search-input:focus {
@@ -207,14 +224,38 @@
 
 .orders-table-container {
     background: white;
-    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    max-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    width: 100%;
 }
 
 .orders-table {
     width: 100%;
     border-collapse: collapse;
+    display: flex;
+    flex-direction: column;
+}
+
+.orders-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f8fafc;
+}
+
+.orders-table tbody {
+    overflow-y: auto;
+    max-height: calc(100vh - 400px);
+    display: block;
+}
+
+.orders-table tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
 }
 
 .orders-table th {
@@ -225,6 +266,9 @@
     color: #374151;
     border-bottom: 1px solid #e5e7eb;
     font-size: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .orders-table td {

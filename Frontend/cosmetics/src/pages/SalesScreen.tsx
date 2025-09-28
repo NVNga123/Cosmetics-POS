@@ -264,9 +264,9 @@ export const SalesScreen: React.FC = () => {
                             </div>
 
                             {/* Search */}
-                            <div className="search-form">
-                                <form className="search-product-order">
-                                    <div className="search-input">
+                            <div className="search-form-cart">
+                                <form className="search-product-order-cart">
+                                    <div className="search-input-cart">
                                         <input
                                             type="search"
                                             placeholder="Tìm kiếm sản phẩm..."
