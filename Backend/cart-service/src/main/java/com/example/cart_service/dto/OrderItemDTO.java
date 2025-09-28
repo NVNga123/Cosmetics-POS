@@ -9,7 +9,7 @@ import java.util.Objects;
 public class OrderItemDTO {
 
     @NotNull(message = "Product ID cannot be null")
-    private Integer productId;
+    private String productId;
 
     @NotBlank(message = "Product name cannot be blank")
     private String productName;
@@ -24,11 +24,11 @@ public class OrderItemDTO {
     private double subtotal;
 
 
-    public Integer getProductId() {
+    public String getProductId() {
         return productId;
     }
 
-    public void setProductId(Integer productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 

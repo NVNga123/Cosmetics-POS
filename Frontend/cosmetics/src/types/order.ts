@@ -1,25 +1,25 @@
-import type {Product} from "./product.ts";
-
-export interface OrderItem {
-    product: Product;
-    quantity: number;
+export interface Order {
+    orderId: number;
+    code: string;
+    customerName: string;
     total: number;
+    status: string;
+    createdAt: string;
+    items: OrderItem[];
+    notes: string;
 }
 
-export interface Order {
-    id: number;
-    items: OrderItem[];
+export interface OrderItem {
+    productId: string;
+    productName: string | null;
+    price: number;
+    quantity: number;
     subtotal: number;
-    discount: number;
-    tax: number;
-    total: number;
-    customerName: string;
-    notes: string;
 }
 
 export interface OrderSubmitData {
   items: {
-    productId: number;
+    productId: string;
     productName: string;
     price: number;
     quantity: number;
@@ -31,12 +31,22 @@ export interface OrderSubmitData {
   total: number;
   customerName: string;
   notes: string;
+  status : string;
 }
 
 export interface OrderSummaryProps {
     order: Order;
+    orders: Order[];
+    activeOrderIndex: number;
+    customerName: string;
+    notes: string;
     onUpdateQuantity: (productId: string, quantity: number) => void;
     onRemoveItem: (productId: string) => void;
     onCheckout: () => void;
-    onCancel: () => void;
+    onSaveOrder: () => void;
+    onCustomerNameChange: (name: string) => void;
+    onNotesChange: (notes: string) => void;
+    onAddOrder: () => void;
+    onSwitchOrder: (index: number) => void;
+    onDeleteOrder: (index: number) => void;
 }

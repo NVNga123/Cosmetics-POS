@@ -30,6 +30,7 @@ public class OrderSubmitDTO {
 
     private String notes;
 
+    private String status;
 
     public List<OrderItemDTO> getItems() {
         return items;
@@ -87,6 +88,27 @@ public class OrderSubmitDTO {
         this.notes = notes;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OrderSubmitDTO that = (OrderSubmitDTO) o;
+        return Double.compare(subtotal, that.subtotal) == 0 && Double.compare(discount, that.discount) == 0 && Double.compare(tax, that.tax) == 0 && Double.compare(total, that.total) == 0 && Objects.equals(items, that.items) && Objects.equals(customerName, that.customerName) && Objects.equals(notes, that.notes) && Objects.equals(status, that.status);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(items, subtotal, discount, tax, total, customerName, notes, status);
+    }
+
     @Override
     public String toString() {
         return "OrderSubmitDTO{" +
@@ -97,24 +119,7 @@ public class OrderSubmitDTO {
                 ", total=" + total +
                 ", customerName='" + customerName + '\'' +
                 ", notes='" + notes + '\'' +
+                ", status='" + status + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof OrderSubmitDTO that)) return false;
-        return Double.compare(that.subtotal, subtotal) == 0 &&
-                Double.compare(that.discount, discount) == 0 &&
-                Double.compare(that.tax, tax) == 0 &&
-                Double.compare(that.total, total) == 0 &&
-                Objects.equals(items, that.items) &&
-                Objects.equals(customerName, that.customerName) &&
-                Objects.equals(notes, that.notes);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(items, subtotal, discount, tax, total, customerName, notes);
     }
 }

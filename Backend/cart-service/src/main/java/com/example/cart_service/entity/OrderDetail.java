@@ -17,7 +17,7 @@ public class OrderDetail extends AbstractAuditing<Integer> {
     private Integer id;
 
     @Column(name = "product_id")
-    private Integer productId;
+    private String productId;
 
     @Column(name = "quantity_product")
     private Integer quantityProduct;
@@ -44,11 +44,11 @@ public class OrderDetail extends AbstractAuditing<Integer> {
         this.id = id;
     }
 
-    public Integer getProductId() {
+    public String getProductId() {
         return productId;
     }
 
-    public void setProductId(Integer productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 

@@ -20,7 +20,7 @@ export const UserLayout = ({ children }: UserLayoutProps) => {
       <main style={{ 
         minHeight: 'calc(100vh - 120px)', 
         padding: '2rem',
-        background: '#f8f9fa'
+        background: '#f8f9fa',
       }}>
         {children}
       </main>
