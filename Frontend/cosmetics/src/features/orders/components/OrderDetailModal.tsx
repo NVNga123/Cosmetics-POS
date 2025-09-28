@@ -150,8 +150,8 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ order, isOpe
           <button className="btn btn-secondary" onClick={onClose}>
             Đóng
           </button>
-          <button className="btn btn-primary">
-            In hóa đơn
+          <button className="btn btn-primary ">
+            ☰
           </button>
         </div>
       </div>

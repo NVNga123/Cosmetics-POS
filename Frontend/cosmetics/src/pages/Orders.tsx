@@ -201,41 +201,43 @@ export const Orders: React.FC = () => {
                             </tr>
                         ) : (
                             filteredOrders.map((order, index) => (
-                        <tr key={order.orderId}>
-                                <td>{index + 1}</td>
-                                <td>{order.code}</td>
-                                <td>
-                                    <div className="customer-info">
-                                        <span>Tên khách hàng: {order.customerName || 'Khách lẻ'}</span>
-                                        <span className="link-icon">🔗</span>
-                                    </div>
-                                </td>
-                                <td>{new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
-                                <td></td>
-                                <td>{formatPrice(order.total)}</td>
-                                <td>TM/CK</td>
-                                <td>
-                                    <span 
+                                <tr key={order.orderId}>
+                                    <td>{index + 1}</td>
+                                    <td
+                                        onClick={() => handleViewOrder(order)}
+                                        title="Xem chi tiết"
+                                        style={{cursor: "pointer"}}
+                                    >
+                                        {order.code}
+                                    </td>
+
+                                    <td>
+                                        <div className="customer-info">
+                                            <span>Tên khách hàng: {order.customerName || 'Khách lẻ'}</span>
+                                        </div>
+                                    </td>
+                                    <td>{new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
+                                    <td></td>
+                                    <td>{formatPrice(order.total)}</td>
+                                    <td>TM/CK</td>
+                                    <td>
+                                    <span
                                         className="status-badge"
-                                        style={{ color: getStatusColor(order.status) }}
+                                        style={{color: getStatusColor(order.status)}}
                                     >
                                         {getStatusText(order.status)}
                                     </span>
-                                </td>
-                                <td>
-                                    <div className="action-buttons">
-                                        <button 
-                                            className="action-btn" 
+                                    </td>
+                                    <td>
+                                        <button
+                                            className="action-btn menu-btn"
                                             onClick={() => handleViewOrder(order)}
                                             title="Xem chi tiết"
                                         >
-                                            👁️
+                                            ☰
                                         </button>
-                                        <button className="action-btn" title="Chỉnh sửa">✏️</button>
-                                        <button className="action-btn" title="Thêm tùy chọn">⋮</button>
-                                    </div>
-                                </td>
-                        </tr>
+                                    </td>
+                                </tr>
                             ))
                         )}
                     </tbody>

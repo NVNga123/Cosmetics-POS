@@ -28,25 +28,25 @@
     align-items: center;
     padding: 20px 24px;
     border-bottom: 1px solid #e5e7eb;
-    background: #f8fafc;
+    background: #3C95FB;
 }
 
 .modal-header h2 {
     margin: 0;
     font-size: 20px;
     font-weight: 600;
-    color: #111827;
+    color: #ffffff;
 }
 
 .close-button {
-    background: #ef4444;
-    color: white;
+    background: none;
+    color: #ffffff;
     border: none;
     border-radius: 50%;
     width: 32px;
     height: 32px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -54,7 +54,7 @@
 }
 
 .close-button:hover {
-    background: #dc2626;
+    background: #999a9c;
 }
 
 .modal-body {
@@ -222,32 +222,81 @@
     background: #f8fafc;
 }
 
-.btn {
-    padding: 8px 16px;
+/* Modal Footer Buttons */
+.modal-footer .btn {
+    padding: 4px 8px;
+    font-size: 15px;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    white-space: nowrap;
     transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
-.btn-secondary {
-    background: #6b7280;
+.modal-footer .btn-secondary {
+    background: #7f8695;
     color: white;
+    margin-right: -10px;
+    height: 30px;
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    border-radius: 8px;
 }
 
-.btn-secondary:hover {
+.modal-footer .btn-secondary:hover {
     background: #4b5563;
 }
 
-.btn-primary {
-    background: #2563eb;
-    color: white;
+.modal-footer .btn-secondary:focus {
+    outline: none;
+    box-shadow: none;
+    border: none;
 }
 
-.btn-primary:hover {
-    background: #1d4ed8;
+.modal-footer .btn-secondary:active {
+    outline: none;
+    box-shadow: none;
+    border: none;
+}
+
+.modal-footer .btn-primary {
+    background: #2c77d5;
+    color: white;
+    margin-left: 8px;
+    height: 30px;
+    width: 30px;
+    min-width: 40px;
+    max-width: 40px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    border-radius: 8px;
+}
+
+.modal-footer .btn-primary:hover {
+    background: #1a4a87;
+}
+
+.modal-footer .btn-primary:focus {
+    outline: none;
+    box-shadow: none;
+    border: none;
+}
+
+.modal-footer .btn-primary:active {
+    outline: none;
+    box-shadow: none;
+    border: none;
 }
 
 @media (max-width: 768px) {
