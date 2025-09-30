@@ -17,7 +17,6 @@ public class OrderMapper {
 
     public Order toEntity(OrderSubmitDTO dto) {
         Order order = new Order();
-        order.setId(dto.getId());
         order.setCustomerName(dto.getCustomerName());
         order.setTotalAmount(dto.getSubtotal());
         order.setTotalDiscount(dto.getDiscount());
