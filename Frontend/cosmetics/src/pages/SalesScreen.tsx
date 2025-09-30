@@ -21,13 +21,10 @@ export const SalesScreen: React.FC = () => {
         code: `ĐH-${index}`,
         customerName: '',
         total: 0,
-        status: 'NEW',
+        status: 'DRAFT',
         createdAt: new Date().toISOString(),
         items: [],
         notes: '',
-        subtotal: 0,
-        discount: 0,
-        tax: 0,
     });
 
     const [orders, setOrders] = useState<Order[]>([createNewOrder(1)]);

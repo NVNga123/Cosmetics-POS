@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface OrderService {
     Order save(OrderSubmitDTO orderSubmitDTO);
 
+    Order update(OrderSubmitDTO orderSubmitDTO);
+
     void delete(Integer id);
 
     Optional<Order> findOne(Integer id);

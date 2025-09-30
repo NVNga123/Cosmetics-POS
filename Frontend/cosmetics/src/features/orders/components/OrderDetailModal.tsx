@@ -54,18 +54,14 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
   const getStatusText = (status: string) => {
     switch (status.toUpperCase()) {
-      case 'NEW':
-        return 'Mới';
-      case 'PENDING':
-        return 'Chờ xử lý';
-      case 'PROCESSING':
-        return 'Đang xử lý';
+      case 'RETURNED':
+        return 'Đã trả hàng';
       case 'COMPLETED':
         return 'Đã hoàn thành';
       case 'CANCELLED':
         return 'Đã hủy';
       case 'DRAFT':
-        return 'Bản nháp';
+        return 'Chưa hoàn thành';
       default:
         return status;
     }
@@ -73,11 +69,9 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status.toUpperCase()) {
-      case 'NEW':
-        return '#3b82f6';
       case 'COMPLETED':
         return '#10b981';
-      case 'PENDING':
+      case 'RETURNED':
         return '#f59e0b';
       case 'CANCELLED':
         return '#ef4444';

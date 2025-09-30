@@ -2,6 +2,7 @@ package com.example.cart_service.service.implement;
 
 import com.example.cart_service.dto.OrderResponseDTO;
 import com.example.cart_service.dto.OrderSubmitDTO;
+import com.example.cart_service.entity.OrderDetail;
 import com.example.cart_service.service.OrderService;
 import com.example.cart_service.entity.Order;
 import com.example.cart_service.repository.OrderRepository;
@@ -31,10 +32,16 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order save(OrderSubmitDTO orderSubmitDTO) {
-        Order order = new Order();
-        order = orderMapper.toEntity(orderSubmitDTO);
+        Order order = orderMapper.toEntity(orderSubmitDTO);
         String code = redisService.genCode("DH");
         order.setCode(code);
+        return orderRepository.save(order);
+    }
+
+    public Order update(OrderSubmitDTO orderSubmitDTO) {
+        Order order = orderRepository.findById(orderSubmitDTO.getId())
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        order = orderMapper.updateEntity(orderSubmitDTO, order);
         return orderRepository.save(order);
     }
 
@@ -58,6 +65,5 @@ public class OrderServiceImpl implements OrderService {
             OrderResponseDTO dto = orderMapper.toDTO(order);
             return dto;
         }) .collect(Collectors.toList());
-
     }
 }

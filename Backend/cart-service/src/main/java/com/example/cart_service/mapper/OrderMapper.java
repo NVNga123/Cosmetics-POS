@@ -15,8 +15,9 @@ import java.util.stream.Collectors;
 @Component
 public class OrderMapper {
 
-    public static Order toEntity(OrderSubmitDTO dto) {
+    public Order toEntity(OrderSubmitDTO dto) {
         Order order = new Order();
+        order.setId(dto.getId());
         order.setCustomerName(dto.getCustomerName());
         order.setTotalAmount(dto.getSubtotal());
         order.setTotalDiscount(dto.getDiscount());
@@ -39,7 +40,19 @@ public class OrderMapper {
         return order;
     }
 
-    public static OrderResponseDTO toDTO(Order order) {
+    public Order updateEntity(OrderSubmitDTO dto, Order order) {
+        order.setCustomerName(dto.getCustomerName()!= null ? dto.getCustomerName() : order.getCustomerName());
+        order.setTotalAmount(dto.getSubtotal());
+        order.setTotalDiscount(dto.getDiscount());
+        order.setTaxAmount(dto.getTax());
+        order.setFinalPrice(dto.getTotal());
+        order.setNote(dto.getNotes());
+        order.setStatus(dto.getStatus() != null ? dto.getStatus() : order.getStatus());
+
+        return order;
+    }
+
+    public OrderResponseDTO toDTO(Order order) {
         OrderResponseDTO dto = new OrderResponseDTO();
         dto.setOrderId(order.getId());
         dto.setCode(order.getCode());

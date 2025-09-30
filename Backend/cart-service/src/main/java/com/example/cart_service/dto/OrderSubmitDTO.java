@@ -14,6 +14,9 @@ public class OrderSubmitDTO {
     @NotNull
     private List<OrderItemDTO> items;
 
+    @NotNull
+    private Integer id;
+
     @Min(0)
     private double subtotal;
 
@@ -34,6 +37,14 @@ public class OrderSubmitDTO {
 
     public List<OrderItemDTO> getItems() {
         return items;
+    }
+
+    public @NotNull Integer getId() {
+        return id;
+    }
+
+    public void setId(@NotNull Integer id) {
+        this.id = id;
     }
 
     public void setItems(List<OrderItemDTO> items) {
@@ -101,18 +112,19 @@ public class OrderSubmitDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OrderSubmitDTO that = (OrderSubmitDTO) o;
-        return Double.compare(subtotal, that.subtotal) == 0 && Double.compare(discount, that.discount) == 0 && Double.compare(tax, that.tax) == 0 && Double.compare(total, that.total) == 0 && Objects.equals(items, that.items) && Objects.equals(customerName, that.customerName) && Objects.equals(notes, that.notes) && Objects.equals(status, that.status);
+        return Double.compare(subtotal, that.subtotal) == 0 && Double.compare(discount, that.discount) == 0 && Double.compare(tax, that.tax) == 0 && Double.compare(total, that.total) == 0 && Objects.equals(items, that.items) && Objects.equals(id, that.id) && Objects.equals(customerName, that.customerName) && Objects.equals(notes, that.notes) && Objects.equals(status, that.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(items, subtotal, discount, tax, total, customerName, notes, status);
+        return Objects.hash(items, id, subtotal, discount, tax, total, customerName, notes, status);
     }
 
     @Override
     public String toString() {
         return "OrderSubmitDTO{" +
                 "items=" + items +
+                ", id=" + id +
                 ", subtotal=" + subtotal +
                 ", discount=" + discount +
                 ", tax=" + tax +
