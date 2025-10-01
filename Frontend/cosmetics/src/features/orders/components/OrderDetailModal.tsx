@@ -15,7 +15,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                                                                    }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -163,14 +163,14 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                       <div className="col-product">
                         <div className="product-info">
                       <span className="product-name">
-                        {item.productName || `Sản phẩm ${item.productId}`}
+                        {item.product?.name || `Sản phẩm ${item.product?.id || 'N/A'}`}
                       </span>
-                          <span className="product-id">ID: {item.productId}</span>
+                          <span className="product-id">ID: {item.product?.id || 'N/A'}</span>
                         </div>
                       </div>
-                      <div className="col-price">{formatPrice(item.price)}</div>
+                      <div className="col-price">{formatPrice(item.product?.price || 0)}</div>
                       <div className="col-quantity">{item.quantity}</div>
-                      <div className="col-total">{formatPrice(item.subtotal)}</div>
+                      <div className="col-total">{formatPrice(item.subtotal || 0)}</div>
                     </div>
                 ))}
               </div>
@@ -199,21 +199,18 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
               Đóng
             </button>
 
-            {/* Draft → Huỷ */}
             {order.status === 'DRAFT' && (
                 <button className="btn btn-warning btn-icon" onClick={handleCancelOrder}>
                   ✖ Huỷ
                 </button>
             )}
 
-            {/* Cancelled → Xoá */}
             {order.status === 'CANCELLED' && (
                 <button className="btn btn-danger btn-icon">
                   🗑️ Xoá
                 </button>
             )}
 
-             {/* Completed → Dropdown menu (Huỷ + Trả hàng) */}
              {order.status === 'COMPLETED' && (
                  <div className="dropdown-wrapper" ref={dropdownRef}>
                    <button

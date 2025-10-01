@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,7 +60,8 @@ public class OrderMapper {
         dto.setCustomerName(order.getCustomerName());
         dto.setTotal(order.getFinalPrice());
         dto.setStatus(order.getStatus());
-        dto.setCreatedAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(order.getCreatedDate().toEpochMilli()), java.time.ZoneId.systemDefault()));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        dto.setCreatedAt(order.getCreatedDate().atZone(ZoneId.systemDefault()).format(formatter));
         dto.setNotes(order.getNote());
 
         List<OrderItemDTO> items = order.getOrderDetails().stream().map(item -> {

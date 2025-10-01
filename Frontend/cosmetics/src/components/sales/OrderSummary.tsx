@@ -133,27 +133,27 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                     </div>
                 ) : (
                     order?.items?.map((item) => (
-                        <div key={item.product.id} className="order-item">
+                        <div key={item.product?.id || 'unknown'} className="order-item">
                           <div className="item-info">
-                            <h5>{item.product.name}</h5>
-                            <p>{item.product.price.toLocaleString()}đ</p>
+                            <h5>{item.product?.name || 'Sản phẩm không xác định'}</h5>
+                            <p>{item.product?.price?.toLocaleString() || '0'}đ</p>
                           </div>
                           <div className="item-controls">
                             <button
-                                onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)}
+                                onClick={() => onUpdateQuantity(item.product?.id || '', item.quantity - 1)}
                                 className="btn-quantity"
                             >
                               -
                             </button>
                             <span className="quantity">{item.quantity}</span>
                             <button
-                                onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)}
+                                onClick={() => onUpdateQuantity(item.product?.id || '', item.quantity + 1)}
                                 className="btn-quantity"
                             >
                               +
                             </button>
                             <button
-                                onClick={() => onRemoveItem(item.product.id)}
+                                onClick={() => onRemoveItem(item.product?.id || '')}
                                 className="btn-remove"
                             >
                               <i className="fa fa-trash"></i>
@@ -177,7 +177,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
 
             <div className="flex-between-center">
               <span>Tạm tính</span>
-              <span>{order?.subtotal?.toLocaleString()}đ</span>
+              <span>{order?.items?.reduce((sum, item) => sum + (item.subtotal || 0), 0)?.toLocaleString() || '0'}đ</span>
             </div>
 
             <div className="flex-between-center">
@@ -187,7 +187,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
 
             <div className="flex-between-center">
               <span>Thuế VAT (10%)</span>
-              <span>{order?.tax?.toLocaleString()}đ</span>
+              <span>{Math.round((order?.items?.reduce((sum, item) => sum + (item.subtotal || 0), 0) || 0) * 0.1)?.toLocaleString() || '0'}đ</span>
             </div>
 
             <div className="total-amount">

@@ -3,7 +3,7 @@ import { orderApi } from "../api/orderApi";
 import type { Order } from "../types/order";
 import { OrderDetailModal } from "../features/orders/components/OrderDetailModal";
 import "./Orders.css";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const Orders: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -15,23 +15,26 @@ export const Orders: React.FC = () => {
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-        const fetchOrders = async () => {
-            try {
+    const fetchOrders = async () => {
+        try {
             setLoading(true);
             setError(null);
-            console.log('Fetching orders...');
-                const data = await orderApi.getAll();
-            console.log('Orders received:', data);
+            console.log("Fetching orders...");
+            const data = await orderApi.getAll();
+            console.log("Orders received:", data);
             setOrders(data || []);
-            } catch (err: any) {
-            console.error('Error fetching orders:', err);
-            const errorMessage = err.response?.data?.message || err.message || "Lỗi khi tải đơn hàng";
+        } catch (err: any) {
+            console.error("Error fetching orders:", err);
+            const errorMessage =
+                err.response?.data?.message ||
+                err.message ||
+                "Lỗi khi tải đơn hàng";
             setError(errorMessage);
-            setOrders([]); // Set empty array on error
-            } finally {
-                setLoading(false);
-            }
-        };
+            setOrders([]); // reset rỗng nếu lỗi
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchOrders();
@@ -46,19 +49,19 @@ export const Orders: React.FC = () => {
         { key: "returned", label: "Bị trả hàng" },
         { key: "merged", label: "Đơn gộp" },
         { key: "split", label: "Đơn tách" },
-        { key: "replace", label: "Thay thế" }
+        { key: "replace", label: "Thay thế" },
     ];
 
     const getStatusText = (status: string) => {
         switch (status.toUpperCase()) {
-            case 'RETURNED':
-                return 'Đã trả hàng';
-            case 'COMPLETED':
-                return 'Đã hoàn thành';
-            case 'CANCELLED':
-                return 'Đã hủy';
-            case 'DRAFT':
-                return 'Chưa hoàn thành';
+            case "RETURNED":
+                return "Đã trả hàng";
+            case "COMPLETED":
+                return "Đã hoàn thành";
+            case "CANCELLED":
+                return "Đã hủy";
+            case "DRAFT":
+                return "Chưa hoàn thành";
             default:
                 return status;
         }
@@ -66,21 +69,21 @@ export const Orders: React.FC = () => {
 
     const getStatusColor = (status: string) => {
         switch (status.toUpperCase()) {
-            case 'COMPLETED':
-                return '#10b981';
-            case 'RETURNED':
-                return '#f59e0b';
-            case 'CANCELLED':
-                return '#ef4444';
-            case 'DRAFT':
-                return '#6b7280';
+            case "COMPLETED":
+                return "#10b981";
+            case "RETURNED":
+                return "#f59e0b";
+            case "CANCELLED":
+                return "#ef4444";
+            case "DRAFT":
+                return "#6b7280";
             default:
-                return '#6b7280';
+                return "#6b7280";
         }
     };
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('vi-VN').format(price);
+        return new Intl.NumberFormat("vi-VN").format(price);
     };
 
     const handleViewOrder = (order: Order) => {
@@ -93,39 +96,44 @@ export const Orders: React.FC = () => {
         setSelectedOrder(null);
     };
 
-    const filteredOrders = orders.filter(order => {
-        const matchesSearch = order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             order.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             order.orderId.toString().includes(searchTerm);
-        const matchesStatus = selectedStatus === "all" || order.status.toLowerCase() === selectedStatus.toLowerCase();
+    const filteredOrders = orders.filter((order) => {
+        const matchesSearch =
+            order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.orderId.toString().includes(searchTerm);
+        const matchesStatus =
+            selectedStatus === "all" ||
+            order.status.toLowerCase() === selectedStatus.toLowerCase();
         return matchesSearch && matchesStatus;
     });
 
-    if (loading) return (
-        <div className="loading-container">
-            <div className="loading-spinner"></div>
-            <p>Đang tải danh sách đơn hàng...</p>
-        </div>
-    );
-    
-    if (error) return (
-        <div className="error-container">
-            <div className="error-content">
-                <h3>❌ Lỗi tải dữ liệu</h3>
-                <p style={{ color: "#dc2626", marginBottom: "16px" }}>{error}</p>
-                <button className="btn btn-primary" onClick={fetchOrders}>
-                    <span className="icon">🔄</span>
-                    Thử lại
-                </button>
+    if (loading)
+        return (
+            <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Đang tải danh sách đơn hàng...</p>
             </div>
-        </div>
-    );
+        );
+
+    if (error)
+        return (
+            <div className="error-container">
+                <div className="error-content">
+                    <h3>❌ Lỗi tải dữ liệu</h3>
+                    <p style={{ color: "#dc2626", marginBottom: "16px" }}>{error}</p>
+                    <button className="btn btn-primary" onClick={fetchOrders}>
+                        <span className="icon">🔄</span>
+                        Thử lại
+                    </button>
+                </div>
+            </div>
+        );
 
     return (
         <div className="orders-page">
             {/* Header */}
             <div className="orders-header">
-            <h1>Danh sách đơn hàng</h1>
+                <h1>Danh sách đơn hàng</h1>
                 <div className="header-actions">
                     <button
                         className="btn btn-primary"
@@ -143,10 +151,10 @@ export const Orders: React.FC = () => {
 
             {/* Status Tabs */}
             <div className="status-tabs">
-                {statusTabs.map(tab => (
+                {statusTabs.map((tab) => (
                     <button
                         key={tab.key}
-                        className={`tab ${selectedStatus === tab.key ? 'active' : ''}`}
+                        className={`tab ${selectedStatus === tab.key ? "active" : ""}`}
                         onClick={() => setSelectedStatus(tab.key)}
                     >
                         {tab.label}
@@ -172,9 +180,9 @@ export const Orders: React.FC = () => {
 
                 {/* Orders Table */}
                 <div className="orders-table-container">
-                <table className="orders-table">
-                    <thead>
-                    <tr>
+                    <table className="orders-table">
+                        <thead>
+                        <tr>
                             <th>STT</th>
                             <th>Mã đơn hàng</th>
                             <th>Thông tin KH</th>
@@ -184,12 +192,15 @@ export const Orders: React.FC = () => {
                             <th>Hình thức TT</th>
                             <th>Trạng thái</th>
                             <th>Thao tác</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+                        </tr>
+                        </thead>
+                        <tbody>
                         {filteredOrders.length === 0 ? (
                             <tr>
-                                <td colSpan={9} style={{ textAlign: 'center', padding: '40px' }}>
+                                <td
+                                    colSpan={9}
+                                    style={{ textAlign: "center", padding: "40px" }}
+                                >
                                     <div className="empty-state">
                                         <div className="empty-icon">📦</div>
                                         <h3>Chưa có đơn hàng nào</h3>
@@ -208,23 +219,24 @@ export const Orders: React.FC = () => {
                                     >
                                         {order.code}
                                     </td>
-
                                     <td>
                                         <div className="customer-info">
-                                            <span>Tên khách hàng: {order.customerName || 'Khách lẻ'}</span>
+                        <span>
+                          Tên khách hàng: {order.customerName || "Khách lẻ"}
+                        </span>
                                         </div>
                                     </td>
-                                    <td>{new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
+                                    <td>{order.createdAt}</td>
                                     <td></td>
                                     <td>{formatPrice(order.total)}</td>
                                     <td>TM/CK</td>
                                     <td>
-                                    <span
-                                        className="status-badge"
-                                        style={{color: getStatusColor(order.status)}}
-                                    >
-                                        {getStatusText(order.status)}
-                                    </span>
+                      <span
+                          className="status-badge"
+                          style={{color: getStatusColor(order.status)}}
+                      >
+                        {getStatusText(order.status)}
+                      </span>
                                     </td>
                                     <td>
                                         <button
@@ -238,8 +250,8 @@ export const Orders: React.FC = () => {
                                 </tr>
                             ))
                         )}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -249,7 +261,6 @@ export const Orders: React.FC = () => {
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
             />
-
         </div>
     );
 };

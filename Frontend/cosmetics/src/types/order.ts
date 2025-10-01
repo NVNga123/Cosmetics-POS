@@ -1,3 +1,5 @@
+import type {Product} from "./product.ts";
+
 export interface Order {
     orderId: number;
     code: string;
@@ -10,10 +12,9 @@ export interface Order {
 }
 
 export interface OrderItem {
-    productId: string;
-    productName: string | null;
-    price: number;
+    product: Product
     quantity: number;
+    total: number;
     subtotal: number;
 }
 
