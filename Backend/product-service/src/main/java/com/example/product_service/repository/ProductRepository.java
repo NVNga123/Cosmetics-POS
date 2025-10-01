@@ -18,14 +18,27 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     // Kiểm tra sản phẩm đã tồn tại chưa
     boolean existsByName(String name);
 
-    @Query("SELECT p FROM Product p " +
-            "WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
-            "AND (:brand IS NULL OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :brand, '%'))) " +
-            "AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))")
+    @Query("""
+           SELECT p FROM Product p
+           WHERE (:name IS NULL OR :name = '' OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')))
+             AND (:brand IS NULL OR :brand = '' OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :brand, '%')))
+             AND (:category IS NULL OR :category = '' OR LOWER(p.category) = LOWER(:category))
+           """)
     Page<Product> searchProducts(
             @Param("name") String name,
             @Param("brand") String brand,
             @Param("category") String category,
             Pageable pageable
+    );
+
+    @Query("""
+        SELECT COUNT(p) FROM Product p
+        WHERE (:name IS NULL OR :name = '' OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')))
+          AND (:brand IS NULL OR :brand = '' OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :brand, '%')))
+          AND (:category IS NULL OR :category = '' OR LOWER(p.category) LIKE LOWER(CONCAT('%', :category, '%')))
+    """)
+    long countProducts(@Param("name") String name,
+                       @Param("brand") String brand,
+                       @Param("category") String category
     );
 }

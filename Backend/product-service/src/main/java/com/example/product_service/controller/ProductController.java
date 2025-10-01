@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
@@ -36,17 +37,29 @@ public class ProductController {
     }
 
     // Lấy tất cả sản phẩm
-    @GetMapping("/search")
+    @GetMapping()
     public ApiResponse<List<ProductResponse>> searchProducts(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) String category,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "8") int size
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
     ) {
-        int pageIndex = page > 0 ? page - 1 : 0;
+        List<ProductResponse> products;
+        long total;
+
+        if (page != null && size != null) {
+            // Có phân trang
+            products = productService.searchProducts(name, brand, category, page, size);
+            total = productService.countProducts(name, brand, category);
+        } else {
+            // Không phân trang -> lấy hết
+            products = productService.searchProducts(name, brand, category, null, null);
+            total = products.size();
+        }
         return ApiResponse.<List<ProductResponse>>builder()
-                .result(productService.searchProducts(name, brand, category, pageIndex, size))
+                .result(products)
+                .total(total)
                 .build();
     }
 

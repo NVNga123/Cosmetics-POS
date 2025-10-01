@@ -51,13 +51,30 @@ public class ProductService {
     }
 
     // Lấy danh sách sản phẩm
-    public List<ProductResponse> searchProducts(String name, String brand, String category, int page, int size) {
+    public List<ProductResponse> searchProducts(String name, String brand, String category, Integer page, Integer size) {
         log.info("Getting products");
-        Pageable pageable = PageRequest.of(page, size);
-        return productRepository.searchProducts(name, brand, category, pageable)
+        // Nếu có phân trang
+        if (page != null && size != null) {
+            Pageable pageable = PageRequest.of(page, size);
+            return productRepository.searchProducts(name, brand, category, pageable)
+                    .stream()
+                    .map(productMapper::toProductResponse)
+                    .toList();
+        }
+
+        // Nếu không có phân trang thì lấy toàn bộ
+        return productRepository.searchProducts(name, brand, category, null)
                 .stream()
                 .map(productMapper::toProductResponse)
                 .toList();
+    }
+
+    public long countProducts(String name, String brand, String category) {
+        return productRepository.countProducts(
+                name == null || name.isBlank() ? null : name,
+                brand == null || brand.isBlank() ? null : brand,
+                category == null || category.isBlank() ? null : category
+        );
     }
 
     // Lấy sản phẩm theo id
