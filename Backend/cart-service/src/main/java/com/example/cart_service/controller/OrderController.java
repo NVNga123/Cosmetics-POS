@@ -34,15 +34,15 @@ public class OrderController {
         return ResponseEntity.created(new URI("/api/orders/" + result.getId())).body(result);
     }
 
-    /*@PutMapping("/{id}")
-    public ResponseEntity<Order> update(@PathVariable Integer id, @RequestBody Order order) throws URISyntaxException {
-        LOG.debug(() -> "REST request to update Order : " + order);
-        if(order.getId() == null || !order.getId().equals(id)) {
+    @PutMapping("/{id}")
+    public ResponseEntity<Order> update(@PathVariable Integer id, @RequestBody OrderSubmitDTO orderSubmitDTO) throws URISyntaxException {
+        LOG.debug(() -> "REST request to update Order : " + orderSubmitDTO);
+        if(orderSubmitDTO.getId() == null || !orderSubmitDTO.getId().equals(id)) {
             return ResponseEntity.badRequest().build();
         }
-        Order result = orderService.save(order);
+        Order result = orderService.update(orderSubmitDTO);
         return ResponseEntity.ok(result);
-    }*/
+    }
 
     @GetMapping
     public ResponseEntity<List<OrderResponseDTO>> getAllOrders(){
@@ -59,10 +59,9 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id){
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         LOG.debug(() -> "REST request to delete Order : " + id);
         orderService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
 }

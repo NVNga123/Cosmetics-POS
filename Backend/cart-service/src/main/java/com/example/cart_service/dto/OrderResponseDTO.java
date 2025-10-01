@@ -1,5 +1,8 @@
 package com.example.cart_service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -10,14 +13,9 @@ public class OrderResponseDTO {
     private String customerName;
     private double total;
     private String status;
-    private LocalDateTime createdAt;
+    private String createdAt;
     private List<OrderItemDTO> items;
     private String notes;
-
-
-    public String getNotes() {
-        return notes;
-    }
 
     public Integer getOrderId() {
         return orderId;
@@ -25,6 +23,14 @@ public class OrderResponseDTO {
 
     public void setOrderId(Integer orderId) {
         this.orderId = orderId;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getCustomerName() {
@@ -51,11 +57,11 @@ public class OrderResponseDTO {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -67,42 +73,38 @@ public class OrderResponseDTO {
         this.items = items;
     }
 
-    public String getCode() {
-        return code;
+    public String getNotes() {
+        return notes;
     }
-    public void setCode(String code) {
-        this.code = code;
-    }
+
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OrderResponseDTO that = (OrderResponseDTO) o;
+        return Double.compare(total, that.total) == 0 && Objects.equals(orderId, that.orderId) && Objects.equals(code, that.code) && Objects.equals(customerName, that.customerName) && Objects.equals(status, that.status) && Objects.equals(createdAt, that.createdAt) && Objects.equals(items, that.items) && Objects.equals(notes, that.notes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(orderId, code, customerName, total, status, createdAt, items, notes);
     }
 
     @Override
     public String toString() {
         return "OrderResponseDTO{" +
                 "orderId=" + orderId +
+                ", code='" + code + '\'' +
                 ", customerName='" + customerName + '\'' +
                 ", total=" + total +
                 ", status='" + status + '\'' +
-                ", createdAt=" + createdAt +
+                ", createdAt='" + createdAt + '\'' +
                 ", items=" + items +
+                ", notes='" + notes + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof OrderResponseDTO that)) return false;
-        return Double.compare(that.total, total) == 0 &&
-                Objects.equals(orderId, that.orderId) &&
-                Objects.equals(customerName, that.customerName) &&
-                Objects.equals(status, that.status) &&
-                Objects.equals(createdAt, that.createdAt) &&
-                Objects.equals(items, that.items);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(orderId, customerName, total, status, createdAt, items);
     }
 }

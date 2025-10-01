@@ -2,7 +2,6 @@ package com.example.cart_service.entity;
 
 
 import jakarta.persistence.*;
-import org.apache.catalina.User;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serializable;

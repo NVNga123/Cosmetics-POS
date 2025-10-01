@@ -17,10 +17,10 @@ CREATE TABLE orders (
                         payment_method VARCHAR(50),
                         final_price DOUBLE,
 
-                        created_by VARCHAR(50) NOT NULL DEFAULT 'system',
-                        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        last_modified_by VARCHAR(50),
-                        last_modified_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                        created_by VARCHAR(50) DEFAULT NULL,
+                        created_date TIMESTAMP DEFAULT NULL,
+                        last_modified_by VARCHAR(50) DEFAULT NULL,
+                        last_modified_date TIMESTAMP DEFAULT NULL
 
 /*                         CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES customers(id),
                        CONSTRAINT fk_discount FOREIGN KEY (discount_id) REFERENCES discounts(id)  */

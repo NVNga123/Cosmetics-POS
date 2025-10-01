@@ -9,13 +9,15 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class OrderMapper {
 
-    public static Order toEntity(OrderSubmitDTO dto) {
+    public Order toEntity(OrderSubmitDTO dto) {
         Order order = new Order();
         order.setCustomerName(dto.getCustomerName());
         order.setTotalAmount(dto.getSubtotal());
@@ -39,14 +41,27 @@ public class OrderMapper {
         return order;
     }
 
-    public static OrderResponseDTO toDTO(Order order) {
+    public Order updateEntity(OrderSubmitDTO dto, Order order) {
+        order.setCustomerName(dto.getCustomerName()!= null ? dto.getCustomerName() : order.getCustomerName());
+        order.setTotalAmount(dto.getSubtotal());
+        order.setTotalDiscount(dto.getDiscount());
+        order.setTaxAmount(dto.getTax());
+        order.setFinalPrice(dto.getTotal());
+        order.setNote(dto.getNotes());
+        order.setStatus(dto.getStatus() != null ? dto.getStatus() : order.getStatus());
+
+        return order;
+    }
+
+    public OrderResponseDTO toDTO(Order order) {
         OrderResponseDTO dto = new OrderResponseDTO();
         dto.setOrderId(order.getId());
         dto.setCode(order.getCode());
         dto.setCustomerName(order.getCustomerName());
         dto.setTotal(order.getFinalPrice());
         dto.setStatus(order.getStatus());
-        dto.setCreatedAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(order.getCreatedDate().toEpochMilli()), java.time.ZoneId.systemDefault()));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        dto.setCreatedAt(order.getCreatedDate().atZone(ZoneId.systemDefault()).format(formatter));
         dto.setNotes(order.getNote());
 
         List<OrderItemDTO> items = order.getOrderDetails().stream().map(item -> {

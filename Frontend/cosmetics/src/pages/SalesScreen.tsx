@@ -10,8 +10,8 @@ import { orderApi } from '../api/orderApi';
 
 export const SalesScreen: React.FC = () => {
     const navigate = useNavigate();
-    const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [sidebarOpen] = useState(true);
+    const [selectedCategory] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -21,21 +21,15 @@ export const SalesScreen: React.FC = () => {
         code: `ĐH-${index}`,
         customerName: '',
         total: 0,
-        status: 'NEW',
-        createdAt: new Date().toISOString(),
+        status: 'DRAFT',
+        createdAt: undefined as any,
         items: [],
         notes: '',
-        subtotal: 0,
-        discount: 0,
-        tax: 0,
     });
 
     const [orders, setOrders] = useState<Order[]>([createNewOrder(1)]);
     const [activeOrderIndex, setActiveOrderIndex] = useState(0);
 
-    const onSwitchOrder = (index: number) => {
-        setActiveOrderIndex(index);
-    };
 
     const [customerName, setCustomerName] = useState('Khách lẻ');
     const [notes, setNotes] = useState('');
@@ -55,7 +49,7 @@ export const SalesScreen: React.FC = () => {
 
     // delete order
     const handleDeleteOrder = (index: number) => {
-        if (orders.length <= 1) return; // Không cho xóa đơn cuối cùng
+        if (orders.length <= 1) return;
         
         const newOrders = orders.filter((_, i) => i !== index);
         setOrders(newOrders);
@@ -117,6 +111,7 @@ export const SalesScreen: React.FC = () => {
             const newItem: OrderItem = {
                 product,
                 quantity: 1,
+                subtotal: product.price,
                 total: product.price
             };
             updateOrder([...orders[activeOrderIndex].items, newItem]);
@@ -126,16 +121,14 @@ export const SalesScreen: React.FC = () => {
     // Cập nhật order
     const updateOrder = (items: OrderItem[]) => {
         const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-        const tax = subtotal * 0.1; // VAT 10%
+        const tax = subtotal * 0.1;
         const total = subtotal + tax;
 
         setOrders(prev => {
             const newOrders = [...prev];
             newOrders[activeOrderIndex] = {
-                ...orders[activeOrderIndex],
+                ...prev[activeOrderIndex],
                 items,
-                subtotal,
-                tax,
                 total,
             };
             return newOrders;
@@ -174,9 +167,9 @@ export const SalesScreen: React.FC = () => {
             quantity: item.quantity,
             subtotal: item.total,
         })),
-        subtotal: orders[activeOrderIndex].subtotal,
+        subtotal: orders[activeOrderIndex].total,
         discount: 0,
-        tax: orders[activeOrderIndex].tax,
+        tax: Math.round(orders[activeOrderIndex].total * 0.1),
         total: orders[activeOrderIndex].total,
         customerName: customerName,
         notes: notes,
@@ -196,15 +189,17 @@ export const SalesScreen: React.FC = () => {
                     newOrders[activeOrderIndex] = {
                         ...orders[activeOrderIndex],
                         orderId: result.id,
+                        createdAt: result.createdAt,
                     };
                     return newOrders;
                 });
             }
 
             alert('Đơn hàng đã được lưu dưới dạng nháp!');
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error saving draft order:', error);
-            alert(`Có lỗi khi lưu đơn: ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            alert(`Có lỗi khi lưu đơn: ${errorMessage}`);
         }
     };
 
@@ -222,6 +217,7 @@ export const SalesScreen: React.FC = () => {
                         ...orders[activeOrderIndex],
                         orderId: result.id,
                         status: 'COMPLETED',
+                        createdAt: result.createdAt,
                     };
                     return newOrders;
                 });
@@ -236,9 +232,10 @@ export const SalesScreen: React.FC = () => {
             setActiveOrderIndex(orders.length);
             setCustomerName('Khách lẻ');
             setNotes('');
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error submitting order:', error);
-            alert(`Có lỗi xảy ra khi thanh toán: ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            alert(`Có lỗi xảy ra khi thanh toán: ${errorMessage}`);
         }
     };
 

@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { OrderSummaryProps } from '../../types/order';
+import { PaymentModal } from './PaymentModal';
+import './PaymentModal.css';
 
 export const OrderSummary: React.FC<OrderSummaryProps> = ({
                                                             order,
@@ -17,7 +19,29 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                                                             onSwitchOrder,
                                                             onDeleteOrder,
                                                           }) => {
-  return (
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+  const handlePaymentClick = () => {
+    console.log('Payment button clicked, opening modal');
+    setIsPaymentModalOpen(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    setIsPaymentModalOpen(false);
+    onCheckout();
+  };
+
+   const handleClosePaymentModal = () => {
+     setIsPaymentModalOpen(false);
+   };
+
+   // Tính toán tổng tiền
+   const subtotal = order?.items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
+   const vat = Math.round(subtotal * 0.1);
+   const total = subtotal + vat;
+
+   return (
+    <>
       <div className="pos-sidebar">
         {/* Header */}
         <div className="pos-sidebar-nav">
@@ -133,27 +157,27 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                     </div>
                 ) : (
                     order?.items?.map((item) => (
-                        <div key={item.product.id} className="order-item">
+                        <div key={item.product?.id || 'unknown'} className="order-item">
                           <div className="item-info">
-                            <h5>{item.product.name}</h5>
-                            <p>{item.product.price.toLocaleString()}đ</p>
+                            <h5>{item.product?.name || 'Sản phẩm không xác định'}</h5>
+                            <p>{item.product?.price?.toLocaleString() || '0'}đ</p>
                           </div>
                           <div className="item-controls">
                             <button
-                                onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)}
+                                onClick={() => onUpdateQuantity(item.product?.id || '', item.quantity - 1)}
                                 className="btn-quantity"
                             >
                               -
                             </button>
                             <span className="quantity">{item.quantity}</span>
                             <button
-                                onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)}
+                                onClick={() => onUpdateQuantity(item.product?.id || '', item.quantity + 1)}
                                 className="btn-quantity"
                             >
                               +
                             </button>
                             <button
-                                onClick={() => onRemoveItem(item.product.id)}
+                                onClick={() => onRemoveItem(item.product?.id || '')}
                                 className="btn-remove"
                             >
                               <i className="fa fa-trash"></i>
@@ -175,25 +199,25 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
               <span>Chi tiết thanh toán</span>
             </div>
 
-            <div className="flex-between-center">
-              <span>Tạm tính</span>
-              <span>{order?.subtotal?.toLocaleString()}đ</span>
-            </div>
+             <div className="flex-between-center">
+               <span>Tạm tính</span>
+               <span>{subtotal.toLocaleString()}đ</span>
+             </div>
 
-            <div className="flex-between-center">
-              <span>Khuyến mãi</span>
-              <span>0đ</span>
-            </div>
+             <div className="flex-between-center">
+               <span>Khuyến mãi</span>
+               <span>0đ</span>
+             </div>
 
-            <div className="flex-between-center">
-              <span>Thuế VAT (10%)</span>
-              <span>{order?.tax?.toLocaleString()}đ</span>
-            </div>
+             <div className="flex-between-center">
+               <span>Thuế VAT (10%)</span>
+               <span>{vat.toLocaleString()}đ</span>
+             </div>
 
-            <div className="total-amount">
-              <span>Tổng tiền thanh toán</span>
-              <span>{order?.total?.toLocaleString()}đ</span>
-            </div>
+             <div className="total-amount">
+               <span>Tổng tiền thanh toán</span>
+               <span>{total.toLocaleString()}đ</span>
+             </div>
 
             <div className="order-notes">
               <div className="notes-input-container">
@@ -212,24 +236,14 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                   className="btn btn-outline-primary cancel-order"
                   onClick={onSaveOrder}
                   disabled={order?.items?.length === 0}
-                  title={
-                    order?.items?.length === 0
-                        ? 'Vui lòng thêm sản phẩm vào giỏ hàng'
-                        : 'Hủy đơn hàng'
-                  }
               >
                 <i className="fa fa-download"></i>
                 <span>Lưu đơn</span>
               </button>
               <button
                   className="btn btn-success checkout-order"
-                  onClick={onCheckout}
+                  onClick={handlePaymentClick}
                   disabled={order?.items?.length === 0}
-                  title={
-                    order?.items?.length === 0
-                        ? 'Vui lòng thêm sản phẩm vào giỏ hàng'
-                        : 'Thanh toán đơn hàng'
-                  }
               >
                 <i className="fa fa-dollar"></i>
                 <span>Thanh toán</span>
@@ -238,5 +252,15 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+       <PaymentModal
+         isOpen={isPaymentModalOpen}
+         onClose={handleClosePaymentModal}
+         orderTotal={total}
+         orderCode={order?.code || ''}
+         onPaymentSuccess={handlePaymentSuccess}
+       />
+    </>
   );
 };
