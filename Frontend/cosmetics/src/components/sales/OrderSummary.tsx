@@ -31,11 +31,16 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
     onCheckout();
   };
 
-  const handleClosePaymentModal = () => {
-    setIsPaymentModalOpen(false);
-  };
+   const handleClosePaymentModal = () => {
+     setIsPaymentModalOpen(false);
+   };
 
-  return (
+   // Tính toán tổng tiền
+   const subtotal = order?.items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
+   const vat = Math.round(subtotal * 0.1);
+   const total = subtotal + vat;
+
+   return (
     <>
       <div className="pos-sidebar">
         {/* Header */}
@@ -194,25 +199,25 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
               <span>Chi tiết thanh toán</span>
             </div>
 
-            <div className="flex-between-center">
-              <span>Tạm tính</span>
-              <span>{order?.items?.reduce((sum, item) => sum + (item.subtotal || 0), 0)?.toLocaleString() || '0'}đ</span>
-            </div>
+             <div className="flex-between-center">
+               <span>Tạm tính</span>
+               <span>{subtotal.toLocaleString()}đ</span>
+             </div>
 
-            <div className="flex-between-center">
-              <span>Khuyến mãi</span>
-              <span>0đ</span>
-            </div>
+             <div className="flex-between-center">
+               <span>Khuyến mãi</span>
+               <span>0đ</span>
+             </div>
 
-            <div className="flex-between-center">
-              <span>Thuế VAT (10%)</span>
-              <span>{Math.round((order?.items?.reduce((sum, item) => sum + (item.subtotal || 0), 0) || 0) * 0.1)?.toLocaleString() || '0'}đ</span>
-            </div>
+             <div className="flex-between-center">
+               <span>Thuế VAT (10%)</span>
+               <span>{vat.toLocaleString()}đ</span>
+             </div>
 
-            <div className="total-amount">
-              <span>Tổng tiền thanh toán</span>
-              <span>{order?.total?.toLocaleString()}đ</span>
-            </div>
+             <div className="total-amount">
+               <span>Tổng tiền thanh toán</span>
+               <span>{total.toLocaleString()}đ</span>
+             </div>
 
             <div className="order-notes">
               <div className="notes-input-container">
@@ -249,13 +254,13 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
       </div>
 
       {/* Payment Modal */}
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={handleClosePaymentModal}
-        orderTotal={order?.total || 0}
-        orderCode={order?.code || ''}
-        onPaymentSuccess={handlePaymentSuccess}
-      />
+       <PaymentModal
+         isOpen={isPaymentModalOpen}
+         onClose={handleClosePaymentModal}
+         orderTotal={total}
+         orderCode={order?.code || ''}
+         onPaymentSuccess={handlePaymentSuccess}
+       />
     </>
   );
 };
