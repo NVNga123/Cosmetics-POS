@@ -49,7 +49,7 @@ export const SalesScreen: React.FC = () => {
 
     // delete order
     const handleDeleteOrder = (index: number) => {
-        if (orders.length <= 1) return; // Không cho xóa đơn cuối cùng
+        if (orders.length <= 1) return;
         
         const newOrders = orders.filter((_, i) => i !== index);
         setOrders(newOrders);

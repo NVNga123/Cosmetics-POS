@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { OrderSummaryProps } from '../../types/order';
+import { PaymentModal } from './PaymentModal';
+import './PaymentModal.css';
 
 export const OrderSummary: React.FC<OrderSummaryProps> = ({
                                                             order,
@@ -17,7 +19,24 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                                                             onSwitchOrder,
                                                             onDeleteOrder,
                                                           }) => {
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+  const handlePaymentClick = () => {
+    console.log('Payment button clicked, opening modal');
+    setIsPaymentModalOpen(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    setIsPaymentModalOpen(false);
+    onCheckout();
+  };
+
+  const handleClosePaymentModal = () => {
+    setIsPaymentModalOpen(false);
+  };
+
   return (
+    <>
       <div className="pos-sidebar">
         {/* Header */}
         <div className="pos-sidebar-nav">
@@ -212,24 +231,14 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                   className="btn btn-outline-primary cancel-order"
                   onClick={onSaveOrder}
                   disabled={order?.items?.length === 0}
-                  title={
-                    order?.items?.length === 0
-                        ? 'Vui lòng thêm sản phẩm vào giỏ hàng'
-                        : 'Hủy đơn hàng'
-                  }
               >
                 <i className="fa fa-download"></i>
                 <span>Lưu đơn</span>
               </button>
               <button
                   className="btn btn-success checkout-order"
-                  onClick={onCheckout}
+                  onClick={handlePaymentClick}
                   disabled={order?.items?.length === 0}
-                  title={
-                    order?.items?.length === 0
-                        ? 'Vui lòng thêm sản phẩm vào giỏ hàng'
-                        : 'Thanh toán đơn hàng'
-                  }
               >
                 <i className="fa fa-dollar"></i>
                 <span>Thanh toán</span>
@@ -238,5 +247,15 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={handleClosePaymentModal}
+        orderTotal={order?.total || 0}
+        orderCode={order?.code || ''}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
+    </>
   );
 };

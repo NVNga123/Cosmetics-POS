@@ -30,7 +30,7 @@ export const Orders: React.FC = () => {
                 err.message ||
                 "Lỗi khi tải đơn hàng";
             setError(errorMessage);
-            setOrders([]); // reset rỗng nếu lỗi
+            setOrders([]);
         } finally {
             setLoading(false);
         }
