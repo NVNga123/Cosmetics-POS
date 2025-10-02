@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { orderApi } from "../api/orderApi";
 import type { Order } from "../types/order";
-import { OrderDetailModal } from "../features/orders/components/OrderDetailModal";
-import { OrderFilters } from "../features/orders/components/OrderFilters";
-import { OrderTable } from "../features/orders/components/OrderTable";
-import { formatPrice, getStatusText, getStatusColor } from "../features/orders/utils/orderUtils";
+import { OrderDetailModal } from "../components/orders/OrderDetailModal.tsx";
+import { OrderFilters } from "../components/orders/OrderFilters.tsx";
+import { OrderTable } from "../components/orders/OrderTable.tsx";
+import { formatPrice, getStatusText, getStatusColor } from "../utils/orderUtils.ts";
 import "./Orders.css";
 import { useNavigate } from "react-router-dom";
 
