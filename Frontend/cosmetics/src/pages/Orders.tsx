@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { orderApi } from "../api/orderApi";
 import type { Order } from "../types/order";
 import { OrderDetailModal } from "../features/orders/components/OrderDetailModal";
+import { OrderFilters } from "../features/orders/components/OrderFilters";
+import { OrderTable } from "../features/orders/components/OrderTable";
+import { formatPrice, getStatusText, getStatusColor } from "../features/orders/utils/orderUtils";
 import "./Orders.css";
 import { useNavigate } from "react-router-dom";
 
@@ -40,51 +43,6 @@ export const Orders: React.FC = () => {
         fetchOrders();
     }, []);
 
-    const statusTabs = [
-        { key: "all", label: "Tất cả" },
-        { key: "incomplete", label: "Chưa hoàn thành" },
-        { key: "completed", label: "Đã hoàn thành" },
-        { key: "cancelled", label: "Đã hủy" },
-        { key: "return", label: "Trả hàng" },
-        { key: "returned", label: "Bị trả hàng" },
-        { key: "merged", label: "Đơn gộp" },
-        { key: "split", label: "Đơn tách" },
-        { key: "replace", label: "Thay thế" },
-    ];
-
-    const getStatusText = (status: string) => {
-        switch (status.toUpperCase()) {
-            case "RETURNED":
-                return "Đã trả hàng";
-            case "COMPLETED":
-                return "Đã hoàn thành";
-            case "CANCELLED":
-                return "Đã hủy";
-            case "DRAFT":
-                return "Chưa hoàn thành";
-            default:
-                return status;
-        }
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status.toUpperCase()) {
-            case "COMPLETED":
-                return "#10b981";
-            case "RETURNED":
-                return "#f59e0b";
-            case "CANCELLED":
-                return "#ef4444";
-            case "DRAFT":
-                return "#6b7280";
-            default:
-                return "#6b7280";
-        }
-    };
-
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat("vi-VN").format(price);
-    };
 
     const handleViewOrder = (order: Order) => {
         setSelectedOrder(order);
@@ -149,111 +107,22 @@ export const Orders: React.FC = () => {
                 </div>
             </div>
 
-            {/* Status Tabs */}
-            <div className="status-tabs">
-                {statusTabs.map((tab) => (
-                    <button
-                        key={tab.key}
-                        className={`tab ${selectedStatus === tab.key ? "active" : ""}`}
-                        onClick={() => setSelectedStatus(tab.key)}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
-            </div>
+            {/* Filters */}
+            <OrderFilters
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                selectedStatus={selectedStatus}
+                onStatusChange={setSelectedStatus}
+            />
 
-            {/* Main Content Container */}
-            <div className="main-content-container">
-                {/* Search Bar */}
-                <div className="search-filter-bar">
-                    <div className="search-container">
-                        <span className="fa fa-search search-icon"></span>
-                        <input
-                            type="text"
-                            placeholder="Tên KH, mã ĐH, mã CQT"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="search-input"
-                        />
-                    </div>
-                </div>
-
-                {/* Orders Table */}
-                <div className="orders-table-container">
-                    <table className="orders-table">
-                        <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Mã đơn hàng</th>
-                            <th>Thông tin KH</th>
-                            <th>Ngày tạo</th>
-                            <th>Mã cơ quan thuế</th>
-                            <th>Tổng tiền</th>
-                            <th>Hình thức TT</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {filteredOrders.length === 0 ? (
-                            <tr>
-                                <td
-                                    colSpan={9}
-                                    style={{ textAlign: "center", padding: "40px" }}
-                                >
-                                    <div className="empty-state">
-                                        <div className="empty-icon">📦</div>
-                                        <h3>Chưa có đơn hàng nào</h3>
-                                        <p>Khi có đơn hàng mới, chúng sẽ xuất hiện ở đây.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        ) : (
-                            filteredOrders.map((order, index) => (
-                                <tr key={order.orderId}>
-                                    <td>{index + 1}</td>
-                                    <td
-                                        onClick={() => handleViewOrder(order)}
-                                        title="Xem chi tiết"
-                                        style={{cursor: "pointer"}}
-                                    >
-                                        {order.code}
-                                    </td>
-                                    <td>
-                                        <div className="customer-info">
-                        <span>
-                          Tên khách hàng: {order.customerName || "Khách lẻ"}
-                        </span>
-                                        </div>
-                                    </td>
-                                    <td>{order.createdAt}</td>
-                                    <td></td>
-                                    <td>{formatPrice(order.total)}</td>
-                                    <td>TM/CK</td>
-                                    <td>
-                      <span
-                          className="status-badge"
-                          style={{color: getStatusColor(order.status)}}
-                      >
-                        {getStatusText(order.status)}
-                      </span>
-                                    </td>
-                                    <td>
-                                        <button
-                                            className="action-btn menu-btn"
-                                            onClick={() => handleViewOrder(order)}
-                                            title="Xem chi tiết"
-                                        >
-                                            ☰
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            {/* Orders Table */}
+            <OrderTable
+                orders={filteredOrders}
+                onViewOrder={handleViewOrder}
+                formatPrice={formatPrice}
+                getStatusText={getStatusText}
+                getStatusColor={getStatusColor}
+            />
 
             {/* Order Detail Modal */}
             <OrderDetailModal
