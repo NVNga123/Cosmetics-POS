@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,13 +23,25 @@ public interface ProductRepository extends JpaRepository<Product, String> {
            SELECT p FROM Product p
            WHERE (:name IS NULL OR :name = '' OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')))
              AND (:brand IS NULL OR :brand = '' OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :brand, '%')))
-             AND (:category IS NULL OR :category = '' OR LOWER(p.category) = LOWER(:category))
+             AND (:category IS NULL OR :category = '' OR LOWER(p.category) LIKE LOWER(CONCAT('%', :category, '%')))
            """)
     Page<Product> searchProducts(
             @Param("name") String name,
             @Param("brand") String brand,
             @Param("category") String category,
             Pageable pageable
+    );
+
+    @Query("""
+           SELECT p FROM Product p
+           WHERE (:name IS NULL OR :name = '' OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')))
+             AND (:brand IS NULL OR :brand = '' OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :brand, '%')))
+             AND (:category IS NULL OR :category = '' OR LOWER(p.category) LIKE LOWER(CONCAT('%', :category, '%')))
+           """)
+    List<Product> findProducts(
+            @Param("name") String name,
+            @Param("brand") String brand,
+            @Param("category") String category
     );
 
     @Query("""

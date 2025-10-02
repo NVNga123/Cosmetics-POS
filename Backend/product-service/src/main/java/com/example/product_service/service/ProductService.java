@@ -63,7 +63,7 @@ public class ProductService {
         }
 
         // Nếu không có phân trang thì lấy toàn bộ
-        return productRepository.searchProducts(name, brand, category, null)
+        return productRepository.findProducts(name, brand, category)
                 .stream()
                 .map(productMapper::toProductResponse)
                 .toList();
