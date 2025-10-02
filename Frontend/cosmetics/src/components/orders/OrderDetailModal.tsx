@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Order } from '../../../types/order';
+import type { Order } from '../../types/order.ts';
 import './OrderDetailModal.css';
 
 interface OrderDetailModalProps {
