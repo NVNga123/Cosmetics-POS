@@ -1,15 +1,15 @@
 
 export interface Product {
-    id: string;
-    brand: string | null;
-    category: string | null;
-    description: string | null;
-    discount: number | null;
+    id: number;
+    brand?: string;
+    category?: string;
+    description?: string;
+    discount?: number;
     name: string;
     price: number;
-    slug: string | null;
-    stock: number | null;
-    image: string | null;
+    slug?: string;
+    stock?: number;
+    image?: string;
 }
 
 

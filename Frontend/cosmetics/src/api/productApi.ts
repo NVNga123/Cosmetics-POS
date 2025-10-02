@@ -1,36 +1,68 @@
 import axios from "axios";
 import type { Product } from "../types/product";
 
-const API_URL = "http://localhost:8084/api/products";
+const API_URL = "http://localhost:8085/products";
+
 
 export const productApi = {
-    // Lấy tất cả sản phẩm
-    getAll: async (): Promise<Product[]> => {
-        const response = await axios.get<Product[]>(API_URL);
-        return response.data;
-    },
+  //Lấy toàn bộ sản phẩm
+  getAllProducts: async (): Promise<any> => {
+    const response = await axios.get(API_URL);
+    return response.data;
+  },
+  
+  //Lấy sản phẩm theo category
+  getProductsByCate: async (category : string): Promise<any> => {
+    const response = await axios.get(`${API_URL}?category=${category}`);
+    return response.data;
+  },
+  
+  // Lấy sản phẩm theo trang
+  getProducts: async (page: number, category: string, name: string, brand: string): Promise<any> => {
+    const response = await axios.get(`${API_URL}?page=${page}&size=8&category=${category}&name=${name}&brand=${brand}`);
+    return response.data;
+  },
+
+  // Lấy sản phẩm theo ID
+  getById: async (id: string): Promise<Product> => {
+    try {
+      const response = await axios.get<Product>(`${API_URL}/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching product with id=${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Tạo sản phẩm mới
+  create: async (product: Product): Promise<Product> => {
+    try {
+      const response = await axios.post<Product>(API_URL, product);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating product:", error);
+      throw error;
+    }
+  },
+
+  // Cập nhật sản phẩm
+  update: async (id: string, product: Product): Promise<Product> => {
+    try {
+      const response = await axios.put<Product>(`${API_URL}/${id}`, product);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating product with id=${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Xóa sản phẩm
+  delete: async (id: string): Promise<void> => {
+    try {
+      await axios.delete(`${API_URL}/${id}`);
+    } catch (error) {
+      console.error(`Error deleting product with id=${id}:`, error);
+      throw error;
+    }
+  },
 };
-/*
-    // Lấy sản phẩm theo id
-    getById: async (id: number): Promise<Product> => {
-        const response = await axios.get<Product>(`${API_URL}/${id}`);
-        return response.data;
-    },
-
-    // Tạo sản phẩm mới
-    create: async (product: Omit<Product, "id">): Promise<Product> => {
-        const response = await axios.post<Product>(API_URL, product);
-        return response.data;
-    },
-
-     // Cập nhật sản phẩm
-    update: async (id: number, product: Partial<Product>): Promise<Product> => {
-        const response = await axios.put<Product>(`${API_URL}/${id}`, product);
-        return response.data;
-    },
-
-    // Xoá sản phẩm
-    delete: async (id: number): Promise<void> => {
-        await axios.delete(`${API_URL}/${id}`);
-    },
-*/
