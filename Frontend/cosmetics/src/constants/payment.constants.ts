@@ -1,5 +1,4 @@
 
-
 export type PaymentMethod = 'momo' | 'bank' | 'cash' | 'tmck';
 
 export const paymentMethods = [

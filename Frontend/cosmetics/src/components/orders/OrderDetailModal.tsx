@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Order } from '../../types/order.ts';
+import { getStatusText, getStatusColor } from '../../constants/orderStatus.constants';
 import './OrderDetailModal.css';
 
 interface OrderDetailModalProps {
@@ -52,35 +53,6 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
     });
   };
 
-  const getStatusText = (status: string) => {
-    switch (status.toUpperCase()) {
-      case 'RETURNED':
-        return 'Đã trả hàng';
-      case 'COMPLETED':
-        return 'Đã hoàn thành';
-      case 'CANCELLED':
-        return 'Đã hủy';
-      case 'DRAFT':
-        return 'Chưa hoàn thành';
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status.toUpperCase()) {
-      case 'COMPLETED':
-        return '#10b981';
-      case 'RETURNED':
-        return '#f59e0b';
-      case 'CANCELLED':
-        return '#ef4444';
-      case 'DRAFT':
-        return '#6b7280';
-      default:
-        return '#6b7280';
-    }
-  };
 
   const handleCancelOrder = () => {
     console.log('Huỷ đơn hàng');

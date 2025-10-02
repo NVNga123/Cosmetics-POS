@@ -67,9 +67,11 @@ export const SalesScreen: React.FC = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const data = await productApi.getAll();
-                console.log('Fetched products:', data);
-                setProducts(data);
+                const response = await productApi.getAllProducts();
+                console.log('Fetched products:', response);
+
+                // Nếu API trả về { code, result, total }
+                setProducts(response.result || []);
             } catch (error) {
                 console.error('Error fetching products:', error);
             } finally {
