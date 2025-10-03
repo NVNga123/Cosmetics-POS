@@ -244,6 +244,15 @@ export const SalesScreen: React.FC = () => {
             await orderApi.submitOrder(saveData);
             console.log('Order submitted successfully for save');
             alert('Đơn hàng đã được lưu thành công!');
+            
+            // Xóa đơn hàng cũ và tạo đơn hàng mới
+            const newOrder = createNewOrder(Math.max(...orders.map(o => o.orderId)) + 1);
+            setOrders(prev => {
+                const newOrders = [...prev];
+                newOrders[activeOrderIndex] = newOrder;
+                return newOrders;
+            });
+            // Giữ nguyên activeOrderIndex để ở cùng tab
         } catch (error) {
             console.error('Error during save order:', error);
             alert('Có lỗi xảy ra khi lưu đơn hàng. Vui lòng thử lại.');
