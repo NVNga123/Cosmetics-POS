@@ -34,6 +34,21 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
     };
   }, [menuOpen]);
 
+  // Debug: Log order data when it changes
+  useEffect(() => {
+    if (order) {
+      console.log('OrderDetailModal - Order updated:', order);
+      console.log('Order items:', order.items);
+      console.log('Order total:', order.total);
+      console.log('First item structure:', order.items?.[0]);
+      console.log('First item product:', order.items?.[0]?.product);
+      console.log('First item quantity:', order.items?.[0]?.quantity);
+      console.log('First item price:', order.items?.[0]?.product?.price);
+      console.log('First item unitPrice:', order.items?.[0]?.unitPrice);
+      console.log('First item total:', order.items?.[0]?.total);
+    }
+  }, [order]);
+
   if (!isOpen || !order) return null;
 
   const formatPrice = (price: number) => {
@@ -135,14 +150,25 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                       <div className="col-product">
                         <div className="product-info">
                       <span className="product-name">
-                        {item.product?.name || `Sản phẩm ${item.product?.id || 'N/A'}`}
+                        {item.product?.name || 
+                         item.productName || 
+                         `Sản phẩm ${item.product?.id || item.productId || 'N/A'}`}
                       </span>
-                          <span className="product-id">ID: {item.product?.id || 'N/A'}</span>
                         </div>
                       </div>
-                      <div className="col-price">{formatPrice(item.product?.price || 0)}</div>
-                      <div className="col-quantity">{item.quantity}</div>
-                      <div className="col-total">{formatPrice(item.subtotal || 0)}</div>
+                      <div className="col-price">{formatPrice(
+                        item.product?.price || 
+                        item.unitPrice || 
+                        item.price || 
+                        0
+                      )}</div>
+                      <div className="col-quantity">{item.quantity || item.quantityProduct || 0}</div>
+                      <div className="col-total">{formatPrice(
+                        item.subtotal || 
+                        item.total || 
+                        item.totalPrice || 
+                        0
+                      )}</div>
                     </div>
                 ))}
               </div>

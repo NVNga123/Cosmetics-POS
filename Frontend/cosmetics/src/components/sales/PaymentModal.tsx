@@ -37,11 +37,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         await createMomoPayment(orderCode, orderTotal);
         onPaymentSuccess();
       } else if (selectedMethod === 'tmck') {
-        const cashAmount = orderTotal - transferAmount;
-        console.log(`Thanh toán TMCK - Chuyển khoản: ${transferAmount.toLocaleString()}đ, Tiền mặt: ${cashAmount.toLocaleString()}đ`);
         onPaymentSuccess();
       } else {
-        console.log(`Thanh toán ${selectedMethod} cho đơn hàng ${orderCode}`);
         onPaymentSuccess();
       }
     } catch (error) {
@@ -58,8 +55,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     onClose();
   };
 
-  console.log('PaymentModal render - isOpen:', isOpen);
-  
   if (!isOpen) return null;
 
   return (

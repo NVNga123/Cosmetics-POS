@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { orderApi } from "../api/orderApi";
-import type { Order } from "../types/order";
-import { OrderDetailModal } from "../components/orders/OrderDetailModal.tsx";
-import { OrderFilters } from "../components/orders/OrderFilters.tsx";
-import { OrderTable } from "../components/orders/OrderTable.tsx";
-import { formatPrice, getStatusText, getStatusColor } from "../utils/orderUtils.ts";
+import { orderApi } from "../../api/orderApi.ts";
+import type { Order } from "../../types/order.ts";
+import { OrderDetailModal } from "../../components/orders/OrderDetailModal.tsx";
+import { OrderFilters } from "../../components/orders/OrderFilters.tsx";
+import { OrderTable } from "../../components/orders/OrderTable.tsx";
+import { formatPrice, getStatusText, getStatusColor } from "../../utils/orderUtils.ts";
 import "./Orders.css";
 import { useNavigate } from "react-router-dom";
 
@@ -23,9 +23,31 @@ export const Orders: React.FC = () => {
             setLoading(true);
             setError(null);
             console.log("Fetching orders...");
-            const data = await orderApi.getAll();
+            const data = await orderApi.getAllOrders();
             console.log("Orders received:", data);
-            setOrders(data || []);
+            console.log("First order structure:", data?.[0]);
+            
+            // Transform data to match frontend interface
+            const transformedOrders = (data || []).map((order: any) => ({
+                ...order,
+                orderId: order.id || order.orderId,
+                items: (order.items || order.orderDetails || []).map((item: any) => ({
+                    ...item,
+                    product: item.product || {
+                        id: item.productId,
+                        name: item.productName,
+                        price: item.unitPrice || item.price
+                    },
+                    // Map backend fields to frontend fields
+                    quantity: item.quantity || item.quantityProduct,
+                    unitPrice: item.unitPrice || item.price,
+                    totalPrice: item.totalPrice || item.total,
+                    subtotal: item.subtotal || item.total
+                }))
+            }));
+            
+            console.log("Transformed orders:", transformedOrders);
+            setOrders(transformedOrders);
         } catch (err: any) {
             console.error("Error fetching orders:", err);
             const errorMessage =
@@ -77,7 +99,7 @@ export const Orders: React.FC = () => {
         return (
             <div className="error-container">
                 <div className="error-content">
-                    <h3>❌ Lỗi tải dữ liệu</h3>
+                    <h3>Lỗi tải dữ liệu</h3>
                     <p style={{ color: "#dc2626", marginBottom: "16px" }}>{error}</p>
                     <button className="btn btn-primary" onClick={fetchOrders}>
                         <span className="icon">🔄</span>

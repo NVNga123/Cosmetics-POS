@@ -12,19 +12,27 @@ export interface Order {
 }
 
 export interface OrderItem {
-    product: Product
+    product?: Product;
+    discountAmount?: number;
+    productId?: string;
+    productName?: string;
     quantity: number;
+    quantityProduct?: number;
     total: number;
     subtotal: number;
+    unitPrice?: number;
+    price?: number;
+    totalPrice?: number;
 }
 
 export interface OrderSubmitData {
   items: {
-    productId: string;
-    productName: string;
-    price: number;
-    quantity: number;
-    subtotal: number;
+      productId?: string;
+      productName?: string;
+      price?: number;
+      quantity: number;
+      subtotal: number;
+      discountAmount?: number;
   }[];
   id ?: number;
   subtotal: number;

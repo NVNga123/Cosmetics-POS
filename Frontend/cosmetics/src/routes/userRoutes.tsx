@@ -3,9 +3,9 @@ import { Home } from '../pages/Home';
 import { Products } from '../pages/Product/Products';
 import { ProductDetail } from '../pages/Product/ProductDetail';
 import { Cart } from '../pages/Cart';
-import { Orders } from '../pages/Orders';
+import { Orders } from '../pages/Order/Orders.tsx';
 import { Invoice } from '../pages/Invoice';
-import { SalesScreen } from '../pages/SalesScreen';
+import { SalesScreen } from '../pages/Sale/SalesScreen.tsx';
 
 export const UserRoutes = () => {
   return (

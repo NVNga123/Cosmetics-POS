@@ -3,6 +3,7 @@ CREATE TABLE order_detail (
                               id INT AUTO_INCREMENT PRIMARY KEY,
                               order_id INT NOT NULL,
                               product_id INT NOT NULL,
+                              product_name VARCHAR(255),
                               quantity_product INT,
                               unit_price DECIMAL(18,2),
                               total_price DECIMAL(18,2),

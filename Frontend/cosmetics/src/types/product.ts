@@ -10,6 +10,7 @@ export interface Product {
     slug?: string;
     stock?: number;
     image?: string;
+    discountedPrice?: number;
 }
 
 

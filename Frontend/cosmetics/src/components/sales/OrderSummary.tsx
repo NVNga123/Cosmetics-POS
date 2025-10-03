@@ -22,7 +22,6 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const handlePaymentClick = () => {
-    console.log('Payment button clicked, opening modal');
     setIsPaymentModalOpen(true);
   };
 
@@ -35,12 +34,22 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
      setIsPaymentModalOpen(false);
    };
 
-   // Tính toán tổng tiền
-   const subtotal = order?.items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
-   const vat = Math.round(subtotal * 0.1);
-   const total = subtotal + vat;
+    // Tổng tiền gốc (chưa giảm)
+    const subtotal = order?.items?.reduce((sum, item) => sum + (item.subtotal || 0), 0) || 0;
 
-   return (
+    // Tổng khuyến mãi
+    const discount = order?.items?.reduce((sum, item) => sum + (item.subtotal - item.total), 0) || 0;
+
+    // Tổng sau giảm
+    const discountedSubtotal = subtotal - discount;
+
+    // Thuế VAT
+    const vat = Math.round(discountedSubtotal * 0.1);
+
+    // Tổng thanh toán
+    const total = discountedSubtotal + vat;
+
+    return (
     <>
       <div className="pos-sidebar">
         {/* Header */}
@@ -58,7 +67,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                     {orders[activeOrderIndex]?.code}
                   </button>
                   {orders.length > 1 && (
-                    <button 
+                    <button
                       className="delete-order-btn"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -83,13 +92,13 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                       <div className="dropdown-header">Đơn hàng</div>
                       {orders.map((ord, index) => (
                         index !== activeOrderIndex && (
-                          <div 
-                            key={`${ord.orderId}-${index}`} 
+                          <div
+                            key={`${ord.orderId}-${index}`}
                             className="dropdown-item"
                             onClick={() => onSwitchOrder(index)}
                           >
                             <span>Đơn hàng: {ord.code}</span>
-                            <button 
+                            <button
                               className="remove-order-btn"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -156,34 +165,48 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                       <p>Chưa có sản phẩm nào</p>
                     </div>
                 ) : (
-                    order?.items?.map((item) => (
-                        <div key={item.product?.id || 'unknown'} className="order-item">
-                          <div className="item-info">
-                            <h5>{item.product?.name || 'Sản phẩm không xác định'}</h5>
-                            <p>{item.product?.price?.toLocaleString() || '0'}đ</p>
-                          </div>
-                          <div className="item-controls">
+                    order?.items?.map((item, index) => (
+                        <div key={`${item.product?.id || 'unknown'}-${index}`} className="order-item">
+                            <div className="item-info">
+                                <h5>{item.product?.name || 'Sản phẩm không xác định'}</h5>
+                                <p>-{item.discountAmount?.toLocaleString() || '0'}đ</p>
+                            </div>
+                            <div className="item-controls">
                             <button
-                                onClick={() => onUpdateQuantity(item.product?.id || '', item.quantity - 1)}
-                                className="btn-quantity"
-                            >
-                              -
-                            </button>
-                            <span className="quantity">{item.quantity}</span>
-                            <button
-                                onClick={() => onUpdateQuantity(item.product?.id || '', item.quantity + 1)}
-                                className="btn-quantity"
-                            >
-                              +
-                            </button>
-                            <button
-                                onClick={() => onRemoveItem(item.product?.id || '')}
-                                className="btn-remove"
-                            >
-                              <i className="fa fa-trash"></i>
-                            </button>
-                          </div>
-                          <div className="item-total">{item.total.toLocaleString()}đ</div>
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        const newQuantity = item.quantity - 1;
+                                        onUpdateQuantity(item.product?.id || '', newQuantity);
+                                    }}
+                                    className="btn-quantity"
+                                    disabled={item.quantity <= 0}
+                                >
+                                    -
+                                </button>
+
+                                <span className="quantity">{item.quantity}</span>
+
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onUpdateQuantity(item.product?.id || '', item.quantity + 1);
+                                    }}
+                                    className="btn-quantity"
+                                >
+                                    +
+                                </button>
+
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onRemoveItem(item.product?.id || '');
+                                    }}
+                                    className="btn-remove"
+                                >
+                                    <i className="fa fa-trash"></i>
+                                </button>
+                            </div>
+                            <div className="item-total">{item.subtotal.toLocaleString()}đ</div>
                         </div>
                     ))
                 )}
@@ -192,21 +215,21 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           </div>
         </div>
 
-        {/* Order Summary Footer */}
-        <div className="wrap-pos-sidebar-footer">
-          <div className="pos-sidebar-footer">
-            <div className="checkout-detail">
-              <span>Chi tiết thanh toán</span>
-            </div>
+          {/* Order Summary Footer */}
+          <div className="wrap-pos-sidebar-footer">
+              <div className="pos-sidebar-footer">
+                  <div className="checkout-detail">
+                      <span>Chi tiết thanh toán</span>
+                  </div>
 
-             <div className="flex-between-center">
-               <span>Tạm tính</span>
-               <span>{subtotal.toLocaleString()}đ</span>
-             </div>
+                  <div className="flex-between-center">
+                      <span>Tạm tính</span>
+                      <span>{subtotal.toLocaleString()}đ</span>
+                  </div>
 
              <div className="flex-between-center">
                <span>Khuyến mãi</span>
-               <span>0đ</span>
+               <span>{discount.toLocaleString()}đ</span>
              </div>
 
              <div className="flex-between-center">
@@ -232,14 +255,14 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
             </div>
 
             <div className="btn-row">
-              <button
-                  className="btn btn-outline-primary cancel-order"
-                  onClick={onSaveOrder}
-                  disabled={order?.items?.length === 0}
-              >
-                <i className="fa fa-download"></i>
-                <span>Lưu đơn</span>
-              </button>
+                <button
+                    className="btn btn-outline-primary cancel-order"
+                    onClick={onSaveOrder}
+                    disabled={order?.items?.length === 0}
+                >
+                  <i className="fa fa-download"></i>
+                  <span>Lưu đơn</span>
+                </button>
               <button
                   className="btn btn-success checkout-order"
                   onClick={handlePaymentClick}

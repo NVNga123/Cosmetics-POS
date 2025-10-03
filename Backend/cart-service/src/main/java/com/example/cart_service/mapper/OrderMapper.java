@@ -30,6 +30,7 @@ public class OrderMapper {
         List<OrderDetail> items = dto.getItems().stream().map(itemDTO -> {
             OrderDetail item = new OrderDetail();
             item.setProductId(itemDTO.getProductId());
+            item.setProductName(itemDTO.getProductName());
             item.setUnitPrice(itemDTO.getPrice());
             item.setQuantityProduct(itemDTO.getQuantity());
             item.setTotalPrice(itemDTO.getSubtotal());
@@ -67,6 +68,7 @@ public class OrderMapper {
         List<OrderItemDTO> items = order.getOrderDetails().stream().map(item -> {
             OrderItemDTO itemDTO = new OrderItemDTO();
             itemDTO.setProductId(item.getProductId());
+            itemDTO.setProductName(item.getProductName());
             itemDTO.setPrice(item.getUnitPrice());
             itemDTO.setQuantity(item.getQuantityProduct());
             itemDTO.setSubtotal(item.getTotalPrice());

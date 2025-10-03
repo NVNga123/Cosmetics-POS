@@ -19,6 +19,9 @@ public class OrderDetail extends AbstractAuditing<Integer> {
     @Column(name = "product_id")
     private String productId;
 
+    @Column(name = "product_name")
+    private String productName;
+
     @Column(name = "quantity_product")
     private Integer quantityProduct;
 
@@ -50,6 +53,14 @@ public class OrderDetail extends AbstractAuditing<Integer> {
 
     public void setProductId(String productId) {
         this.productId = productId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
     public Integer getQuantityProduct() {
@@ -97,19 +108,20 @@ public class OrderDetail extends AbstractAuditing<Integer> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OrderDetail that = (OrderDetail) o;
-        return Objects.equals(id, that.id) && Objects.equals(productId, that.productId) && Objects.equals(quantityProduct, that.quantityProduct) && Objects.equals(unitPrice, that.unitPrice) && Objects.equals(totalPrice, that.totalPrice) && Objects.equals(discountAmount, that.discountAmount) && Objects.equals(order, that.order);
+        return Objects.equals(id, that.id) && Objects.equals(productId, that.productId) && Objects.equals(productName, that.productName) && Objects.equals(quantityProduct, that.quantityProduct) && Objects.equals(unitPrice, that.unitPrice) && Objects.equals(totalPrice, that.totalPrice) && Objects.equals(discountAmount, that.discountAmount) && Objects.equals(order, that.order);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, productId, quantityProduct, unitPrice, totalPrice, discountAmount, order);
+        return Objects.hash(id, productId, productName, quantityProduct, unitPrice, totalPrice, discountAmount, order);
     }
 
     @Override
     public String toString() {
         return "OrderDetail{" +
                 "id=" + id +
-                ", productId=" + productId +
+                ", productId='" + productId + '\'' +
+                ", productName='" + productName + '\'' +
                 ", quantityProduct=" + quantityProduct +
                 ", unitPrice=" + unitPrice +
                 ", totalPrice=" + totalPrice +

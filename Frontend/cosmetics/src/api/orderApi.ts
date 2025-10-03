@@ -28,7 +28,7 @@ export const orderApi = {
   },
 
   // Lấy danh sách đơn hàng
-  getAll: async (): Promise<Order[]> => {
+  getAllOrders: async (): Promise<Order[]> => {
     try {
       console.log('Fetching orders from:', API_URL);
       const response = await axios.get<Order[]>(API_URL, {

@@ -23,6 +23,17 @@ export const productApi = {
     return response.data;
   },
 
+  // Tìm kiếm sản phẩm
+  searchProducts: async (name: string): Promise<any> => {
+    try {
+      const response = await axios.get(`${API_URL}?name=${encodeURIComponent(name)}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error searching products:", error);
+      throw error;
+    }
+  },
+
   // Lấy sản phẩm theo ID
   getById: async (id: string): Promise<Product> => {
     try {
