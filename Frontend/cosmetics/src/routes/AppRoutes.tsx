@@ -1,17 +1,25 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthProvider';
 
 import { AuthLayout } from '../layouts/AuthLayout';
+import { AdminLayout } from '../layouts/AdminLayout';
 import { UserLayout } from '../layouts/UserLayout';
+import { ProtectedRoute } from '../components/auth/ProtectedRoute';
+
 
 // Auth components
 import { Login } from '../features/auth/Login';
 import { Register } from '../features/auth/Register';
 
+// Admin routes
+import { AdminRoutes } from './adminRoutes';
+
 // User routes
 import { UserRoutes } from './userRoutes';
 
 export const AppRoutes = () => {
+    const {  isAuthenticated, isAdmin, isUser } = useAuth();
 
 
     return (
@@ -23,42 +31,70 @@ export const AppRoutes = () => {
                     <Route path="register" element={<Register />} />
                 </Route>
 
-                {/* Admin Routes - Commented out for demo */}
-                {/* <Route
-          path="/admin/*"
-          element={
-            <ProtectedRoute>
-              {isAdmin() ? (
-                <AdminLayout>
-                  <AdminRoutes />
-                </AdminLayout>
-              ) : (
-                <Navigate to="/user/home" replace />
-              )}
-            </ProtectedRoute>
-          }
-        /> */}
-
-                {/* User Routes - No authentication required */}
+                {/* Admin Routes */}
                 <Route
-                    path="/user/*"
+                    path="/admin/*"
                     element={
-                        <UserLayout>
-                            <UserRoutes />
-                        </UserLayout>
+                        <ProtectedRoute>
+                            {isAdmin() ? (
+                                <AdminLayout>
+                                    <AdminRoutes />
+                                </AdminLayout>
+                            ) : (
+                                <Navigate to="/user/home" replace />
+                            )}
+                        </ProtectedRoute>
                     }
                 />
 
-                {/* Root Route - Redirect to home without auth */}
+                {/* User Routes */}
+                <Route
+                    path="/user/*"
+                    element={
+                        <ProtectedRoute>
+                            {isUser() && !isAdmin() ? (
+                                <UserLayout>
+                                    <UserRoutes />
+                                </UserLayout>
+                            ) : isAdmin() ? (
+                                <Navigate to="/admin/dashboard" replace />
+                            ) : (
+                                <Navigate to="/auth/login" replace />
+                            )}
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Root Route - Redirect based on role */}
                 <Route
                     path="/"
-                    element={<Navigate to="/user/home" replace />}
+                    element={
+                        isAuthenticated ? (
+                            isAdmin() ? (
+                                <Navigate to="/admin/dashboard" replace />
+                            ) : (
+                                <Navigate to="/user/home" replace />
+                            )
+                        ) : (
+                            <Navigate to="/auth/login" replace />
+                        )
+                    }
                 />
 
                 {/* Catch all route */}
                 <Route
                     path="*"
-                    element={<Navigate to="/user/home" replace />}
+                    element={
+                        isAuthenticated ? (
+                            isAdmin() ? (
+                                <Navigate to="/admin/dashboard" replace />
+                            ) : (
+                                <Navigate to="/user/home" replace />
+                            )
+                        ) : (
+                            <Navigate to="/auth/login" replace />
+                        )
+                    }
                 />
             </Routes>
         </BrowserRouter>
