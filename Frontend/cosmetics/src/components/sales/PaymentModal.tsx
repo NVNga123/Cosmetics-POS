@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createMomoPayment } from '../../api/paymentApi';
 import './PaymentModal.css';
-import type { PaymentModalProps} from "../../types/payment.ts";
+import type { PaymentModalProps, MomoPaymentRequest } from "../../types/payment.ts";
 import { paymentMethods } from "../../constants/payment.constants.ts";
 import type { PaymentMethod } from "../../constants/payment.constants.ts";
 
@@ -34,7 +34,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
     try {
       if (selectedMethod === 'momo') {
-        await createMomoPayment(orderCode, orderTotal);
+        const momoPaymentRequest: MomoPaymentRequest = {
+          orderInfo: orderCode,
+          amount: orderTotal,
+        };
+        await createMomoPayment(momoPaymentRequest);
         onPaymentSuccess(selectedMethod);
       } else if (selectedMethod === 'tmck') {
         onPaymentSuccess(selectedMethod);

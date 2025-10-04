@@ -1,20 +1,11 @@
 import axios from "axios";
+import type { MomoPaymentRequest } from "../types/payment";
 
-export const createMomoPayment = async (orderInfo: string, amount: number) => {
-    try {
-        const res = await axios.post("http://localhost:8086/momo-payment", {
-            orderInfo,
-            amount,
-        });
+const API_URL = "http://localhost:8086/momo-payment";
 
-        if (res.data.payUrl) {
-            window.location.href = res.data.payUrl;
-        }
-    } catch (err) {
-        console.error("Lỗi khi gọi BE:", err);
-        throw err;
-    }
+export const createMomoPayment = async (momoPaymentRequest: MomoPaymentRequest): Promise<void> => {
+    const { data } = await axios.post(API_URL, momoPaymentRequest);
+
+    if (data?.payUrl) window.location.href = data.payUrl;
+    else console.error("Không tìm thấy payUrl trong phản hồi:", data);
 };
-
-
-

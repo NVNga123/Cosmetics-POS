@@ -74,3 +74,28 @@ export interface OrderSummaryProps {
     onSwitchOrder: (index: number) => void;
     onDeleteOrder: (index: number) => void;
 }
+
+export interface OrderTableProps {
+    orders: Order[];
+    onViewOrder: (order: Order) => void;
+    formatPrice: (price: number) => string;
+    getStatusText: (status: string) => string;
+    getStatusColor: (status: string) => string;
+    getPaymentMethodText: (paymentMethod?: string) => string;
+}
+
+export interface OrderListProps {
+    orders: Order[];
+    onViewOrder: (order: Order) => void;
+    formatPrice: (price: number) => string;
+    getStatusText: (status: string) => string;
+    getStatusColor: (status: string) => string;
+    getPaymentMethodText: (paymentMethod?: string) => string;
+}
+
+export interface OrderFiltersProps {
+    searchTerm: string;
+    onSearchChange: (value: string) => void;
+    selectedStatus: string;
+    onStatusChange: (status: string) => void;
+}

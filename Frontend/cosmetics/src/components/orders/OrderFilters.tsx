@@ -1,11 +1,6 @@
 import React from 'react';
-
-interface OrderFiltersProps {
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
-  selectedStatus: string;
-  onStatusChange: (status: string) => void;
-}
+import type { OrderFiltersProps } from '../../types/order.ts';
+import { statusTabs } from "../../constants/orderStatus.constants.ts";
 
 export const OrderFilters: React.FC<OrderFiltersProps> = ({
   searchTerm,
@@ -13,18 +8,9 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
   selectedStatus,
   onStatusChange
 }) => {
-  console.log('OrderFilters rendered with searchTerm:', searchTerm);
-  const statusTabs = [
-    { key: "all", label: "Tất cả" },
-    { key: "incomplete", label: "Chưa hoàn thành" },
-    { key: "completed", label: "Đã hoàn thành" },
-    { key: "cancelled", label: "Đã hủy" },
-    { key: "return", label: "Trả hàng" },
-  ];
 
   return (
     <>
-      {/* Status Tabs */}
       <div className="status-tabs">
         {statusTabs.map((tab) => (
           <button
@@ -37,9 +23,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
         ))}
       </div>
 
-      {/* Main Content Container */}
       <div className="main-content-container">
-        {/* Search Bar */}
         <div className="search-filter-bar">
           <div className="search-container">
             <span className="fa fa-search search-icon"></span>

@@ -22,12 +22,8 @@ export const Orders: React.FC = () => {
         try {
             setLoading(true);
             setError(null);
-            console.log("Fetching orders...");
             const data = await orderApi.getAllOrders();
-            console.log("Orders received:", data);
-            console.log("First order structure:", data?.[0]);
-            
-            // Transform data to match frontend interface
+
             const transformedOrders = (data || []).map((order: any) => ({
                 ...order,
                 orderId: order.id || order.orderId,
@@ -38,18 +34,15 @@ export const Orders: React.FC = () => {
                         name: item.productName,
                         price: item.unitPrice || item.price
                     },
-                    // Map backend fields to frontend fields
                     quantity: item.quantity || item.quantityProduct,
                     unitPrice: item.unitPrice || item.price,
                     totalPrice: item.totalPrice || item.total,
                     subtotal: item.subtotal || item.total
                 }))
             }));
-            
-            console.log("Transformed orders:", transformedOrders);
+
             setOrders(transformedOrders);
         } catch (err: any) {
-            console.error("Error fetching orders:", err);
             const errorMessage =
                 err.response?.data?.message ||
                 err.message ||
@@ -76,83 +69,55 @@ export const Orders: React.FC = () => {
         setSelectedOrder(null);
     };
 
-    // Xử lý hủy đơn hàng
     const handleCancelOrder = async (orderId: string | number) => {
         try {
-            console.log('Hủy đơn hàng:', orderId);
-            
-            // Kiểm tra orderId có hợp lệ không
             if (!orderId || orderId === 'undefined' || orderId === '') {
                 alert('Không thể hủy đơn hàng: ID không hợp lệ');
                 return;
             }
-            
-            await orderApi.updateOrderStatusSimple(String(orderId), 'CANCELLED');
-            
-            // Cập nhật state local
+            await orderApi.updateOrderStatus(String(orderId), 'CANCELLED')
             setOrders(prev => prev.map(order => 
                 order.orderId === orderId 
                     ? { ...order, status: 'CANCELLED' }
                     : order
             ));
-            
             alert('Đơn hàng đã được hủy thành công!');
-        } catch (error) {
-            console.error('Lỗi khi hủy đơn hàng:', error);
+        } catch {
             alert('Có lỗi xảy ra khi hủy đơn hàng. Vui lòng thử lại.');
         }
     };
 
-    // xử lý xoá đơn
     const handleDeleteOrder = async (orderId: string | number) => {
         try {
-            console.log('Xoá đơn hàng:', orderId);
-
-            // Kiểm tra orderId có hợp lệ không
             if (!orderId || orderId === 'undefined' || orderId === '') {
                 alert('Không thể xoá đơn hàng: ID không hợp lệ');
                 return;
             }
-
             await orderApi.deleteOrder(String(orderId));
-
-            // Cập nhật state local
             setOrders(prev => prev.filter(order => order.orderId !== orderId));
-
             alert('Đơn hàng đã được xoá thành công!');
-        } catch (error) {
-            console.error('Lỗi khi xoá đơn hàng:', error);
+        } catch {
             alert('Có lỗi xảy ra khi xoá đơn hàng. Vui lòng thử lại.');
         }
     };
 
-    // xử lý tr đơn hàng
     const handleReturnOrder = async (orderId: string | number) => {
         try {
-            console.log('Hủy đơn hàng:', orderId);
-
-            // Kiểm tra orderId có hợp lệ không
             if (!orderId || orderId === 'undefined' || orderId === '') {
                 alert('Không thể hủy đơn hàng: ID không hợp lệ');
                 return;
             }
-
-            await orderApi.updateOrderStatusSimple(String(orderId), 'RETURNED');
-
-            // Cập nhật state local
+            await orderApi.updateOrderStatus(String(orderId), 'RETURNED');
             setOrders(prev => prev.map(order =>
                 order.orderId === orderId
                     ? { ...order, status: 'RETURNED' }
                     : order
             ));
-
             alert('Đơn hàng đã được hủy thành công!');
-        } catch (error) {
-            console.error('Lỗi khi hủy đơn hàng:', error);
+        } catch {
             alert('Có lỗi xảy ra khi hủy đơn hàng. Vui lòng thử lại.');
         }
     };
-
 
     const filteredOrders = orders.filter((order) => {
         const matchesSearch =

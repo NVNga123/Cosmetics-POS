@@ -1,14 +1,5 @@
 import React from 'react';
-import type { Order } from '../../types/order.ts';
-
-interface OrderListProps {
-  orders: Order[];
-  onViewOrder: (order: Order) => void;
-  formatPrice: (price: number) => string;
-  getStatusText: (status: string) => string;
-  getStatusColor: (status: string) => string;
-  getPaymentMethodText: (paymentMethod?: string) => string;
-}
+import type { OrderListProps } from '../../types/order.ts';
 
 export const OrderList: React.FC<OrderListProps> = ({
   orders,

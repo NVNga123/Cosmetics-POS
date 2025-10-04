@@ -2,18 +2,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthProvider.tsx';
 import type { OrderDetailModalProps } from '../../types/order.ts';
 import { getStatusText, getStatusColor } from '../../constants/orderStatus.constants';
+import { formatPrice, formatDate } from '../../constants/orderStatus.constants.ts';
 import { getPaymentMethodText } from '../../utils/orderUtils';
 import ConfirmationModal from '../common/ConfirmationModal';
 import './OrderDetailModal.css';
 
 export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
-                                                                     order,
-                                                                     isOpen,
-                                                                     onClose,
-                                                                     onCancelOrder,
-                                                                     onDeleteOrder,
-                                                                     onReturnOrder,
-                                                                   }) => {
+  order,
+  isOpen,
+  onClose,
+  onCancelOrder,
+  onDeleteOrder,
+  onReturnOrder,
+}) => {
   const { isAdmin } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -38,64 +39,24 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
     };
   }, [menuOpen]);
 
-  // Debug: Log order data when it changes
-  useEffect(() => {
-    if (order) {
-      console.log('OrderDetailModal - Order updated:', order);
-      console.log('Order items:', order.items);
-      console.log('Order total:', order.total);
-      console.log('First item structure:', order.items?.[0]);
-      console.log('First item product:', order.items?.[0]?.product);
-      console.log('First item quantity:', order.items?.[0]?.quantity);
-      console.log('First item price:', order.items?.[0]?.product?.price);
-      console.log('First item unitPrice:', order.items?.[0]?.unitPrice);
-      console.log('First item total:', order.items?.[0]?.total);
-    }
-  }, [order]);
-
   if (!isOpen || !order) return null;
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(price);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-
   const handleCancelOrder = () => {
-    console.log('Huỷ đơn hàng');
     setMenuOpen(false);
     setShowCancelConfirm(true);
   };
 
   const handleDeleteOrder = () => {
-    console.log('Xoá đơn hàng');
     setMenuOpen(false);
     setShowDeleteConfirm(true);
   };
 
   const handleReturnOrder = () => {
-    console.log('Trả hàng');
     setMenuOpen(false);
     setShowReturnConfirm(true);
   };
 
-  // Xử lý xác nhận hủy đơn hàng
   const handleConfirmCancel = () => {
-    console.log('Xác nhận hủy đơn hàng:', order?.orderId);
-    
-    // Kiểm tra orderId có hợp lệ không
     if (!order?.orderId) {
       alert('Không thể hủy đơn hàng: ID không hợp lệ');
       setShowCancelConfirm(false);
@@ -107,11 +68,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
     onClose();
   };
 
-  // Xử lý xác nhận xóa đơn hàng
   const handleConfirmDelete = () => {
-    console.log('Xác nhận xóa đơn hàng:', order?.orderId);
-    
-    // Kiểm tra orderId có hợp lệ không
     if (!order?.orderId) {
       alert('Không thể xóa đơn hàng: ID không hợp lệ');
       setShowDeleteConfirm(false);
@@ -123,23 +80,18 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
     onClose();
   };
 
-  // xử lý xác nhận trả hàng
-    const handleConfirmReturn = () => {
-      console.log('Xác nhận hủy đơn hàng:', order?.orderId);
-
-      // Kiểm tra orderId có hợp lệ không
-      if (!order?.orderId) {
-        alert('Không thể hủy đơn hàng: ID không hợp lệ');
-        setShowCancelConfirm(false);
-        return;
-      }
-
-      onReturnOrder?.(order.orderId);
-      setShowReturnConfirm(false);
-      onClose();
+  const handleConfirmReturn = () => {
+    if (!order?.orderId) {
+      alert('Không thể hủy đơn hàng: ID không hợp lệ');
+      setShowCancelConfirm(false);
+      return;
     }
 
-  // Đóng popup xác nhận
+    onReturnOrder?.(order.orderId);
+    setShowReturnConfirm(false);
+    onClose();
+  }
+
   const handleCancelConfirm = () => {
     setShowCancelConfirm(false);
   };
@@ -153,19 +105,15 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   };
 
   const handleMenuToggle = () => {
-    console.log('Menu toggle clicked, current state:', menuOpen);
     if (!menuOpen && dropdownRef.current) {
       const rect = dropdownRef.current.getBoundingClientRect();
         const newPosition = {
           top: rect.top - 90,
           left: rect.right - 70,
         };
-      console.log('Button rect:', rect);
-      console.log('Calculated position:', newPosition);
       setDropdownPosition(newPosition);
     }
     setMenuOpen(!menuOpen);
-    console.log('Menu state after toggle:', !menuOpen);
   };
 
   return (
