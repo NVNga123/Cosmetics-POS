@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Order, OrderSubmitData } from "../types/order";
 
-const API_URL = "http://localhost:8084/api/orders";
+const API_URL = "http://localhost:8088/api/orders";
 
 export const orderApi = {
 
