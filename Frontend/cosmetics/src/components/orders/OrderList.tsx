@@ -7,6 +7,7 @@ interface OrderListProps {
   formatPrice: (price: number) => string;
   getStatusText: (status: string) => string;
   getStatusColor: (status: string) => string;
+  getPaymentMethodText: (paymentMethod?: string) => string;
 }
 
 export const OrderList: React.FC<OrderListProps> = ({
@@ -14,7 +15,8 @@ export const OrderList: React.FC<OrderListProps> = ({
   onViewOrder,
   formatPrice,
   getStatusText,
-  getStatusColor
+  getStatusColor,
+  getPaymentMethodText
 }) => {
   if (orders.length === 0) {
     return (
@@ -52,7 +54,7 @@ export const OrderList: React.FC<OrderListProps> = ({
           <td>{order.createdAt}</td>
           <td></td>
           <td>{formatPrice(order.total)}</td>
-          <td>TM/CK</td>
+          <td>{getPaymentMethodText(order.paymentMethod)}</td>
           <td>
             <span
               className="status-badge"

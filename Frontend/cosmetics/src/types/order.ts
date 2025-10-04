@@ -10,6 +10,7 @@ export interface Order {
     createdAt: string;
     items: OrderItem[];
     notes: string;
+    paymentMethod?: string;
 }
 
 export interface OrderItem {
@@ -54,6 +55,7 @@ export interface OrderSubmitData {
   notes: string;
   returnReason ?: string;
   status : string;
+  paymentMethod?: string;
 }
 
 export interface OrderSummaryProps {
@@ -64,7 +66,7 @@ export interface OrderSummaryProps {
     notes: string;
     onUpdateQuantity: (productId: string, quantity: number) => void;
     onRemoveItem: (productId: string) => void;
-    onCheckout: () => void;
+    onCheckout: (paymentMethod?: string) => void;
     onSaveOrder: () => void;
     onCustomerNameChange: (name: string) => void;
     onNotesChange: (notes: string) => void;

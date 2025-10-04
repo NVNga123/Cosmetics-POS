@@ -4,7 +4,7 @@ import type { Order } from "../../types/order.ts";
 import { OrderDetailModal } from "../../components/orders/OrderDetailModal.tsx";
 import { OrderFilters } from "../../components/orders/OrderFilters.tsx";
 import { OrderTable } from "../../components/orders/OrderTable.tsx";
-import { formatPrice, getStatusText, getStatusColor } from "../../utils/orderUtils.ts";
+import { formatPrice, getStatusText, getStatusColor, getPaymentMethodText } from "../../utils/orderUtils.ts";
 import "./Orders.css";
 import { useNavigate } from "react-router-dom";
 
@@ -222,6 +222,7 @@ export const Orders: React.FC = () => {
                 formatPrice={formatPrice}
                 getStatusText={getStatusText}
                 getStatusColor={getStatusColor}
+                getPaymentMethodText={getPaymentMethodText}
             />
 
             {/* Order Detail Modal */}

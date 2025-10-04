@@ -25,9 +25,13 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
     setIsPaymentModalOpen(true);
   };
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = (paymentMethod?: any) => {
     setIsPaymentModalOpen(false);
-    onCheckout();
+    // Cập nhật đơn hàng với phương thức thanh toán
+    if (paymentMethod) {
+      console.log('Payment method selected:', paymentMethod);
+    }
+    onCheckout(paymentMethod);
   };
 
    const handleClosePaymentModal = () => {

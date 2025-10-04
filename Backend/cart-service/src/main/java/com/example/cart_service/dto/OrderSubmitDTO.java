@@ -37,6 +37,8 @@ public class OrderSubmitDTO {
 
     private String returnReason;
 
+    private String paymentMethod;
+
     public List<OrderItemDTO> getItems() {
         return items;
     }
@@ -115,17 +117,25 @@ public class OrderSubmitDTO {
         this.returnReason = returnReason;
     }
 
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OrderSubmitDTO that = (OrderSubmitDTO) o;
-        return Double.compare(subtotal, that.subtotal) == 0 && Double.compare(discount, that.discount) == 0 && Double.compare(tax, that.tax) == 0 && Double.compare(total, that.total) == 0 && Objects.equals(items, that.items) && Objects.equals(id, that.id) && Objects.equals(customerName, that.customerName) && Objects.equals(notes, that.notes) && Objects.equals(status, that.status);
+        return Double.compare(subtotal, that.subtotal) == 0 && Double.compare(discount, that.discount) == 0 && Double.compare(tax, that.tax) == 0 && Double.compare(total, that.total) == 0 && Objects.equals(items, that.items) && Objects.equals(id, that.id) && Objects.equals(customerName, that.customerName) && Objects.equals(notes, that.notes) && Objects.equals(status, that.status) && Objects.equals(returnReason, that.returnReason) && Objects.equals(paymentMethod, that.paymentMethod);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(items, id, subtotal, discount, tax, total, customerName, notes, status);
+        return Objects.hash(items, id, subtotal, discount, tax, total, customerName, notes, status, returnReason, paymentMethod);
     }
 
     @Override
@@ -140,6 +150,8 @@ public class OrderSubmitDTO {
                 ", customerName='" + customerName + '\'' +
                 ", notes='" + notes + '\'' +
                 ", status='" + status + '\'' +
+                ", returnReason='" + returnReason + '\'' +
+                ", paymentMethod='" + paymentMethod + '\'' +
                 '}';
     }
 }

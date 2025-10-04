@@ -35,11 +35,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     try {
       if (selectedMethod === 'momo') {
         await createMomoPayment(orderCode, orderTotal);
-        onPaymentSuccess();
+        onPaymentSuccess(selectedMethod);
       } else if (selectedMethod === 'tmck') {
-        onPaymentSuccess();
+        onPaymentSuccess(selectedMethod);
       } else {
-        onPaymentSuccess();
+        onPaymentSuccess(selectedMethod);
       }
     } catch (error) {
       console.error('Lỗi thanh toán:', error);

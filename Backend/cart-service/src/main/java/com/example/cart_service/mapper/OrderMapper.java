@@ -27,6 +27,7 @@ public class OrderMapper {
         order.setNote(dto.getNotes());
         order.setReturnReason(dto.getReturnReason());
         order.setStatus(dto.getStatus() != null ? dto.getStatus() : "DRAFT");
+        order.setPaymentMethod(dto.getPaymentMethod());
 
         List<OrderDetail> items = dto.getItems().stream().map(itemDTO -> {
             OrderDetail item = new OrderDetail();
@@ -52,6 +53,7 @@ public class OrderMapper {
         order.setNote(dto.getNotes());
         order.setStatus(dto.getStatus() != null ? dto.getStatus() : order.getStatus());
         order.setReturnReason(dto.getReturnReason()!= null ? dto.getReturnReason() : order.getReturnReason());
+        order.setPaymentMethod(dto.getPaymentMethod() != null ? dto.getPaymentMethod() : order.getPaymentMethod());
 
         return order;
     }
@@ -67,6 +69,7 @@ public class OrderMapper {
         dto.setCreatedAt(order.getCreatedDate().atZone(ZoneId.systemDefault()).format(formatter));
         dto.setNotes(order.getNote());
         dto.setReturnReason(order.getReturnReason());
+        dto.setPaymentMethod(order.getPaymentMethod());
 
         List<OrderItemDTO> items = order.getOrderDetails().stream().map(item -> {
             OrderItemDTO itemDTO = new OrderItemDTO();

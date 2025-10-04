@@ -29,6 +29,7 @@ export const SalesScreen: React.FC = () => {
         createdAt: undefined as any,
         items: [],
         notes: '',
+        paymentMethod: undefined,
     });
 
     const [orders, setOrders] = useState<Order[]>([createNewOrder(1)]);
@@ -235,6 +236,7 @@ export const SalesScreen: React.FC = () => {
             customerName: customerName || 'Khách lẻ',
             notes: notes || '',
             status,
+            paymentMethod: currentOrder.paymentMethod,
         };
     };
 
@@ -267,8 +269,20 @@ export const SalesScreen: React.FC = () => {
     };
 
     // Handle checkout
-        const handleCheckout = async () => {
+        const handleCheckout = async (paymentMethod?: string) => {
         try {
+            // Cập nhật paymentMethod vào order hiện tại
+            if (paymentMethod) {
+                setOrders(prev => {
+                    const newOrders = [...prev];
+                    newOrders[activeOrderIndex] = {
+                        ...newOrders[activeOrderIndex],
+                        paymentMethod: paymentMethod
+                    };
+                    return newOrders;
+                });
+            }
+            
             const orderData = buildOrderData(ORDER_STATUS.COMPLETED);
             console.log('Submitting completed order:', orderData);
             const result = await orderApi.submitOrder(orderData);

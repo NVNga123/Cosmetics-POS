@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthProvider.tsx';
 import type { OrderDetailModalProps } from '../../types/order.ts';
 import { getStatusText, getStatusColor } from '../../constants/orderStatus.constants';
+import { getPaymentMethodText } from '../../utils/orderUtils';
 import ConfirmationModal from '../common/ConfirmationModal';
 import './OrderDetailModal.css';
 
@@ -204,6 +205,10 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                 <div className="info-item">
                   <label>Ngày tạo:</label>
                   <span>{formatDate(order.createdAt)}</span>
+                </div>
+                <div className="info-item">
+                  <label>Phương thức thanh toán:</label>
+                  <span>{getPaymentMethodText(order.paymentMethod)}</span>
                 </div>
               </div>
             </div>

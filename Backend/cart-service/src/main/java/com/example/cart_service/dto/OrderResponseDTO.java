@@ -17,6 +17,7 @@ public class OrderResponseDTO {
     private List<OrderItemDTO> items;
     private String notes;
     private String returnReason;
+    private String paymentMethod;
 
     public Integer getOrderId() {
         return orderId;
@@ -88,6 +89,14 @@ public class OrderResponseDTO {
 
     public void setReturnReason(String returnReason) {
         this.returnReason = returnReason;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
     @Override

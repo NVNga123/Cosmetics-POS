@@ -8,6 +8,7 @@ interface OrderTableProps {
   formatPrice: (price: number) => string;
   getStatusText: (status: string) => string;
   getStatusColor: (status: string) => string;
+  getPaymentMethodText: (paymentMethod?: string) => string;
 }
 
 export const OrderTable: React.FC<OrderTableProps> = ({
@@ -15,7 +16,8 @@ export const OrderTable: React.FC<OrderTableProps> = ({
   onViewOrder,
   formatPrice,
   getStatusText,
-  getStatusColor
+  getStatusColor,
+  getPaymentMethodText
 }) => {
   return (
     <div className="orders-table-container">
@@ -40,6 +42,7 @@ export const OrderTable: React.FC<OrderTableProps> = ({
             formatPrice={formatPrice}
             getStatusText={getStatusText}
             getStatusColor={getStatusColor}
+            getPaymentMethodText={getPaymentMethodText}
           />
         </tbody>
       </table>
