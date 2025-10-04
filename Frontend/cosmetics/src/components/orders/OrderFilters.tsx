@@ -20,10 +20,6 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
     { key: "completed", label: "Đã hoàn thành" },
     { key: "cancelled", label: "Đã hủy" },
     { key: "return", label: "Trả hàng" },
-    { key: "returned", label: "Bị trả hàng" },
-    { key: "merged", label: "Đơn gộp" },
-    { key: "split", label: "Đơn tách" },
-    { key: "replace", label: "Thay thế" },
   ];
 
   return (

@@ -159,9 +159,20 @@ export const Orders: React.FC = () => {
             order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             order.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
             order.orderId.toString().includes(searchTerm);
-        const matchesStatus =
-            selectedStatus === "all" ||
-            order.status.toLowerCase() === selectedStatus.toLowerCase();
+        
+        let matchesStatus = false;
+        if (selectedStatus === "all") {
+            matchesStatus = true;
+        } else if (selectedStatus === "incomplete") {
+            matchesStatus = order.status === "DRAFT";
+        } else if (selectedStatus === "completed") {
+            matchesStatus = order.status === "COMPLETED";
+        } else if (selectedStatus === "cancelled") {
+            matchesStatus = order.status === "CANCELLED";
+        } else if (selectedStatus === "return") {
+            matchesStatus = order.status === "RETURNED";
+        }
+        
         return matchesSearch && matchesStatus;
     });
 
