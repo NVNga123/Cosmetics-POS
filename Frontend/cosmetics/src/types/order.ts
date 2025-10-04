@@ -6,6 +6,7 @@ export interface Order {
     customerName: string;
     total: number;
     status: string;
+    returnReason?: string;
     createdAt: string;
     items: OrderItem[];
     notes: string;
@@ -25,6 +26,16 @@ export interface OrderItem {
     totalPrice?: number;
 }
 
+export interface OrderDetailModalProps {
+    order: Order | null;
+    isOpen: boolean;
+    onClose: () => void;
+    onCancelOrder?: (orderId: string | number) => void;
+    onDeleteOrder?: (orderId: string | number) => void;
+    onReturnOrder?: (orderId: string | number) => void;
+}
+
+
 export interface OrderSubmitData {
   items: {
       productId?: string;
@@ -41,6 +52,7 @@ export interface OrderSubmitData {
   total: number;
   customerName: string;
   notes: string;
+  returnReason ?: string;
   status : string;
 }
 

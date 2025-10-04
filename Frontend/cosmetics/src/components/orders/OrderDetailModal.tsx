@@ -1,22 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Order } from '../../types/order.ts';
+import { useAuth } from '../../contexts/AuthProvider.tsx';
+import type { OrderDetailModalProps } from '../../types/order.ts';
 import { getStatusText, getStatusColor } from '../../constants/orderStatus.constants';
+import ConfirmationModal from '../common/ConfirmationModal';
 import './OrderDetailModal.css';
-
-interface OrderDetailModalProps {
-  order: Order | null;
-  isOpen: boolean;
-  onClose: () => void;
-}
 
 export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                                                                      order,
                                                                      isOpen,
-                                                                     onClose
+                                                                     onClose,
+                                                                     onCancelOrder,
+                                                                     onDeleteOrder,
+                                                                     onReturnOrder,
                                                                    }) => {
+  const { isAdmin } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showReturnConfirm, setShowReturnConfirm] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -72,11 +75,80 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   const handleCancelOrder = () => {
     console.log('Huỷ đơn hàng');
     setMenuOpen(false);
+    setShowCancelConfirm(true);
+  };
+
+  const handleDeleteOrder = () => {
+    console.log('Xoá đơn hàng');
+    setMenuOpen(false);
+    setShowDeleteConfirm(true);
   };
 
   const handleReturnOrder = () => {
     console.log('Trả hàng');
     setMenuOpen(false);
+    setShowReturnConfirm(true);
+  };
+
+  // Xử lý xác nhận hủy đơn hàng
+  const handleConfirmCancel = () => {
+    console.log('Xác nhận hủy đơn hàng:', order?.orderId);
+    
+    // Kiểm tra orderId có hợp lệ không
+    if (!order?.orderId) {
+      alert('Không thể hủy đơn hàng: ID không hợp lệ');
+      setShowCancelConfirm(false);
+      return;
+    }
+    
+    onCancelOrder?.(order.orderId);
+    setShowCancelConfirm(false);
+    onClose();
+  };
+
+  // Xử lý xác nhận xóa đơn hàng
+  const handleConfirmDelete = () => {
+    console.log('Xác nhận xóa đơn hàng:', order?.orderId);
+    
+    // Kiểm tra orderId có hợp lệ không
+    if (!order?.orderId) {
+      alert('Không thể xóa đơn hàng: ID không hợp lệ');
+      setShowDeleteConfirm(false);
+      return;
+    }
+    
+    onDeleteOrder?.(order.orderId);
+    setShowDeleteConfirm(false);
+    onClose();
+  };
+
+  // xử lý xác nhận trả hàng
+    const handleConfirmReturn = () => {
+      console.log('Xác nhận hủy đơn hàng:', order?.orderId);
+
+      // Kiểm tra orderId có hợp lệ không
+      if (!order?.orderId) {
+        alert('Không thể hủy đơn hàng: ID không hợp lệ');
+        setShowCancelConfirm(false);
+        return;
+      }
+
+      onReturnOrder?.(order.orderId);
+      setShowReturnConfirm(false);
+      onClose();
+    }
+
+  // Đóng popup xác nhận
+  const handleCancelConfirm = () => {
+    setShowCancelConfirm(false);
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(false);
+  };
+
+  const handleReturnCancel = () => {
+    setShowReturnConfirm(false);
   };
 
   const handleMenuToggle = () => {
@@ -96,6 +168,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   };
 
   return (
+    <>
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           {/* Modal Header */}
@@ -173,7 +246,6 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                 ))}
               </div>
             </div>
-
             {/* Order Summary */}
             <div className="order-summary-section">
               <div className="summary-total">
@@ -198,16 +270,16 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
             </button>
 
             {order.status === 'DRAFT' && (
-                <button className="btn btn-warning btn-icon" onClick={handleCancelOrder}>
-                  ✖ Huỷ
+                <button className="btn btn-warning btn-icon" onClick={handleDeleteOrder}>
+                  ✖ Xoá
                 </button>
             )}
 
-            {order.status === 'CANCELLED' && (
-                <button className="btn btn-danger btn-icon">
-                  🗑️ Xoá
+            {/*{order.status === 'CANCELLED' && (
+                <button className="btn btn-danger btn-icon" onClick ={handleDeleteOrder}>
+                  Xoá
                 </button>
-            )}
+            )}*/}
 
              {order.status === 'COMPLETED' && (
                  <div className="dropdown-wrapper" ref={dropdownRef}>
@@ -223,16 +295,19 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                          position: 'fixed', 
                          top: `${dropdownPosition.top}px`,
                          left: `${dropdownPosition.left}px`,
-                         background: 'white', 
-                         border: '1px solid #ccc', 
                          zIndex: 99999,
-                         width: '120px',
-                         maxWidth: '120px',
-                         minWidth: '120px',
                          transform: 'none'
                        }}>
-                         <button onClick={handleCancelOrder}>Huỷ đơn hàng</button>
-                         <button onClick={handleReturnOrder}>Trả hàng</button>
+                         {isAdmin() && (
+                         <button onClick={handleCancelOrder}>
+                           <span style={{ marginRight: '4px' }}></span>
+                           Huỷ đơn hàng
+                         </button>
+                         )}
+                         <button onClick={handleReturnOrder}>
+                           <span style={{ marginRight: '4px' }}></span>
+                           Trả hàng
+                         </button>
                        </div>
                    )}
                  </div>
@@ -240,5 +315,39 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal cho Cancel */}
+      <ConfirmationModal
+        isOpen={showCancelConfirm}
+        title="Xác nhận hủy đơn hàng"
+        message={`Bạn có chắc chắn muốn hủy đơn hàng này không?\nMã đơn hàng: ${order?.code}`}
+        confirmText="Hủy đơn hàng"
+        cancelText="Không"
+        onConfirm={handleConfirmCancel}
+        onCancel={handleCancelConfirm}
+      />
+
+      {/* Confirmation Modal cho Delete */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        title="Xác nhận xóa đơn hàng"
+        message={`Bạn có chắc chắn muốn xóa đơn hàng này không?\nMã đơn hàng: ${order?.code}`}
+        confirmText="Xóa"
+        cancelText="Hủy"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleDeleteCancel}
+      />
+
+      <ConfirmationModal
+          isOpen={showReturnConfirm}
+          title="Xác nhận trả hàng"
+          message={`Bạn có chắc chắn muốn trả hàng không?\nMã đơn hàng: ${order?.code}`}
+          confirmText="Có"
+          cancelText="Không"
+          onConfirm={handleConfirmReturn}
+          onCancel={handleReturnCancel}
+      />
+    </>
+
   );
 };

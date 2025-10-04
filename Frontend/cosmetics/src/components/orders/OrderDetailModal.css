@@ -1,3 +1,24 @@
+.btn.btn-danger.btn-icon {
+    background: rgba(140, 28, 28, 0.82) !important;
+    color: white !important;
+    height: 30px !important;
+    width: 70px !important; /* Fixed width 40px */
+    min-width: 70px !important; /* Ensure minimum width */
+    max-width: 70px !important; /* Ensure maximum width */
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    padding: 0 4px !important; /* Reduced padding to fit 40px width */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important; /* Include padding in width calculation */
+}
+.btn.btn-danger:hover {
+    background: #2b1111;
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -43,7 +64,7 @@
     color: #ffffff;
     border: none;
     border-radius: 50%;
-    width: 32px;
+    width: 40px;
     height: 32px;
     cursor: pointer;
     font-size: 18px;
@@ -322,52 +343,192 @@
 }
 
 /* Dropdown Menu */
-.dropdown-menu {
+.dropdown-menu,
+.order-dropdown-menu {
     position: fixed !important;
     background: white !important;
     border: 1px solid #e5e7eb !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
     z-index: 99999 !important;
-    width: 120px !important;
-    max-width: 120px !important;
-    min-width: 120px !important;
+    width: 140px !important;
+    max-width: 140px !important;
+    min-width: 140px !important;
     display: flex !important;
     flex-direction: column !important;
     visibility: visible !important;
     opacity: 1 !important;
     transform: none !important;
+    overflow: hidden !important;
 }
 
 /* Dropdown Items */
-.dropdown-menu button {
-    display: block !important;
+.dropdown-menu button,
+.order-dropdown-menu button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
     width: 100% !important;
     max-width: 100% !important;
-    padding: 8px 16px !important;
+    padding: 12px 16px !important;
     background: none !important;
     border: none !important;
     text-align: left !important;
     font-size: 14px !important;
+    font-weight: 500 !important;
     color: #374151 !important;
     cursor: pointer !important;
-    transition: background-color 0.2s ease !important;
+    transition: all 0.2s ease !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    gap: 8px !important;
 }
 
-.dropdown-menu button:hover {
+.dropdown-menu button:hover,
+.order-dropdown-menu button:hover {
     background: #f3f4f6 !important;
+    color: #1f2937 !important;
+    transform: translateX(2px) !important;
 }
 
-.dropdown-menu button:first-child {
+.dropdown-menu button:first-child,
+.order-dropdown-menu button:first-child {
     border-radius: 8px 8px 0 0 !important;
 }
 
-.dropdown-menu button:last-child {
+.dropdown-menu button:last-child,
+.order-dropdown-menu button:last-child {
     border-radius: 0 0 8px 8px !important;
 }
+
+/* Specific styling for cancel and return buttons */
+.order-dropdown-menu button:first-child {
+    color: #dc2626 !important; /* Red color for cancel */
+}
+
+.order-dropdown-menu button:first-child:hover {
+    background: #fef2f2 !important;
+    color: #b91c1c !important;
+}
+
+.order-dropdown-menu button:last-child {
+    color: #ea580c !important; /* Orange color for return */
+}
+
+.order-dropdown-menu button:last-child:hover {
+    background: #fff7ed !important;
+    color: #c2410c !important;
+}
+
+.modal-overlay-confirm {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content-confirm {
+    width: 400px;        /* Thu nhỏ chiều rộng */
+    max-width: 90%;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modal-header-confirm {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #3C95FB;
+}
+
+.modal-header-confirm h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.modal-body-confirm {
+    padding: 20px;
+    text-align: left;
+}
+
+.modal-body-confirm p {
+    color: #000 !important;
+    font-size: 14px;
+    text-align: center;
+}
+
+.modal-footer-confirm {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid #e5e7eb;
+    background: #f8fafc;
+}
+
+/* Buttons */
+.btn.btn-secondary-confirm {
+    background: #7f8695;
+    color: white;
+    height: 30px;
+    width: 70px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn.btn-secondary-confirm:hover {
+    background: #4b5563;
+}
+
+.btn.btn-danger-confirm {
+    background: rgba(140, 28, 28, 0.82);
+    color: white;
+    height: 30px;
+    width: 90px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn.btn-danger-confirm:hover {
+    background: #2b1111;
+}
+
+@media (max-width: 768px) {
+    .modal-overlay-confirm {
+        padding: 10px;
+    }
+
+    .modal-content-confirm {
+        max-height: 95vh;
+    }
+
+    .modal-body-confirm {
+        padding: 16px;
+    }
+
+    .modal-footer-confirm {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
 
 
 

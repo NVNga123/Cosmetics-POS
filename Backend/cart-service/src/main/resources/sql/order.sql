@@ -7,6 +7,7 @@ CREATE TABLE orders (
                         user_name VARCHAR(100),
                         customer_name VARCHAR(255),
                         note TEXT,
+                        return_reason TEXT,
                         status VARCHAR(50),
                         total_quantity INT,
                         discount_id INT,

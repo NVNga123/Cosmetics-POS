@@ -35,6 +35,8 @@ public class OrderSubmitDTO {
 
     private String status;
 
+    private String returnReason;
+
     public List<OrderItemDTO> getItems() {
         return items;
     }
@@ -105,6 +107,12 @@ public class OrderSubmitDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getReturnReason() {return returnReason;}
+
+    public void setReturnReason(String returnReason) {
+        this.returnReason = returnReason;
     }
 
     @Override

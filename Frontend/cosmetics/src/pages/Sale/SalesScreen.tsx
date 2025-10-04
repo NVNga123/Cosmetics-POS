@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SalesScreen.css';
-import type { Order, OrderItem } from '../../types/order';
-import type { Product } from '../../types/product';
-import { ProductCard } from '../../components/sales/ProductCard';
-import { OrderSummary } from '../../components/sales/OrderSummary';
-import { productApi } from '../../api/productApi';
-import { orderApi } from '../../api/orderApi';
-import { ORDER_STATUS } from '../../constants/orderStatus.constants';
+import type { Order, OrderItem } from '../../types/order.ts';
+import type { Product } from '../../types/product.ts';
+
+import { ProductCard } from '../../components/sales/ProductCard.tsx';
+import { OrderSummary } from '../../components/sales/OrderSummary.tsx';
+
+import { productApi } from '../../api/productApi.ts';
+import { orderApi } from '../../api/orderApi.ts';
+
+import { ORDER_STATUS } from '../../constants/orderStatus.constants.ts';
 
 export const SalesScreen: React.FC = () => {
     const navigate = useNavigate();
     const [sidebarOpen] = useState(true);
+    //const [selectedCategory] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -21,30 +25,40 @@ export const SalesScreen: React.FC = () => {
         code: `ĐH-${index}`,
         customerName: '',
         total: 0,
-        status: ORDER_STATUS.DRAFT,
+        status: 'DRAFT',
         createdAt: undefined as any,
         items: [],
         notes: '',
     });
 
     const [orders, setOrders] = useState<Order[]>([createNewOrder(1)]);
-    const [activeOrderIndex, setActiveOrderIndex] = useState(0);
+    const [activeOrderIndex, setActiveOrderIndex] = useState(0);// Index của đơn hàng hiện tại
+
+
     const [customerName, setCustomerName] = useState('Khách lẻ');
-    const [notes, setNotes] = useState('');
+    const [notes, setNotes] = useState('---');
 
     // new order
     const handleAddOrder = () => {
         const newIndex = Math.max(...orders.map(o => o.orderId)) + 1;
         const newOrder = createNewOrder(newIndex);
-        setOrders(prev => [...prev, newOrder]);
+        console.log('Creating new order:', newOrder);
+        setOrders(prev => {
+            const newOrders = [...prev, newOrder];
+            console.log('Updated orders:', newOrders);
+            return newOrders;
+        });
         setActiveOrderIndex(orders.length);
     };
 
     // delete order
     const handleDeleteOrder = (index: number) => {
         if (orders.length <= 1) return;
+        
         const newOrders = orders.filter((_, i) => i !== index);
         setOrders(newOrders);
+        
+        // Điều chỉnh activeOrderIndex nếu cần
         if (activeOrderIndex >= newOrders.length) {
             setActiveOrderIndex(newOrders.length - 1);
         } else if (activeOrderIndex > index) {
@@ -52,38 +66,47 @@ export const SalesScreen: React.FC = () => {
         }
     };
 
-    // Fetch products
+
+    // Fetch products từ API
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const response = await productApi.getAllProducts();
+                console.log('Fetched products:', response);
+
+                // Nếu API trả về { code, result, total }
                 const productsData = response.result || [];
                 setProducts(productsData);
-                setFilteredProducts(productsData);
+                setFilteredProducts(productsData); // Initialize filtered products
             } catch (error) {
                 console.error('Error fetching products:', error);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchProducts();
     }, []);
 
+    // Search products using API
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [searchLoading, setSearchLoading] = useState(false);
 
-    // Search products
+    // Search products when searchQuery changes
     useEffect(() => {
         const searchProducts = async () => {
             if (!searchQuery.trim()) {
                 setFilteredProducts(products);
                 return;
             }
+
             try {
                 setSearchLoading(true);
                 const response = await productApi.searchProducts(searchQuery);
                 setFilteredProducts(response.result || []);
             } catch (error) {
+                console.error('Error searching products:', error);
+                // Fallback to local filter if API fails
                 const localFiltered = products.filter(product =>
                     product.name.toLowerCase().includes(searchQuery.toLowerCase())
                 );
@@ -92,7 +115,8 @@ export const SalesScreen: React.FC = () => {
                 setSearchLoading(false);
             }
         };
-        const timeoutId = setTimeout(searchProducts, 300);
+
+        const timeoutId = setTimeout(searchProducts, 300); // Debounce search
         return () => clearTimeout(timeoutId);
     }, [searchQuery, products]);
 
@@ -187,7 +211,7 @@ export const SalesScreen: React.FC = () => {
     };
 
     // Build order data for submission
-    const buildOrderData = () => {
+    const buildOrderData = (status: string) => {
         const currentOrder = orders[activeOrderIndex];
         const subtotal = currentOrder.items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
         const discount = currentOrder.items.reduce((sum, item) => sum + (item.subtotal - item.total), 0);
@@ -210,65 +234,96 @@ export const SalesScreen: React.FC = () => {
             total: total,
             customerName: customerName || 'Khách lẻ',
             notes: notes || '',
-            status: ORDER_STATUS.DRAFT,
+            status,
         };
     };
 
-    // Handle checkout (thanh toán)
-    const handleCheckout = async () => {
-        try {
-            const orderData = buildOrderData();
-            // Cập nhật trạng thái thành COMPLETED khi thanh toán
-            const checkoutData = { ...orderData, status: 'COMPLETED' };
-            console.log('Submitting order for checkout:', checkoutData);
-            await orderApi.submitOrder(checkoutData);
-            console.log('Order submitted successfully for checkout');
-            alert('Đơn hàng đã được thanh toán thành công!');
-            // Reset order after successful checkout
-            const newOrder = createNewOrder(Math.max(...orders.map(o => o.orderId)) + 1);
-            setOrders(prev => [...prev, newOrder]);
-            setActiveOrderIndex(orders.length);
-        } catch (error) {
-            console.error('Error during checkout:', error);
-            alert('Có lỗi xảy ra khi thanh toán. Vui lòng thử lại.');
-        }
-    };
 
-    // Handle save order (lưu đơn)
+    // Handle save order
     const handleSaveOrder = async () => {
         try {
-            const orderData = buildOrderData();
-            // Đơn hàng được lưu có trạng thái DRAFT
-            const saveData = { ...orderData, status: ORDER_STATUS.DRAFT };
-            console.log('Submitting order for save:', saveData);
-            await orderApi.submitOrder(saveData);
-            console.log('Order submitted successfully for save');
-            alert('Đơn hàng đã được lưu thành công!');
-            
-            // Xóa đơn hàng cũ và tạo đơn hàng mới
-            const newOrder = createNewOrder(Math.max(...orders.map(o => o.orderId)) + 1);
-            setOrders(prev => {
-                const newOrders = [...prev];
-                newOrders[activeOrderIndex] = newOrder;
-                return newOrders;
-            });
-            // Giữ nguyên activeOrderIndex để ở cùng tab
-        } catch (error) {
-            console.error('Error during save order:', error);
-            alert('Có lỗi xảy ra khi lưu đơn hàng. Vui lòng thử lại.');
+            const orderData = buildOrderData(ORDER_STATUS.DRAFT);
+            console.log('Saving draft order:', orderData);
+            const result = await orderApi.submitOrder(orderData);
+
+            if (result?.id) {
+                setOrders(prev => {
+                    const newOrders = [...prev];
+                    newOrders[activeOrderIndex] = {
+                        ...orders[activeOrderIndex],
+                        orderId: result.id,
+                        createdAt: result.createdAt,
+                    };
+                    return newOrders;
+                });
+            }
+
+            alert('Đơn hàng đã được lưu dưới dạng nháp!');
+        } catch (error: unknown) {
+            console.error('Error saving draft order:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            alert(`Có lỗi khi lưu đơn: ${errorMessage}`);
         }
     };
 
+    // Handle checkout
+        const handleCheckout = async () => {
+        try {
+            const orderData = buildOrderData(ORDER_STATUS.COMPLETED);
+            console.log('Submitting completed order:', orderData);
+            const result = await orderApi.submitOrder(orderData);
+
+            if (result?.id) {
+                setOrders(prev => {
+                    const newOrders = [...prev];
+                    newOrders[activeOrderIndex] = {
+                        ...orders[activeOrderIndex],
+                        orderId: result.id,
+                        status: 'COMPLETED',
+                        createdAt: result.createdAt,
+                    };
+                    return newOrders;
+                });
+            }
+
+            alert('Đơn hàng đã được thanh toán thành công!');
+            
+            // Reset order after successful checkout
+            const newIndex = Math.max(...orders.map(o => o.orderId)) + 1;
+            const newOrder = createNewOrder(newIndex);
+            setOrders(prev => [...prev, newOrder]);
+            setActiveOrderIndex(orders.length);
+            setCustomerName('Khách lẻ');
+            setNotes('');
+        } catch (error: unknown) {
+            console.error('Error submitting order:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            alert(`Có lỗi xảy ra khi thanh toán: ${errorMessage}`);
+        }
+    };
+
+
     return (
-        <div className={`pos-customer ${!sidebarOpen ? 'hidden-sidebar' : ''}`}>
-            <div className={`pos-item pos-info ${!sidebarOpen ? 'spread-width' : ''}`}>
+        <div
+            className={`pos-customer ${!sidebarOpen ? 'hidden-sidebar' : ''}`}
+        >
+            {/* Main Content */}
+            <div
+                className={`pos-item pos-info ${!sidebarOpen ? 'spread-width' : ''}`}
+            >
                 <div className="wrap-right-content panel-custom">
                     {/* Header */}
                     <ul className="nav nav-tabs">
                         <li className="flex-start-center col-12">
-                            <div className="logo-container" onClick={() => navigate('/')}>
+                            {/* Logo */}
+                            <div
+                                className="logo-container"
+                                onClick={() => navigate('/')}
+                            >
                                 CosmeticsPOS
                             </div>
+
+                            {/* Search */}
                             <div className="search-form-cart">
                                 <form className="search-product-order-cart">
                                     <div className="search-input-cart">
@@ -282,9 +337,14 @@ export const SalesScreen: React.FC = () => {
                                     <i className="fa-solid fa-magnifying-glass"></i>
                                 </form>
                             </div>
-                            <button className="filter-icon-btn">
+
+                            {/* Filter Icon */}
+                            <button
+                                className="filter-icon-btn"
+                            >
                                 <i className="fa-solid fa-filter"></i>
                             </button>
+
                         </li>
                     </ul>
 
@@ -312,7 +372,7 @@ export const SalesScreen: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Right Sidebar */}
+                {/* Right Sidebar - Order Summary */}
                 <OrderSummary
                     order={orders[activeOrderIndex]}
                     orders={orders}

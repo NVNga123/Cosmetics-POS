@@ -3,13 +3,13 @@ import axiosClient from '../api/axiosClient';
 
 // Tạm thời define User interface ở đây
 interface User {
-  id: string;
-  username: string;
+  id: string; username: string;
   email?: string;
   roles: string[];
 }
 
-interface AuthContextType {
+
+export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -139,7 +139,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
     }
   };
-
   const isAdmin = (): boolean => {
     const hasAdminRole = user?.roles?.includes('ADMIN') || false;
     

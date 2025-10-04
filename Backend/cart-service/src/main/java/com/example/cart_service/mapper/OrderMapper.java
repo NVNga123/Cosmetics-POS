@@ -25,6 +25,7 @@ public class OrderMapper {
         order.setTaxAmount(dto.getTax());
         order.setFinalPrice(dto.getTotal());
         order.setNote(dto.getNotes());
+        order.setReturnReason(dto.getReturnReason());
         order.setStatus(dto.getStatus() != null ? dto.getStatus() : "DRAFT");
 
         List<OrderDetail> items = dto.getItems().stream().map(itemDTO -> {
@@ -50,6 +51,7 @@ public class OrderMapper {
         order.setFinalPrice(dto.getTotal());
         order.setNote(dto.getNotes());
         order.setStatus(dto.getStatus() != null ? dto.getStatus() : order.getStatus());
+        order.setReturnReason(dto.getReturnReason()!= null ? dto.getReturnReason() : order.getReturnReason());
 
         return order;
     }
@@ -64,6 +66,7 @@ public class OrderMapper {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         dto.setCreatedAt(order.getCreatedDate().atZone(ZoneId.systemDefault()).format(formatter));
         dto.setNotes(order.getNote());
+        dto.setReturnReason(order.getReturnReason());
 
         List<OrderItemDTO> items = order.getOrderDetails().stream().map(item -> {
             OrderItemDTO itemDTO = new OrderItemDTO();

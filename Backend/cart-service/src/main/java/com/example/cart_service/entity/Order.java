@@ -33,6 +33,9 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
     @Column(name = "note")
     private String note;
 
+    @Column(name = "return_reason")
+    private String returnReason;
+
     @Column(name = "status")
     private String status;
 
@@ -95,6 +98,10 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
     public void setNote(String note) {
         this.note = note;
     }
+
+    public String getReturnReason() { return returnReason;}
+
+    public void setReturnReason(String returnReason) {this.returnReason = returnReason;}
 
     public String getStatus() {
         return status;
@@ -197,12 +204,12 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Order order = (Order) o;
-        return Objects.equals(id, order.id) && Objects.equals(code, order.code) && Objects.equals(customerId, order.customerId) && Objects.equals(customerName, order.customerName) && Objects.equals(userName, order.userName) && Objects.equals(note, order.note) && Objects.equals(status, order.status) && Objects.equals(quantity, order.quantity) && Objects.equals(discountId, order.discountId) && Objects.equals(totalDiscount, order.totalDiscount) && Objects.equals(taxRate, order.taxRate) && Objects.equals(taxAmount, order.taxAmount) && Objects.equals(totalAmount, order.totalAmount) && Objects.equals(paymentMethod, order.paymentMethod) && Objects.equals(finalPrice, order.finalPrice) && Objects.equals(orderDetails, order.orderDetails);
+        return Objects.equals(id, order.id) && Objects.equals(code, order.code) && Objects.equals(customerId, order.customerId) && Objects.equals(customerName, order.customerName) && Objects.equals(userName, order.userName) && Objects.equals(note, order.note) && Objects.equals(returnReason, order.returnReason) && Objects.equals(status, order.status) && Objects.equals(quantity, order.quantity) && Objects.equals(discountId, order.discountId) && Objects.equals(totalDiscount, order.totalDiscount) && Objects.equals(taxRate, order.taxRate) && Objects.equals(taxAmount, order.taxAmount) && Objects.equals(totalAmount, order.totalAmount) && Objects.equals(paymentMethod, order.paymentMethod) && Objects.equals(finalPrice, order.finalPrice) && Objects.equals(orderDetails, order.orderDetails);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, code, customerId, customerName, userName, note, status, quantity, discountId, totalDiscount, taxRate, taxAmount, totalAmount, paymentMethod, finalPrice, orderDetails);
+        return Objects.hash(id, code, customerId, customerName, userName, note, returnReason, status, quantity, discountId, totalDiscount, taxRate, taxAmount, totalAmount, paymentMethod, finalPrice, orderDetails);
     }
 
     @Override
@@ -214,6 +221,7 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
                 ", customerName='" + customerName + '\'' +
                 ", userName='" + userName + '\'' +
                 ", note='" + note + '\'' +
+                ", returnReason='" + returnReason + '\'' +
                 ", status='" + status + '\'' +
                 ", quantity=" + quantity +
                 ", discountId=" + discountId +

@@ -16,6 +16,7 @@ public class OrderResponseDTO {
     private String createdAt;
     private List<OrderItemDTO> items;
     private String notes;
+    private String returnReason;
 
     public Integer getOrderId() {
         return orderId;
@@ -79,6 +80,14 @@ public class OrderResponseDTO {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getReturnReason() {
+        return returnReason;
+    }
+
+    public void setReturnReason(String returnReason) {
+        this.returnReason = returnReason;
     }
 
     @Override
