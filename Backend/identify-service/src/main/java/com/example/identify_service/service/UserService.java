@@ -78,9 +78,27 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public List<UserResponse> getUsers() {
-        log.info("In method get Users");
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+    public List<UserResponse> getUsers(int page, int size, String username) {
+        log.info("In method get Users with page: {}, size: {}, username: {}", page, size, username);
+
+        List<User> users;
+        if (username != null && !username.trim().isEmpty()) {
+            users = userRepository.findByUsernameContainingIgnoreCase(username);
+        } else {
+            users = userRepository.findAll();
+        }
+
+        // Phân trang thủ công (có thể dùng Pageable cho phức tạp hơn)
+        int start = page * size;
+        int end = Math.min(start + size, users.size());
+
+        if (start >= users.size()) {
+            return List.of();
+        }
+
+        return users.subList(start, end).stream()
+                .map(userMapper::toUserResponse)
+                .toList();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
