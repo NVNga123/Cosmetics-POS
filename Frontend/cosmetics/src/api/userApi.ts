@@ -35,37 +35,37 @@ export interface UserListParams {
 
 // Lấy danh sách users với phân trang và lọc
 export const getUsers = async (params?: UserListParams): Promise<ApiResponse<User[]>> => {
-  const response = await axiosClient.get('/identify/users', { params });
+  const response = await axiosClient.get('/identity/users', { params });
   return response.data;
 };
 
 // Lấy thông tin user theo ID
 export const getUserById = async (userId: string): Promise<ApiResponse<User>> => {
-  const response = await axiosClient.get(`/identify/users/${userId}`);
+  const response = await axiosClient.get(`/identity/users/${userId}`);
   return response.data;
 };
 
 // Tạo user mới
 export const createUser = async (userData: UserCreationRequest): Promise<ApiResponse<User>> => {
-  const response = await axiosClient.post('/identify/users', userData);
+  const response = await axiosClient.post('/identity/users', userData);
   return response.data;
 };
 
 // Cập nhật user
 export const updateUser = async (userId: string, userData: UserUpdateRequest): Promise<ApiResponse<User>> => {
-  const response = await axiosClient.put(`/identify/users/${userId}`, userData);
+  const response = await axiosClient.put(`/identity/users/${userId}`, userData);
   return response.data;
 };
 
 // Xóa user
 export const deleteUser = async (userId: string): Promise<ApiResponse<string>> => {
-  const response = await axiosClient.delete(`/identify/users/${userId}`);
+  const response = await axiosClient.delete(`/identity/users/${userId}`);
   return response.data;
 };
 
 // Lấy thông tin user hiện tại
 export const getMyInfo = async (): Promise<ApiResponse<User>> => {
-  const response = await axiosClient.get('/identify/users/my-info');
+  const response = await axiosClient.get('/identity/users/my-info');
   return response.data;
 };
 
