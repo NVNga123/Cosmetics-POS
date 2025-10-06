@@ -1,24 +1,23 @@
 import axios from "axios";
 import type { Order, OrderSubmitData } from "../types/order";
-
-const API_URL = "http://localhost:8888/api/v1/orders";
+import { API_URL, API_ORDER } from "../constants/api.constants.ts";
 
 export const orderApi = {
 
   submitOrder: async (orderData: OrderSubmitData): Promise<any> => {
-    const response = await axios.post(API_URL, orderData, {
+    const response = await axios.post(API_URL + API_ORDER, orderData, {
       headers: { "Content-Type": "application/json" },
     });
     return response.data;
   },
 
   getAllOrders: async (): Promise<Order[]> => {
-    const response = await axios.get<Order[]>(API_URL);
+    const response = await axios.get<Order[]>(API_URL + API_ORDER);
     return response.data;
   },
 
   getById: async (id: string): Promise<Order> => {
-    const response = await axios.get<Order>(`${API_URL}/${id}`);
+    const response = await axios.get<Order>(`${API_URL}${API_ORDER}/${id}`);
     return response.data;
   },
 
@@ -34,14 +33,14 @@ export const orderApi = {
       customerName: "",
       notes: "",
     };
-    const response = await axios.put(`${API_URL}/${orderId}`, orderData, {
+    const response = await axios.put(`${API_URL}${API_ORDER}/${orderId}`, orderData, {
       headers: { "Content-Type": "application/json" },
     });
     return response.data;
   },
 
   deleteOrder: async (orderId: string): Promise<any> => {
-    const response = await axios.delete(`${API_URL}/${orderId}`);
+    const response = await axios.delete(`${API_URL}${API_ORDER}/${orderId}`);
     return response.data;
   },
 };
