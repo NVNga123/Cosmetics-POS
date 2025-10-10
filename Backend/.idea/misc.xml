@@ -8,10 +8,17 @@
         <option value="$PROJECT_DIR$/eureka-server/pom.xml" />
         <option value="$PROJECT_DIR$/identify-service/pom.xml" />
         <option value="$PROJECT_DIR$/cart-service/pom.xml" />
+<<<<<<< HEAD
         <option value="$PROJECT_DIR$/payment-service/pom.xml" />
         <option value="$PROJECT_DIR$/product-service/pom.xml" />
         <option value="$PROJECT_DIR$/invoice-service/pom.xml" />
         <option value="$PROJECT_DIR$/notification-service/pom.xml" />
+=======
+        <option value="$PROJECT_DIR$/invoice-service/pom.xml" />
+        <option value="$PROJECT_DIR$/notification-service/pom.xml" />
+        <option value="$PROJECT_DIR$/payment-service/pom.xml" />
+        <option value="$PROJECT_DIR$/product-service/pom.xml" />
+>>>>>>> parent of 1b3df01... Merge remote-tracking branch 'origin/tuan' into tuyen
       </list>
     </option>
   </component>

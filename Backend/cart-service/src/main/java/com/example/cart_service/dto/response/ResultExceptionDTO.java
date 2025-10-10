@@ -30,6 +30,10 @@ public class ResultExceptionDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "BaseResultExceptionDTO{" + "code='" + code + '\'' + ", message='" + message + '\'' + '}';
+        return "BaseResultExceptionDTO{" +
+                "code='" + code + '\'' +
+                ", message='" + message + '\'' +
+                '}';
     }
+
 }
