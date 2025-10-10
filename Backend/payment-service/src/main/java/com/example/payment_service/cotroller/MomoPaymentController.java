@@ -18,8 +18,8 @@ public class MomoPaymentController {
     private static final String ACCESS_KEY = "F8BBA842ECF85";
     private static final String SECRET_KEY = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private static final String PARTNER_CODE = "MOMO";
-    private static final String REDIRECT_URL = "http://localhost:5175/user/sales";
-    private static final String IPN_URL = "http://localhost:5175/user/sales";
+    private static final String REDIRECT_URL = "http://localhost:5173/user/sales";
+    private static final String IPN_URL = "http://localhost:5173/user/sales";
 
     @PostMapping()
     public ResponseEntity<?> createMomoPayment(@RequestBody MomoPaymentRequest request) {

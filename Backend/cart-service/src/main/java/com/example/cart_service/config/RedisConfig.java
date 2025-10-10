@@ -1,4 +1,4 @@
-package com.example.cart_service.redis;
+package com.example.cart_service.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

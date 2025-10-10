@@ -1,4 +1,4 @@
-package com.example.cart_service.redis;
+package com.example.cart_service.service.redis;
 
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;

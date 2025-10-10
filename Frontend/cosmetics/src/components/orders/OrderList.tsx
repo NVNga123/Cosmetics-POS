@@ -9,6 +9,7 @@ export const OrderList: React.FC<OrderListProps> = ({
   getStatusColor,
   getPaymentMethodText
 }) => {
+
   if (orders.length === 0) {
     return (
       <tr>
@@ -26,44 +27,44 @@ export const OrderList: React.FC<OrderListProps> = ({
   return (
     <>
       {orders.map((order, index) => (
-        <tr key={order.orderId}>
-          <td>{index + 1}</td>
-          <td
-            onClick={() => onViewOrder(order)}
-            title="Xem chi tiết"
-            style={{ cursor: "pointer" }}
-          >
-            {order.code}
-          </td>
-          <td>
-            <div className="customer-info">
+          <tr key={order.orderId}>
+            <td>{index + 1}</td>
+            <td
+                onClick={() => onViewOrder(order)}
+                title="Xem chi tiết"
+                style={{cursor: "pointer"}}
+            >
+              {order.code}
+            </td>
+            <td>
+              <div className="customer-info">
               <span>
                 Tên khách hàng: {order.customerName || "Khách lẻ"}
               </span>
-            </div>
-          </td>
-          <td>{order.createdAt}</td>
-          <td></td>
-          <td>{formatPrice(order.total)}</td>
-          <td>{getPaymentMethodText(order.paymentMethod)}</td>
-          <td>
+              </div>
+            </td>
+            <td>{new Date(order.createdDate || "").toLocaleString("vi-VN")}</td>
+            <td></td>
+            <td>{formatPrice(order.total)}</td>
+            <td>{getPaymentMethodText(order.paymentMethod)}</td>
+            <td>
             <span
-              className="status-badge"
-              style={{ color: getStatusColor(order.status) }}
+                className="status-badge"
+                style={{color: getStatusColor(order.status)}}
             >
               {getStatusText(order.status)}
             </span>
-          </td>
-          <td>
-            <button
-              className="action-btn menu-btn"
-              onClick={() => onViewOrder(order)}
-              title="Xem chi tiết"
-            >
-              ☰
-            </button>
-          </td>
-        </tr>
+            </td>
+            <td>
+              <button
+                  className="action-btn menu-btn"
+                  onClick={() => onViewOrder(order)}
+                  title="Xem chi tiết"
+              >
+                ☰
+              </button>
+            </td>
+          </tr>
       ))}
     </>
   );

@@ -7,7 +7,7 @@ import { ProductCard } from '../../components/sales/ProductCard.tsx';
 import { OrderSummary } from '../../components/sales/OrderSummary.tsx';
 import { productApi } from '../../api/productApi.ts';
 import { orderApi } from '../../api/orderApi.ts';
-import { ORDER_STATUS } from '../../constants/orderStatus.constants.ts';
+import { ORDER_STATUS } from '../../constants/orderStatusConstants.ts';
 
 export const SalesScreen: React.FC = () => {
     const navigate = useNavigate();
@@ -183,13 +183,14 @@ export const SalesScreen: React.FC = () => {
         updateOrder(updatedItems);
     };
 
-    const buildOrderData = (status: string) => {
+    const buildOrderData = (status: string, paymentMethod?: string) => {
         const currentOrder = orders[activeOrderIndex];
         const subtotal = currentOrder.items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
         const discount = currentOrder.items.reduce((sum, item) => sum + (item.subtotal - item.total), 0);
         const totalAfterDiscount = subtotal - discount;
         const tax = totalAfterDiscount * 0.1;
         const total = totalAfterDiscount + tax;
+
 
         return {
             items: currentOrder.items.map(item => ({
@@ -207,7 +208,7 @@ export const SalesScreen: React.FC = () => {
             customerName: customerName || 'Khách lẻ',
             notes: notes || '',
             status,
-            paymentMethod: currentOrder.paymentMethod,
+            paymentMethod: paymentMethod || currentOrder.paymentMethod,
         };
     };
 
@@ -216,13 +217,13 @@ export const SalesScreen: React.FC = () => {
             const orderData = buildOrderData(ORDER_STATUS.DRAFT);
             const result = await orderApi.submitOrder(orderData);
 
-            if (result?.id) {
+            if (result?.data?.orderId) {
                 setOrders(prev => {
                     const newOrders = [...prev];
                     newOrders[activeOrderIndex] = {
                         ...orders[activeOrderIndex],
-                        orderId: result.id,
-                        createdAt: result.createdAt,
+                        orderId: result.data.orderId,
+                        createdAt: result.data.createdAt,
                     };
                     return newOrders;
                 });
@@ -237,6 +238,8 @@ export const SalesScreen: React.FC = () => {
 
     const handleCheckout = async (paymentMethod?: string) => {
         try {
+            console.log('handleCheckout - received paymentMethod:', paymentMethod);
+            
             if (paymentMethod) {
                 setOrders(prev => {
                     const newOrders = [...prev];
@@ -248,17 +251,17 @@ export const SalesScreen: React.FC = () => {
                 });
             }
 
-            const orderData = buildOrderData(ORDER_STATUS.COMPLETED);
+            const orderData = buildOrderData(ORDER_STATUS.COMPLETED, paymentMethod);
+            console.log('handleCheckout - orderData being sent:', orderData);
             const result = await orderApi.submitOrder(orderData);
 
-            if (result?.id) {
+            if (result?.data?.orderId) {
                 setOrders(prev => {
                     const newOrders = [...prev];
                     newOrders[activeOrderIndex] = {
                         ...orders[activeOrderIndex],
-                        orderId: result.id,
-                        status: 'COMPLETED',
-                        createdAt: result.createdAt,
+                        orderId: result.data.orderId,
+                        createdAt: result.data.createdAt,
                     };
                     return newOrders;
                 });

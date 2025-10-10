@@ -1,20 +1,15 @@
-package com.example.cart_service.dto;
+package com.example.cart_service.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
-public class OrderResponseDTO {
+public class OrderResponse {
     private Integer orderId;
     private  String code;
     private String customerName;
     private double total;
     private String status;
-    private String createdAt;
-    private List<OrderItemDTO> items;
+    private String createdDate;
+    private List<OrderItemResponse> items;
     private String notes;
     private String returnReason;
     private String paymentMethod;
@@ -60,18 +55,18 @@ public class OrderResponseDTO {
     }
 
     public String getCreatedAt() {
-        return createdAt;
+        return createdDate;
     }
 
     public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
+        this.createdDate = createdAt;
     }
 
-    public List<OrderItemDTO> getItems() {
+    public List<OrderItemResponse> getItems() {
         return items;
     }
 
-    public void setItems(List<OrderItemDTO> items) {
+    public void setItems(List<OrderItemResponse> items) {
         this.items = items;
     }
 
@@ -99,18 +94,6 @@ public class OrderResponseDTO {
         this.paymentMethod = paymentMethod;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        OrderResponseDTO that = (OrderResponseDTO) o;
-        return Double.compare(total, that.total) == 0 && Objects.equals(orderId, that.orderId) && Objects.equals(code, that.code) && Objects.equals(customerName, that.customerName) && Objects.equals(status, that.status) && Objects.equals(createdAt, that.createdAt) && Objects.equals(items, that.items) && Objects.equals(notes, that.notes);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(orderId, code, customerName, total, status, createdAt, items, notes);
-    }
 
     @Override
     public String toString() {
@@ -120,7 +103,7 @@ public class OrderResponseDTO {
                 ", customerName='" + customerName + '\'' +
                 ", total=" + total +
                 ", status='" + status + '\'' +
-                ", createdAt='" + createdAt + '\'' +
+                ", createdAt='" + createdDate + '\'' +
                 ", items=" + items +
                 ", notes='" + notes + '\'' +
                 '}';

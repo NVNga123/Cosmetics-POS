@@ -1,8 +1,8 @@
 package com.example.cart_service.controller;
 
 
-import com.example.cart_service.dto.OrderResponseDTO;
-import com.example.cart_service.dto.OrderSubmitDTO;
+import com.example.cart_service.dto.request.OrderRequest;
+import com.example.cart_service.dto.response.ResultDTO;
 import com.example.cart_service.service.OrderService;
 import org.junit.platform.commons.logging.Logger;
 import com.example.cart_service.entity.Order;
@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 
 
 @RestController
@@ -28,38 +26,40 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Order> create(@RequestBody OrderSubmitDTO orderSubmitDTO) throws URISyntaxException {
-        LOG.debug(() -> "REST request to save Order : " + orderSubmitDTO);
-        Order result = orderService.save(orderSubmitDTO);
-        return ResponseEntity.created(new URI("/api/orders/" + result.getId())).body(result);
+    public ResponseEntity<ResultDTO> create(@RequestBody OrderRequest orderRequest) throws URISyntaxException {
+        LOG.debug(() -> "REST request to save Order : " + orderRequest);
+        ResultDTO result = orderService.save(orderRequest);
+        return ResponseEntity
+                .created(new URI("/orders/" + ((Order) result.getData()).getId()))
+                .body(result);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Order> update(@PathVariable Integer id, @RequestBody OrderSubmitDTO orderSubmitDTO) throws URISyntaxException {
-        LOG.debug(() -> "REST request to update Order : " + orderSubmitDTO);
-        if(orderSubmitDTO.getId() == null || !orderSubmitDTO.getId().equals(id)) {
+    public ResponseEntity<ResultDTO> update(@PathVariable Integer id, @RequestBody OrderRequest orderRequest) throws URISyntaxException {
+        LOG.debug(() -> "REST request to update Order : " + orderRequest);
+        if(orderRequest.getId() == null || !orderRequest.getId().equals(id)) {
             return ResponseEntity.badRequest().build();
         }
-        Order result = orderService.update(orderSubmitDTO);
+        ResultDTO result = orderService.update(orderRequest);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderResponseDTO>> getAllOrders(){
+    public ResponseEntity<ResultDTO> getAllOrders(){
         LOG.debug(() -> "REST request to get all Orders");
-        List<OrderResponseDTO> orders = orderService.findAll();
-        return ResponseEntity.ok(orders);
+        ResultDTO resultDTO = orderService.findAll();
+        return ResponseEntity.ok(resultDTO);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOne(@PathVariable Integer id) {
+    public ResponseEntity<ResultDTO> getOne(@PathVariable Integer id) {
         LOG.debug(() -> "REST request to get Order : " + id);
-        Optional<Order> orderOpt = orderService.findOne(id);
-        return orderOpt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        ResultDTO resultDTO = orderService.findOne(id);
+        return ResponseEntity.ok(resultDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<ResultDTO> delete(@PathVariable Integer id) {
         LOG.debug(() -> "REST request to delete Order : " + id);
         orderService.delete(id);
         return ResponseEntity.noContent().build();

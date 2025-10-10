@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { createMomoPayment } from '../../api/paymentApi';
 import './PaymentModal.css';
 import type { PaymentModalProps, MomoPaymentRequest } from "../../types/payment.ts";
-import { paymentMethods } from "../../constants/payment.constants.ts";
-import type { PaymentMethod } from "../../constants/payment.constants.ts";
+import { paymentMethods } from "../../constants/paymentConstants.ts";
+import type { PaymentMethod } from "../../constants/paymentConstants.ts";
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({
   isOpen,

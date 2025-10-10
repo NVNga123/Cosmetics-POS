@@ -1,6 +1,7 @@
 package com.example.cart_service.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -64,6 +65,7 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
     private Double finalPrice;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<OrderDetail> orderDetails;
 
     @Override
@@ -202,14 +204,14 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Order order = (Order) o;
-        return Objects.equals(id, order.id) && Objects.equals(code, order.code) && Objects.equals(customerId, order.customerId) && Objects.equals(customerName, order.customerName) && Objects.equals(userName, order.userName) && Objects.equals(note, order.note) && Objects.equals(returnReason, order.returnReason) && Objects.equals(status, order.status) && Objects.equals(quantity, order.quantity) && Objects.equals(discountId, order.discountId) && Objects.equals(totalDiscount, order.totalDiscount) && Objects.equals(taxRate, order.taxRate) && Objects.equals(taxAmount, order.taxAmount) && Objects.equals(totalAmount, order.totalAmount) && Objects.equals(paymentMethod, order.paymentMethod) && Objects.equals(finalPrice, order.finalPrice) && Objects.equals(orderDetails, order.orderDetails);
+        if (!(o instanceof Order)) return false;
+        Order other = (Order) o;
+        return Objects.equals(id, other.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, code, customerId, customerName, userName, note, returnReason, status, quantity, discountId, totalDiscount, taxRate, taxAmount, totalAmount, paymentMethod, finalPrice, orderDetails);
+        return Objects.hash(id);
     }
 
     @Override
@@ -217,21 +219,9 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
         return "Order{" +
                 "id=" + id +
                 ", code='" + code + '\'' +
-                ", customerId='" + customerId + '\'' +
                 ", customerName='" + customerName + '\'' +
-                ", userName='" + userName + '\'' +
-                ", note='" + note + '\'' +
-                ", returnReason='" + returnReason + '\'' +
-                ", status='" + status + '\'' +
-                ", quantity=" + quantity +
-                ", discountId=" + discountId +
-                ", totalDiscount=" + totalDiscount +
-                ", taxRate=" + taxRate +
-                ", taxAmount=" + taxAmount +
                 ", totalAmount=" + totalAmount +
-                ", paymentMethod='" + paymentMethod + '\'' +
-                ", finalPrice=" + finalPrice +
-                ", orderDetails=" + orderDetails +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

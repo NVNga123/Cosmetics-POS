@@ -1,4 +1,4 @@
-package com.example.cart_service.dto;
+package com.example.cart_service.dto.response;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.Objects;
 
-public class OrderItemDTO {
+public class OrderItemResponse {
 
     @NotNull(message = "Product ID cannot be null")
     private String productId;
@@ -68,7 +68,7 @@ public class OrderItemDTO {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OrderItemDTO that)) return false;
+        if (!(o instanceof OrderItemResponse that)) return false;
         return Double.compare(that.price, price) == 0 &&
                 quantity == that.quantity &&
                 Double.compare(that.subtotal, subtotal) == 0 &&

@@ -1,5 +1,5 @@
 // Re-export from constants
-export { getStatusText, getStatusColor } from '../constants/orderStatus.constants';
+export { getStatusText, getStatusColor } from '../constants/orderStatusConstants.ts';
 
 export const formatPrice = (price: number) => {
   return new Intl.NumberFormat("vi-VN").format(price);

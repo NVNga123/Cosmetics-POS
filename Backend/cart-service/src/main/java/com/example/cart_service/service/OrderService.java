@@ -1,21 +1,17 @@
 package com.example.cart_service.service;
 
-import com.example.cart_service.dto.OrderResponseDTO;
-import com.example.cart_service.dto.OrderSubmitDTO;
-import com.example.cart_service.entity.Order;
-
-import java.util.List;
-import java.util.Optional;
+import com.example.cart_service.dto.request.OrderRequest;
+import com.example.cart_service.dto.response.ResultDTO;
 
 public interface OrderService {
-    Order save(OrderSubmitDTO orderSubmitDTO);
+    ResultDTO save(OrderRequest orderRequest);
 
-    Order update(OrderSubmitDTO orderSubmitDTO);
+    ResultDTO update(OrderRequest orderRequest);
 
-    void delete(Integer id);
+    ResultDTO delete(Integer id);
 
-    Optional<Order> findOne(Integer id);
+    ResultDTO findOne(Integer id);
 
-    List<OrderResponseDTO> findAll();
+    ResultDTO findAll();
 
 }

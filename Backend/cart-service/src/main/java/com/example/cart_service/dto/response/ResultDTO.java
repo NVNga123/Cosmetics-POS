@@ -1,4 +1,4 @@
-package com.example.product_service.dto;
+package com.example.cart_service.dto.response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -96,3 +96,4 @@ public class ResultDTO {
         }
     }
 }
+

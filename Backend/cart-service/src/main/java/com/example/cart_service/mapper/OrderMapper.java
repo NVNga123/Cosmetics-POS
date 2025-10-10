@@ -1,14 +1,12 @@
 package com.example.cart_service.mapper;
 
-import com.example.cart_service.dto.OrderItemDTO;
-import com.example.cart_service.dto.OrderResponseDTO;
-import com.example.cart_service.dto.OrderSubmitDTO;
+import com.example.cart_service.dto.response.OrderItemResponse;
+import com.example.cart_service.dto.response.OrderResponse;
+import com.example.cart_service.dto.request.OrderRequest;
 import com.example.cart_service.entity.Order;
 import com.example.cart_service.entity.OrderDetail;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -17,7 +15,7 @@ import java.util.stream.Collectors;
 @Component
 public class OrderMapper {
 
-    public Order toEntity(OrderSubmitDTO dto) {
+    public Order toEntity(OrderRequest dto) {
         Order order = new Order();
         order.setCustomerName(dto.getCustomerName());
         order.setTotalAmount(dto.getSubtotal());
@@ -44,7 +42,7 @@ public class OrderMapper {
         return order;
     }
 
-    public Order updateEntity(OrderSubmitDTO dto, Order order) {
+    public Order updateEntity(OrderRequest dto, Order order) {
         order.setCustomerName(dto.getCustomerName()!= null ? dto.getCustomerName() : order.getCustomerName());
         order.setTotalAmount(dto.getSubtotal());
         order.setTotalDiscount(dto.getDiscount());
@@ -58,8 +56,8 @@ public class OrderMapper {
         return order;
     }
 
-    public OrderResponseDTO toDTO(Order order) {
-        OrderResponseDTO dto = new OrderResponseDTO();
+    public OrderResponse toDTO(Order order) {
+        OrderResponse dto = new OrderResponse();
         dto.setOrderId(order.getId());
         dto.setCode(order.getCode());
         dto.setCustomerName(order.getCustomerName());
@@ -71,8 +69,8 @@ public class OrderMapper {
         dto.setReturnReason(order.getReturnReason());
         dto.setPaymentMethod(order.getPaymentMethod());
 
-        List<OrderItemDTO> items = order.getOrderDetails().stream().map(item -> {
-            OrderItemDTO itemDTO = new OrderItemDTO();
+        List<OrderItemResponse> items = order.getOrderDetails().stream().map(item -> {
+            OrderItemResponse itemDTO = new OrderItemResponse();
             itemDTO.setProductId(item.getProductId());
             itemDTO.setProductName(item.getProductName());
             itemDTO.setPrice(item.getUnitPrice());

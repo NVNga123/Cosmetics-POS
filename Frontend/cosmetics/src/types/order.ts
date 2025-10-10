@@ -7,7 +7,7 @@ export interface Order {
     total: number;
     status: string;
     returnReason?: string;
-    createdAt: string;
+    createdDate?: string;
     items: OrderItem[];
     notes: string;
     paymentMethod?: string;
@@ -98,4 +98,5 @@ export interface OrderFiltersProps {
     onSearchChange: (value: string) => void;
     selectedStatus: string;
     onStatusChange: (status: string) => void;
+    totalOrders: number;
 }

@@ -1,4 +1,4 @@
-package com.example.cart_service.dto;
+package com.example.cart_service.dto.response;
 
 import java.io.Serializable;
 

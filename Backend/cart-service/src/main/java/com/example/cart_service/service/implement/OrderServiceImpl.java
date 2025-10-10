@@ -1,18 +1,17 @@
 package com.example.cart_service.service.implement;
 
-import com.example.cart_service.dto.OrderResponseDTO;
-import com.example.cart_service.dto.OrderSubmitDTO;
-import com.example.cart_service.entity.OrderDetail;
+import com.example.cart_service.dto.response.OrderResponse;
+import com.example.cart_service.dto.request.OrderRequest;
+import com.example.cart_service.dto.response.ResultDTO;
 import com.example.cart_service.service.OrderService;
 import com.example.cart_service.entity.Order;
 import com.example.cart_service.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.cart_service.mapper.OrderMapper;
-import com.example.cart_service.redis.RedisService;
+import com.example.cart_service.service.redis.RedisService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,44 +30,49 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order save(OrderSubmitDTO orderSubmitDTO) {
-        Order order = orderMapper.toEntity(orderSubmitDTO);
+    public ResultDTO save(OrderRequest orderRequest) {
+        Order order = orderMapper.toEntity(orderRequest);
         String code = redisService.genCode("DH");
         order.setCode(code);
-        return orderRepository.save(order);
+        order = orderRepository.save(order);
+        return new ResultDTO("success", "lưu đơn hàng thành công", true, order, 1);
     }
 
-    public Order update(OrderSubmitDTO orderSubmitDTO) {
-        Order order = orderRepository.findById(orderSubmitDTO.getId())
+    public ResultDTO update(OrderRequest orderRequest) {
+        Order order = orderRepository.findById(orderRequest.getId())
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-        order = orderMapper.updateEntity(orderSubmitDTO, order);
-        return orderRepository.save(order);
+        order = orderMapper.updateEntity(orderRequest, order);
+        return new ResultDTO("success", "update đơn hàng thành công", true, order, 1);
     }
 
     @Override
     @Transactional
-    public void delete(Integer id) {
+    public ResultDTO delete(Integer id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         if(!"DRAFT".equals(order.getStatus())) {
             throw new RuntimeException("Only DRAFT orders can be deleted");
         }
-        orderRepository.deleteById(id);
+        return new ResultDTO("success", "xoá đơn hàng thành công", true);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Order> findOne(Integer id) {
-        return orderRepository.findById(id);
+    public ResultDTO findOne(Integer id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        return new ResultDTO("success", "lấy đơn hàng thành công", true, order, 1);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderResponseDTO> findAll() {
+    public ResultDTO findAll() {
         List<Order> orders = orderRepository.findAll();
-        return orders.stream().map(order ->{
-            OrderResponseDTO dto = orderMapper.toDTO(order);
+        orders.stream().map(order -> {
+            OrderResponse dto = orderMapper.toDTO(order);
             return dto;
-        }) .collect(Collectors.toList());
+        }).collect(Collectors.toList());
+
+        return new ResultDTO("success", "lấy danh sách order thành công", true, orders);
     }
 }

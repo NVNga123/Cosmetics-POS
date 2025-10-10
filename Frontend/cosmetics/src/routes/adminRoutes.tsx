@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Dashboard } from '../features/admin/dashboard';
 import { ProductManagement } from '../features/admin/productManagement';
-import { OrderManagement } from '../features/admin/orderManagement';
+import { OrderManagement } from '../features/admin/order/orderManagement.tsx';
 import { UserManagement } from '../features/admin/userManagement';
 
 export const AdminRoutes = () => {

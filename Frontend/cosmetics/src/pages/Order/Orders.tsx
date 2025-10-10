@@ -6,27 +6,35 @@ import { OrderFilters } from "../../components/orders/OrderFilters.tsx";
 import { OrderTable } from "../../components/orders/OrderTable.tsx";
 import { formatPrice, getStatusText, getStatusColor, getPaymentMethodText } from "../../utils/orderUtils.ts";
 import "./Orders.css";
-import { useNavigate } from "react-router-dom";
 
 export const Orders: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
-    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("all");
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [totalOrders, setTotalOrders] = useState(0);
+
 
     const fetchOrders = async () => {
+        console.log("fetchOrders() được gọi!");
         try {
             setLoading(true);
             setError(null);
-            const data = await orderApi.getAllOrders();
+            const result = await orderApi.getAllOrders();
+            const { data = [], count = 0 } = result || {};
+            setTotalOrders(count);
+            console.log("API response:", data);
+
+
 
             const transformedOrders = (data || []).map((order: any) => ({
                 ...order,
                 orderId: order.id || order.orderId,
+                total: order.finalPrice,
+
                 items: (order.items || order.orderDetails || []).map((item: any) => ({
                     ...item,
                     product: item.product || {
@@ -169,13 +177,6 @@ export const Orders: React.FC = () => {
             <div className="orders-header">
                 <h1>Danh sách đơn hàng</h1>
                 <div className="header-actions">
-                    <button
-                        className="btn btn-primary"
-                        onClick={() => navigate("/user/sales")}
-                    >
-                        <span className="icon">+</span>
-                        Thêm ĐH
-                    </button>
                     <button className="btn btn-primary">
                         Xuất Excel
                         <span className="dropdown-arrow">▼</span>
@@ -189,6 +190,7 @@ export const Orders: React.FC = () => {
                 onSearchChange={setSearchTerm}
                 selectedStatus={selectedStatus}
                 onStatusChange={setSelectedStatus}
+                totalOrders={totalOrders}
             />
 
             {/* Orders Table */}

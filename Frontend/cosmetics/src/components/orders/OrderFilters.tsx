@@ -1,6 +1,6 @@
 import React from 'react';
 import type { OrderFiltersProps } from '../../types/order.ts';
-import { statusTabs } from "../../constants/orderStatus.constants.ts";
+import { statusTabs } from "../../constants/orderStatusConstants.ts";
 
 export const OrderFilters: React.FC<OrderFiltersProps> = ({
   searchTerm,

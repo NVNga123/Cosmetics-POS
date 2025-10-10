@@ -1,4 +1,4 @@
-import type { PaymentMethod } from "../constants/payment.constants.ts";
+import type { PaymentMethod } from "../constants/paymentConstants.ts";
 
 export interface Payment {
     orderInfo: string;

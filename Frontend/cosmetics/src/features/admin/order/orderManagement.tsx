@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { orderApi } from "../../api/orderApi.ts";
-import type { Order } from "../../types/order.ts";
-import { OrderDetailModal } from "../../components/orders/OrderDetailModal.tsx";
-import { OrderFilters } from "../../components/orders/OrderFilters.tsx";
-import { OrderTable } from "../../components/orders/OrderTable.tsx";
-import { formatPrice, getStatusText, getStatusColor, getPaymentMethodText } from "../../utils/orderUtils.ts";
+import { useEffect, useState } from "react";
+import { orderApi } from "../../../api/orderApi.ts";
+import type { Order } from "../../../types/order.ts";
+import { OrderDetailModal } from "./OrderDetailModal.tsx";
+import { OrderFilters } from "./OrderFilters.tsx";
+import { OrderTable } from "../../../components/orders/OrderTable.tsx";
+import { formatPrice, getStatusText, getStatusColor, getPaymentMethodText } from "../../../utils/orderUtils.ts";
 import "./OrderManagement.css";
 import { useNavigate } from "react-router-dom";
 
@@ -17,16 +17,21 @@ export const OrderManagement = () => {
     const [selectedStatus, setSelectedStatus] = useState("all");
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [totalOrders, setTotalOrders] = useState(0);
+
 
     const fetchOrders = async () => {
         try {
             setLoading(true);
             setError(null);
-            const data = await orderApi.getAllOrders();
+            const result = await orderApi.getAllOrders();
+            const { data = [], count = 0 } = result || {};
+            setTotalOrders(count);
 
             const transformedOrders = (data || []).map((order: any) => ({
                 ...order,
                 orderId: order.id || order.orderId,
+                total: order.finalPrice,
                 items: (order.items || order.orderDetails || []).map((item: any) => ({
                     ...item,
                     product: item.product || {
@@ -164,11 +169,11 @@ export const OrderManagement = () => {
         );
 
     return (
-        <div className="orders-page">
+        <div className="orders-management-page">
             {/* Header */}
-            <div className="orders-header">
+            <div className="orders-management-header">
                 <h1>Danh sách đơn hàng</h1>
-                <div className="header-actions">
+                <div className="orders-management-header-actions">
                     <button
                         className="btn btn-primary"
                         onClick={() => navigate("/user/sales")}
@@ -189,6 +194,7 @@ export const OrderManagement = () => {
                 onSearchChange={setSearchTerm}
                 selectedStatus={selectedStatus}
                 onStatusChange={setSelectedStatus}
+                totalOrders={totalOrders}
             />
 
             {/* Orders Table */}

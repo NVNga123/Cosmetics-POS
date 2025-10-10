@@ -1,18 +1,18 @@
-package com.example.cart_service.dto;
+package com.example.cart_service.dto.request;
 
+import com.example.cart_service.dto.response.OrderItemResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.Objects;
 
-public class OrderSubmitDTO {
+public class OrderRequest {
 
     @Valid
     @NotNull
-    private List<OrderItemDTO> items;
+    private List<OrderItemResponse> items;
 
     @NotNull
     private Integer id;
@@ -39,7 +39,7 @@ public class OrderSubmitDTO {
 
     private String paymentMethod;
 
-    public List<OrderItemDTO> getItems() {
+    public List<OrderItemResponse> getItems() {
         return items;
     }
 
@@ -51,7 +51,7 @@ public class OrderSubmitDTO {
         this.id = id;
     }
 
-    public void setItems(List<OrderItemDTO> items) {
+    public void setItems(List<OrderItemResponse> items) {
         this.items = items;
     }
 
@@ -129,7 +129,7 @@ public class OrderSubmitDTO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OrderSubmitDTO that = (OrderSubmitDTO) o;
+        OrderRequest that = (OrderRequest) o;
         return Double.compare(subtotal, that.subtotal) == 0 && Double.compare(discount, that.discount) == 0 && Double.compare(tax, that.tax) == 0 && Double.compare(total, that.total) == 0 && Objects.equals(items, that.items) && Objects.equals(id, that.id) && Objects.equals(customerName, that.customerName) && Objects.equals(notes, that.notes) && Objects.equals(status, that.status) && Objects.equals(returnReason, that.returnReason) && Objects.equals(paymentMethod, that.paymentMethod);
     }
 
