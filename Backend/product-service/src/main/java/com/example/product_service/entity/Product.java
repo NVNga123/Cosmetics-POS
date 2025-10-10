@@ -1,10 +1,9 @@
 package com.example.product_service.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.math.BigDecimal;
 
 @Getter
 @Setter

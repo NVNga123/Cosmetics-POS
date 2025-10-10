@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import com.example.product_service.dto.request.ProductUpdateRequest;
 import com.example.product_service.dto.request.ProductCreationRequest;
+import com.example.product_service.dto.request.ProductUpdateRequest;
 import com.example.product_service.dto.response.ProductResponse;
 import com.example.product_service.entity.Product;
 
