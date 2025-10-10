@@ -28,6 +28,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<ResultDTO> create(@RequestBody OrderRequest orderRequest) throws URISyntaxException {
         LOG.debug(() -> "REST request to save Order : " + orderRequest);
+        System.out.println("=== FE gửi đến ===");
         ResultDTO result = orderService.save(orderRequest);
         return ResponseEntity
                 .created(new URI("/orders/" + ((Order) result.getData()).getId()))

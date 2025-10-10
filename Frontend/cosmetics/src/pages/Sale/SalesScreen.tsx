@@ -22,7 +22,7 @@ export const SalesScreen: React.FC = () => {
         customerName: '',
         total: 0,
         status: 'DRAFT',
-        createdAt: undefined as any,
+        createdDate: undefined as any,
         items: [],
         notes: '',
         paymentMethod: undefined,
@@ -223,7 +223,7 @@ export const SalesScreen: React.FC = () => {
                     newOrders[activeOrderIndex] = {
                         ...orders[activeOrderIndex],
                         orderId: result.data.orderId,
-                        createdAt: result.data.createdAt,
+                        createdDate: result.data.createdDate,
                     };
                     return newOrders;
                 });
@@ -261,7 +261,7 @@ export const SalesScreen: React.FC = () => {
                     newOrders[activeOrderIndex] = {
                         ...orders[activeOrderIndex],
                         orderId: result.data.orderId,
-                        createdAt: result.data.createdAt,
+                        createdDate: result.data.createdDate,
                     };
                     return newOrders;
                 });

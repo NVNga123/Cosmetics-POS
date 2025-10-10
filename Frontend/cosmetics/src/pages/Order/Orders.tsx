@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { orderApi } from "../../api/orderApi.ts";
 import type { Order } from "../../types/order.ts";
 import { OrderDetailModal } from "../../components/orders/OrderDetailModal.tsx";
@@ -9,6 +10,7 @@ import "./Orders.css";
 
 export const Orders: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -66,6 +68,10 @@ export const Orders: React.FC = () => {
         fetchOrders();
     }, []);
 
+
+    const handleAddOrder = () => {
+        navigate("/user/sales");
+    };
 
     const handleViewOrder = (order: Order) => {
         setSelectedOrder(order);
@@ -181,6 +187,12 @@ export const Orders: React.FC = () => {
                         Xuất Excel
                         <span className="dropdown-arrow">▼</span>
                     </button>
+
+                    <button className="btn btn-secondary" onClick={handleAddOrder}>
+                        Thêm đơn hàng
+                        <span className="bi bi-plus-circle ms-2">+</span>
+                    </button>
+
                 </div>
             </div>
 
