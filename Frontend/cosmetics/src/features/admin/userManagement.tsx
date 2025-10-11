@@ -12,7 +12,7 @@ import type {
   UserUpdateRequest 
 } from '../../api/userApi';
 
-import '../../../assets/styles/admin.css';
+import '../../assets/styles/admin.css';
 import './userManagement.css';
 
 interface UserStats {
