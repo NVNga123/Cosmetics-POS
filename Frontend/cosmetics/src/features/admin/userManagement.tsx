@@ -12,6 +12,9 @@ import type {
   UserUpdateRequest 
 } from '../../api/userApi';
 
+import '../../../assets/styles/admin.css';
+import './userManagement.css';
+
 interface UserStats {
   total: number;
   userRole: number;
@@ -191,7 +194,7 @@ export const UserManagement = () => {
       {/* Header */}
       <div className="management-header">
         <h1>Quản lý tài khoản</h1>
-        <button className="btn-primary" onClick={openCreateModal}>
+        <button className="btn btn-primary" onClick={openCreateModal}>
           ➕ Thêm người dùng
         </button>
       </div>
@@ -225,7 +228,7 @@ export const UserManagement = () => {
       <div className="search-bar">
         <input
           type="text"
-          placeholder="Tìm kiếm theo tên đăng nhập..."
+          placeholder="🔍 Tìm kiếm theo tên đăng nhập..."
           value={searchUsername}
           onChange={(e) => setSearchUsername(e.target.value)}
           className="search-input"
