@@ -18,7 +18,8 @@ export const OrderManagement = () => {
     const [selectedStatus, setSelectedStatus] = useState("all");
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [totalOrders, setTotalOrders] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
 
 
     const fetchOrders = async () => {
@@ -26,8 +27,7 @@ export const OrderManagement = () => {
             setLoading(true);
             setError(null);
             const result = await orderApi.getAllOrders();
-            const { data = [], count = 0 } = result || {};
-            setTotalOrders(count);
+            const { data = [] } = result || {};
 
             const transformedOrders = (data || []).map((order: any) => ({
                 ...order,
@@ -147,6 +147,26 @@ export const OrderManagement = () => {
         return matchesSearch && matchesStatus;
     });
 
+    // Pagination logic
+    const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    const handleSearchChange = (value: string) => {
+        setSearchTerm(value);
+        setCurrentPage(1); // Reset to first page when searching
+    };
+
+    const handleStatusChange = (status: string) => {
+        setSelectedStatus(status);
+        setCurrentPage(1); // Reset to first page when filtering
+    };
+
     if (loading)
         return (
             <div className="loading-container">
@@ -192,21 +212,59 @@ export const OrderManagement = () => {
             {/* Filters */}
             <OrderFilters
                 searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
+                onSearchChange={handleSearchChange}
                 selectedStatus={selectedStatus}
-                onStatusChange={setSelectedStatus}
-                totalOrders={totalOrders}
+                onStatusChange={handleStatusChange}
+                totalOrders={filteredOrders.length}
             />
 
             {/* Orders Table */}
             <OrderTable
-                orders={filteredOrders}
+                orders={paginatedOrders}
                 onViewOrder={handleViewOrder}
                 formatPrice={formatPrice}
                 getStatusText={getStatusText}
                 getStatusColor={getStatusColor}
                 getPaymentMethodText={getPaymentMethodText}
             />
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="pagination-container">
+                    <div className="pagination-info">
+                        Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredOrders.length)} trong {filteredOrders.length} đơn hàng
+                    </div>
+                    <div className="pagination-controls">
+                        <button
+                            className="pagination-btn"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                        >
+                            Trước
+                        </button>
+                        
+                        <div className="pagination-numbers">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                <button
+                                    key={page}
+                                    className={`pagination-number ${currentPage === page ? 'active' : ''}`}
+                                    onClick={() => handlePageChange(page)}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+                        </div>
+                        
+                        <button
+                            className="pagination-btn"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                        >
+                            Sau
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Order Detail Modal */}
             <OrderDetailModal
