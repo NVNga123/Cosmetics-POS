@@ -1,6 +1,8 @@
 package com.example.product_service.service;
 
+import java.text.Normalizer;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,8 +21,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import java.text.Normalizer;
-import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +31,7 @@ public class ProductService {
     ProductRepository productRepository;
     ProductMapper productMapper;
 
-    //Sinh slug
+    // Sinh slug
     private String generateSlug(String input) {
         String nowhitespace = input.trim().replaceAll("\\s+", "-");
         String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
@@ -51,20 +51,19 @@ public class ProductService {
     }
 
     // Lấy danh sách sản phẩm
-    public List<ProductResponse> searchProducts(String name, String brand, String category, Integer page, Integer size) {
+    public List<ProductResponse> searchProducts(
+            String name, String brand, String category, Integer page, Integer size) {
         log.info("Getting products");
         // Nếu có phân trang
         if (page != null && size != null) {
             Pageable pageable = PageRequest.of(page, size);
-            return productRepository.searchProducts(name, brand, category, pageable)
-                    .stream()
+            return productRepository.searchProducts(name, brand, category, pageable).stream()
                     .map(productMapper::toProductResponse)
                     .toList();
         }
 
         // Nếu không có phân trang thì lấy toàn bộ
-        return productRepository.findProducts(name, brand, category)
-                .stream()
+        return productRepository.findProducts(name, brand, category).stream()
                 .map(productMapper::toProductResponse)
                 .toList();
     }
@@ -73,21 +72,20 @@ public class ProductService {
         return productRepository.countProducts(
                 name == null || name.isBlank() ? null : name,
                 brand == null || brand.isBlank() ? null : brand,
-                category == null || category.isBlank() ? null : category
-        );
+                category == null || category.isBlank() ? null : category);
     }
 
     // Lấy sản phẩm theo id
     public ProductResponse getProduct(String id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product =
+                productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         return productMapper.toProductResponse(product);
     }
 
     // Cập nhật sản phẩm
     public ProductResponse updateProduct(String id, ProductUpdateRequest request) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product =
+                productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         productMapper.updateProduct(product, request);
         return productMapper.toProductResponse(productRepository.save(product));
     }

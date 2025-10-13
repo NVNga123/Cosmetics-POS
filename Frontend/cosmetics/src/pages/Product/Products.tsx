@@ -4,6 +4,7 @@ import "./product.scss";
 import { productApi } from "../../api/productApi";
 import { IoIosSearch } from "react-icons/io";
 import { Select } from "antd";
+import { NavLink } from "react-router-dom";
 
 export const Products = () => {
 
@@ -110,17 +111,20 @@ export const Products = () => {
       <div className="title">Danh sách sản phẩm</div>
       <div className="products" >
         {products?.map((items, index) => (
-          <div className="products--card" key={index}>
-            <div className="products--card__image">
-              <img className="img" src={items.image} alt="" />
+          <NavLink to={items?.id as string} key={index + (items.id as string)}>
+            <div className="products--card">
+              <div className="products--card__image">
+                <img className="img" src={items.image} alt="" />
+              </div>
+              <div className="products--card__name">{items.name}</div>
+              <div className="products--card__price">
+                <span className="title">Giá tiền:</span>
+                <span className="price">{(items.price * (100 - (items.discount as number)) / 100).toLocaleString()}₫</span>
+                <span className="discount">Off {items.discount}%</span>
+              </div>
             </div>
-            <div className="products--card__name">{items.name}</div>
-            <div className="products--card__price">
-              <span className="title">Giá tiền:</span>
-              <span className="price">{(items.price * (100 - (items.discount as number)) / 100).toLocaleString()}₫</span>
-              <span className="discount">Off {items.discount}%</span>
-            </div>
-          </div>))}
+          </NavLink>
+        ))}
       </div>
       {Array.from({ length: endPage }, (_, i) => (
         <button className="button-page" key={i + 1} onClick={() => setPage(i)}>

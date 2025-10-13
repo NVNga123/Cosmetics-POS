@@ -1,6 +1,8 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthProvider';
+import '../assets/styles/admin.css';
+import './AdminLayout.css';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -9,25 +11,35 @@ interface AdminLayoutProps {
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-    { path: '/admin/products', label: 'Sản phẩm', icon: '🛍️' },
-    { path: '/admin/orders', label: 'Đơn hàng', icon: '📦' },
+    { path: '/admin/products', label: 'Sản phẩm', icon: '📦' },
+    { path: '/admin/orders', label: 'Đơn hàng', icon: '🧾' },
     { path: '/admin/users', label: 'Người dùng', icon: '👥' },
   ];
 
   return (
-    <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="admin-layout">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="admin-sidebar" style={{ 
-        width: '250px', 
-        background: '#1a1a1a', 
-        color: 'white',
-        padding: '1rem'
-      }}>
-        <div className="admin-logo" style={{ marginBottom: '2rem' }}>
-          <h2>Admin Panel</h2>
+      <aside className={`admin-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
+        <div className="sidebar-header">
+          <div className="admin-logo">
+            <div className="logo-icon">💄</div>
+            <div className="logo-text">
+              <h2>Cosmetics</h2>
+              <span>Admin Panel</span>
+            </div>
+          </div>
         </div>
         
         <nav className="admin-nav">
@@ -35,61 +47,63 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             <Link
               key={item.path}
               to={item.path}
-              style={{
-                display: 'block',
-                padding: '0.75rem 1rem',
-                color: location.pathname === item.path ? '#007bff' : 'white',
-                textDecoration: 'none',
-                borderRadius: '4px',
-                marginBottom: '0.5rem',
-                background: location.pathname === item.path ? '#333' : 'transparent'
-              }}
+              className={`nav-item ${location.pathname === item.path ? 'nav-item-active' : ''}`}
+              onClick={() => setSidebarOpen(false)}
             >
-              <span style={{ marginRight: '0.5rem' }}>{item.icon}</span>
-              {item.label}
+              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-label">{item.label}</span>
             </Link>
           ))}
         </nav>
+
+        <div className="sidebar-footer">
+          <div className="user-info">
+            <div className="user-avatar">
+              {(user?.username || 'A').charAt(0).toUpperCase()}
+            </div>
+            <div className="user-details">
+              <span className="user-name">{user?.username || 'Admin'}</span>
+              <span className="user-role">Quản trị viên</span>
+            </div>
+          </div>
+        </div>
       </aside>
 
       {/* Main Content */}
-      <div className="admin-content" style={{ flex: 1 }}>
+      <div className="admin-content">
         {/* Header */}
-        <header className="admin-header" style={{ 
-          background: 'white', 
-          padding: '1rem 2rem',
-          borderBottom: '1px solid #eee',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          position: 'fixed',
-          top: 0,
-          left: '250px',
-          right: 0,
-          zIndex: 999
-        }}>
-          <h1>Quản trị hệ thống</h1>
-          <div className="admin-user" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span>Xin chào, {user?.username || 'Admin'}</span>
+        <header className="admin-header">
+          <div className="header-left">
             <button 
-              onClick={logout}
-              style={{ 
-                padding: '0.5rem 1rem',
-                background: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
+              className="sidebar-toggle"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
             >
-              Đăng xuất
+              <span></span>
+              <span></span>
+              <span></span>
             </button>
+            <h1 className="page-title">Quản trị hệ thống</h1>
+          </div>
+          
+          <div className="header-right">
+            <div className="user-menu">
+              <span className="welcome-text">Xin chào, {user?.username || 'Admin'}</span>
+              <button 
+                onClick={logout}
+                className="btn btn-danger btn-sm logout-btn"
+              >
+                <span>🚪</span>
+                Đăng xuất
+              </button>
+            </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="admin-main" style={{ padding: '2rem', marginTop: '30px' }}>
-          {children}
+        <main className="admin-main">
+          <div className="main-container">
+            {children}
+          </div>
         </main>
       </div>
     </div>

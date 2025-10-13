@@ -1,11 +1,12 @@
 package com.example.product_service.dto.request;
 
-import jakarta.validation.constraints.Size;
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor

@@ -1,10 +1,11 @@
 package com.example.product_service.dto.request;
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor

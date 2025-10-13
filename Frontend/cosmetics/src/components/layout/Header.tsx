@@ -15,80 +15,152 @@ export const Header = () => {
   ];
 
   return (
-    <header style={{ 
-      background: '#3C95FB', 
-      padding: '0.25rem 1rem',
-      borderBottom: '1px solid #007bff',
-      boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 1000,
-      width: '100%',
-      height: '50px'
-    }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'flex-start', 
-        alignItems: 'center',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        height: '100%',
-        gap: '2rem'
-      }}>
-        <div className="logo" style={{ display: 'flex', alignItems: 'center' }}>
-          <Link to="/user" style={{ textDecoration: 'none', color: '#f0f0f0' }}>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', lineHeight: '1', verticalAlign: 'middle' }}> Cosmetics POS</h2>
+    <header
+      style={{
+        background: "linear-gradient(90deg, #3C95FB 0%, #007BFF 100%)",
+        padding: "0.5rem 1.5rem",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        width: "100%",
+        height: "60px",
+        borderBottomLeftRadius: "10px",
+        borderBottomRightRadius: "10px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          maxWidth: "1200px",
+          margin: "0 auto",
+          height: "100%",
+        }}
+      >
+        {/* Logo */}
+        <div
+          className="logo"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+        >
+          <Link
+            to="/user"
+            style={{
+              textDecoration: "none",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <h2
+              style={{
+                margin: 0,
+                fontSize: "1.6rem",
+                fontWeight: "800",
+                letterSpacing: "0.5px",
+              }}
+            >
+              💄 Cosmetics <span style={{ color: "#FFD60A" }}>POS</span>
+            </h2>
           </Link>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <nav style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                style={{
-                  textDecoration: 'none',
-                  color: location.pathname === item.path ? '#ffffff' : '#ffffff',
-                  fontWeight: location.pathname === item.path ? 'bold' : 'normal',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '4px',
-                  background: location.pathname === item.path ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-                  fontSize: '1.0rem',
-                  lineHeight: '1',
-                  verticalAlign: 'middle'
-                }}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
+        {/* Menu */}
+        <nav
+          style={{
+            display: "flex",
+            gap: "1.2rem",
+            alignItems: "center",
+          }}
+        >
+          {menuItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              style={{
+                textDecoration: "none",
+                color: "#f0f8ff",
+                fontWeight: location.pathname === item.path ? "700" : "500",
+                padding: "0.4rem 0.8rem",
+                borderRadius: "6px",
+                background:
+                  location.pathname === item.path
+                    ? "rgba(255,255,255,0.25)"
+                    : "transparent",
+                transition: "all 0.3s ease",
+                fontSize: "1rem",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(255,255,255,0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background =
+                  location.pathname === item.path
+                    ? "rgba(255,255,255,0.25)"
+                    : "transparent";
+              }}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
 
-        <div style={{ marginLeft: 'auto' }}>
-          <div className="user-menu" style={{ display: 'flex', alignItems: 'center', gap: '1rem', height: '100%' }}>
-          <span style={{ color: '#ffffff', fontSize: '0.9rem', lineHeight: '1', verticalAlign: 'middle' }}>👋 {user?.username || 'User'}</span>
-          <button 
+        {/* User info + Logout */}
+        <div
+          className="user-menu"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            color: "white",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "0.95rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.3rem",
+              background: "rgba(255,255,255,0.15)",
+              padding: "0.3rem 0.7rem",
+              borderRadius: "6px",
+            }}
+          >
+            👋 {user?.username || "User"}
+          </span>
+
+          <button
             onClick={logout}
-            style={{ 
-              padding: '0.25rem 0.5rem',
-              background: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              lineHeight: '1',
-              verticalAlign: 'middle'
+            style={{
+              padding: "0.4rem 0.8rem",
+              background: "#FF4D4F",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontWeight: "600",
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = "#d9363e";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = "#FF4D4F";
             }}
           >
             Đăng xuất
           </button>
-          </div>
         </div>
       </div>
     </header>
+
+
   );
 };

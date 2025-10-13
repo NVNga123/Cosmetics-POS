@@ -1,11 +1,11 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Home } from '../pages/Home';
 import { Products } from '../pages/Product/Products';
-import { ProductDetail } from '../pages/Product/ProductDetail';
 import { Cart } from '../pages/Cart';
 import { Orders } from '../pages/Order/Orders.tsx';
 import { Invoice } from '../pages/Invoice';
 import { SalesScreen } from '../pages/Sale/SalesScreen.tsx';
+import { ProductDetail } from '../pages/Product/ProductDetail.tsx';
 
 export const UserRoutes = () => {
   return (
