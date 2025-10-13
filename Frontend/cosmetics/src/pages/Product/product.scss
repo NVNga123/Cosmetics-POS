@@ -2,7 +2,7 @@
     max-width: 1200px;
     padding-right: var(--bs-gutter-x, 0.75rem);
     padding-left: var(--bs-gutter-x, 0.75rem);
-    padding-top: 4rem;
+    padding-top: 2rem;
     margin-right: auto;
     margin-left: auto;
 
@@ -27,12 +27,13 @@
             }
 
             .button-search {
-                margin-left: -50px;
+                margin-bottom: 10px;
+                margin-left: -45px;
                 border-radius: 8px;
-                width: 50px;
+                width: 45px;
                 background: #535bf2;
                 color: #fff;
-                height: 46px;
+                height: 42px;
                 text-align: center;
                 font-size: 22px;
                 padding: 0;
@@ -53,12 +54,12 @@
         display: flex;
         width: 100%;
         flex-wrap: wrap;
-        padding: 20px;
+        padding: 0 20px 20px 20px;
         height: 748px;
 
         &--card {
-            width: 240px;
-            height: 300px;
+            width: 250px;
+            height: 330px;
             margin: 15px;
             padding: 10px;
             border-radius: 15px;
@@ -71,11 +72,11 @@
             }
 
             &__image {
-                width: 240px;
+                width: 225px;
                 border: #000;
 
                 img {
-                    width: 240px;
+                    width: 225px;
                     border-radius: 10px;
                     height: auto;
                     object-fit: cover;
