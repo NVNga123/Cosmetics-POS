@@ -33,6 +33,7 @@ export const OrderManagement = () => {
                 ...order,
                 orderId: order.id || order.orderId,
                 total: order.finalPrice,
+                createdDate: order.createdDate || order.createdAt || order.created_date,
                 items: (order.items || order.orderDetails || []).map((item: any) => ({
                     ...item,
                     product: item.product || {

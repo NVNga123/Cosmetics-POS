@@ -22,7 +22,7 @@ export const SalesScreen: React.FC = () => {
         customerName: '',
         total: 0,
         status: 'DRAFT',
-        createdAt: undefined as any,
+        createdDate: undefined as any,
         items: [],
         notes: '',
         paymentMethod: undefined,
@@ -191,15 +191,14 @@ export const SalesScreen: React.FC = () => {
         const tax = totalAfterDiscount * 0.1;
         const total = totalAfterDiscount + tax;
 
-
         return {
+            id: currentOrder.orderId || 0, // Thêm trường id bắt buộc
             items: currentOrder.items.map(item => ({
-                productId: item.productId || item.product?.id,
-                productName: item.product?.name,
+                productId: String(item.productId || item.product?.id || ''),
+                productName: item.product?.name || item.productName || '',
                 price: item.product?.price || item.unitPrice || item.price || 0,
                 quantity: item.quantity,
                 subtotal: item.subtotal,
-                discountAmount: item.discountAmount || 0,
             })),
             subtotal: subtotal,
             discount: discount,
@@ -223,7 +222,7 @@ export const SalesScreen: React.FC = () => {
                     newOrders[activeOrderIndex] = {
                         ...orders[activeOrderIndex],
                         orderId: result.data.orderId,
-                        createdAt: result.data.createdAt,
+                        createdDate: result.data.createdDate,
                     };
                     return newOrders;
                 });
@@ -261,7 +260,7 @@ export const SalesScreen: React.FC = () => {
                     newOrders[activeOrderIndex] = {
                         ...orders[activeOrderIndex],
                         orderId: result.data.orderId,
-                        createdAt: result.data.createdAt,
+                        createdDate: result.data.createdDate,
                     };
                     return newOrders;
                 });

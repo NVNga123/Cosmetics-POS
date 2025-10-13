@@ -39,22 +39,21 @@ export interface OrderDetailModalProps {
 
 export interface OrderSubmitData {
   items: {
-      productId?: string;
-      productName?: string;
-      price?: number;
+      productId: string;
+      productName: string;
+      price: number;
       quantity: number;
       subtotal: number;
-      discountAmount?: number;
   }[];
-  id ?: number;
+  id: number;
   subtotal: number;
   discount: number;
   tax: number;
   total: number;
   customerName: string;
   notes: string;
-  returnReason ?: string;
-  status : string;
+  returnReason?: string;
+  status: string;
   paymentMethod?: string;
 }
 

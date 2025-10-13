@@ -9,6 +9,29 @@ export const OrderList: React.FC<OrderListProps> = ({
   getStatusColor,
   getPaymentMethodText
 }) => {
+  
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'N/A';
+    
+    try {
+      // Xử lý timestamp Unix (milliseconds)
+      if (typeof dateString === 'number' || /^\d+$/.test(dateString)) {
+        const timestamp = typeof dateString === 'number' ? dateString : parseInt(dateString);
+        // Kiểm tra nếu là timestamp Unix (seconds) thì chuyển thành milliseconds
+        const date = timestamp < 10000000000 ? new Date(timestamp * 1000) : new Date(timestamp);
+        return date.toLocaleString("vi-VN");
+      }
+      
+      // Xử lý ISO string hoặc date string
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'N/A';
+      
+      return date.toLocaleString("vi-VN");
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'N/A';
+    }
+  };
 
   if (orders.length === 0) {
     return (
@@ -43,7 +66,7 @@ export const OrderList: React.FC<OrderListProps> = ({
               </span>
               </div>
             </td>
-            <td>{new Date(order.createdDate || "").toLocaleString("vi-VN")}</td>
+            <td>{formatDate(order.createdDate)}</td>
             <td></td>
             <td>{formatPrice(order.total)}</td>
             <td>{getPaymentMethodText(order.paymentMethod)}</td>
