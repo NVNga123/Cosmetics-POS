@@ -230,7 +230,9 @@
     display: flex;
     flex-direction: column;
     margin: 0;
-    width: 100%;
+    width: 97%;
+    margin-left: 20px;
+    margin-top: 20px;
 }
 
 .orders-table {
