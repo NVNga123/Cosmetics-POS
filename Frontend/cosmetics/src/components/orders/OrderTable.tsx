@@ -11,7 +11,7 @@ export const OrderTable: React.FC<OrderTableProps> = ({
   getPaymentMethodText
 }) => {
   return (
-    <div className="orders-table-container">
+    <div className="orders-management-table-container">
       <table className="orders-table">
         <thead>
           <tr>

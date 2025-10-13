@@ -241,7 +241,7 @@
     justify-content: center;
 }
 
-.orders-table-container {
+.orders-management-table-container {
     background: white;
     overflow: hidden;
     max-height: calc(100vh - 300px);
