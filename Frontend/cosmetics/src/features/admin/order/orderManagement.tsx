@@ -6,6 +6,7 @@ import { OrderFilters } from "./OrderFilters.tsx";
 import { OrderTable } from "../../../components/orders/OrderTable.tsx";
 import { formatPrice, getStatusText, getStatusColor, getPaymentMethodText } from "../../../utils/orderUtils.ts";
 import "./OrderManagement.css";
+import './../userManagement.css';
 import { useNavigate } from "react-router-dom";
 
 export const OrderManagement = () => {
@@ -171,7 +172,7 @@ export const OrderManagement = () => {
     return (
         <div className="orders-management-page">
             {/* Header */}
-            <div className="orders-management-header">
+            <div className="management-header">
                 <h1>Danh sách đơn hàng</h1>
                 <div className="orders-management-header-actions">
                     <button

@@ -97,8 +97,8 @@
     right: 20px;
     background: #ffffff;
     z-index: 98;
-    padding: 5px 0;
-    border-radius: 3px;
+    padding: 6px;
+    border-radius: var(--radius-xl);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     max-width: calc(100% - 200px);
     justify-content: flex-start;
@@ -107,33 +107,36 @@
 }
 
 .orders-management-tab {
-    padding: 12px 16px;
+    padding: 10px 18px;
     border: none;
     background: none;
     cursor: pointer;
     font-size: 14px;
     color: #6b7280;
-    border-bottom: 1px solid transparent;
-    transition: all 0.2s;
+    border-radius: var(--radius-lg);
+    transition: all 0.25s ease-in-out;
+    font-weight: 600;
     outline: none;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
-.orders-management-tab:hover {
-    color: #ffffff;
-    border-bottom-color: #3C95FB;
-    font-weight: 500;
-    background-color: #3C95FB;
-    outline: none;
+.orders-management-tab:hover,
+.orders-management-tab.active {
+    background: linear-gradient(135deg, var(--gray-900), var(--primary-700));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    border-bottom: 0.5px solid var(--primary-700);
+    transform: scale(1.05);
+    text-shadow: none !important;
+    -webkit-text-stroke: 0 transparent !important;
 }
 
-.orders-management-tab.active {
-    color: #ffffff;
-    border-bottom-color: #3C95FB;
-    font-weight: 500;
-    background-color: #3C95FB;
+.orders-management-tab:focus {
     outline: none;
+    box-shadow: none;
 }
 
 /* Main Content Container */
