@@ -26,20 +26,6 @@ public class SaleReportController {
         return ResponseEntity.ok(resultDTO);
     }
 
-    @GetMapping("/revenue")
-    public ResponseEntity<ResultDTO> getTotalRevenue(
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String toDate) {
-
-        LOG.info("REST request to get total revenue from {} to {}", fromDate, toDate);
-        SalesReportRequest request = new SalesReportRequest();
-        request.setFromDate(fromDate);
-        request.setToDate(toDate);
-
-        ResultDTO resultDTO = salesReportService.getTotalRevenue(request);
-        return ResponseEntity.ok(resultDTO);
-    }
-
     @GetMapping("/daily")
     public ResponseEntity<ResultDTO> getDailySalesReport(
             @RequestParam(required = false) String fromDate,
@@ -65,24 +51,6 @@ public class SaleReportController {
         request.setToDate(toDate);
 
         ResultDTO resultDTO = salesReportService.getMonthlySalesReport(request);
-        return ResponseEntity.ok(resultDTO);
-    }
-
-    @GetMapping("/orders")
-    public ResponseEntity<ResultDTO> getTotalOrders() {
-        ResultDTO resultDTO = salesReportService.getTotalOrders(new SalesReportRequest());
-        return ResponseEntity.ok(resultDTO);
-    }
-
-    @GetMapping("/products")
-    public ResponseEntity<ResultDTO> getTotalQuantityProduct() {
-        ResultDTO resultDTO = salesReportService.getTotalQuantityProduct(new SalesReportRequest());
-        return ResponseEntity.ok(resultDTO);
-    }
-
-    @GetMapping("/returned")
-    public ResponseEntity<ResultDTO> getTotalOrdersReturned() {
-        ResultDTO resultDTO = salesReportService.getTotalOrdersReturned(new SalesReportRequest());
         return ResponseEntity.ok(resultDTO);
     }
 }

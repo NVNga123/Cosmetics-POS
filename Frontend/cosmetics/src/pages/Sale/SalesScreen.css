@@ -88,7 +88,7 @@
 
 /* Search Form */
 .search-form-cart {
-  border: 1px solid #265B9F;
+  border: none;
   border-radius: 8px;
   font-size: 14px;
   width: 450px;

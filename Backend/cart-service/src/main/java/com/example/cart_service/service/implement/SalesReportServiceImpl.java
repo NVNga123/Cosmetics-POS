@@ -50,13 +50,6 @@ public class SalesReportServiceImpl implements SalesReportService {
 
     @Override
     @Transactional
-    public ResultDTO getTotalRevenue(SalesReportRequest salesReportRequest){
-        BigDecimal totalRevenue = orderRepository.getTotalRevenue();
-        return new ResultDTO("success", "lấy doanh thu thành công", true, totalRevenue);
-    }
-
-    @Override
-    @Transactional
     public ResultDTO getDailySalesReport(SalesReportRequest salesReportRequest){
         ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -105,26 +98,4 @@ public class SalesReportServiceImpl implements SalesReportService {
 
         return new ResultDTO("OK", "Báo cáo doanh thu tháng này", true, revenueMonth);
     }
-
-    @Override
-    @Transactional
-    public ResultDTO getTotalOrders(SalesReportRequest salesReportRequest){
-        Long totalOrder = orderRepository.count();
-        return new ResultDTO("OK", "lấy tổng đơn hàng thành công", true, totalOrder);
-    }
-
-    @Override
-    @Transactional
-    public ResultDTO getTotalQuantityProduct (SalesReportRequest salesReportRequest){
-        Long totalQuantityProduct = orderDetailReposotory.getTotalQuantityProduct();
-        return new ResultDTO("OK", "lấy tổng sản phẩm thành công", true, totalQuantityProduct);
-    }
-
-    @Override
-    @Transactional
-    public ResultDTO getTotalOrdersReturned(SalesReportRequest salesReportRequest){
-        Long totalOrdersReturned = orderRepository.countReturnedOrders();
-        return new ResultDTO("OK", "Lấy tổng đơn hàng bị trả lại thành công", true, totalOrdersReturned);
-    }
-
 }

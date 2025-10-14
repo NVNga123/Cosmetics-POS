@@ -22,7 +22,7 @@ export const orderApi = {
     return response.data;
   },
 
-  updateOrderStatus: async (orderId: string, status: string): Promise<Result<Order>> => {
+  updateOrderStatus: async (orderId: string | number, status: string): Promise<Result<Order>> => {
     const response = await axios.put<Result<Order>>(
         `${API_URL}${API_ORDER}/${orderId}`,
         { id: Number(orderId), status },

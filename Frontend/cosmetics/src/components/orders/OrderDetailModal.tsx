@@ -118,7 +118,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
   return (
     <>
-      <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-overlay user-order-modal" onClick={onClose}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           {/* Modal Header */}
           <div className="modal-header">

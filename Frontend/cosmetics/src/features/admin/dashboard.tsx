@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './dashboard.css';
+import {saleReportApi} from "../../api/salesReportAPI.ts";
+import type {reportSumary} from "../../types/report.ts";
 
 interface DashboardStats {
   totalUsers: number;
@@ -19,14 +21,36 @@ interface RecentActivity {
 }
 
 export const Dashboard = () => {
-  const [stats] = useState<DashboardStats>({
+  const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 1250,
     totalProducts: 340,
-    totalOrders: 2890,
-    totalRevenue: 125800000,
+    totalOrders: 0,
+    totalRevenue: 0,
     todayOrders: 23,
     pendingOrders: 5
   });
+
+  useEffect(() => {
+    const fetchReportData = async () => {
+      try {
+        const res = await saleReportApi.getAllReport();
+        const data: reportSumary = res?.data;
+
+        if (data) {
+          setStats((prev) => ({
+            ...prev,
+            totalOrders: data.totalOrders ?? 0,
+            totalRevenue: data.totalRevenueDisplay ?? 0,
+            totalProducts: data.totalQuantityProduct ?? 0,
+          }));
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu báo cáo:", error);
+      }
+    };
+
+    fetchReportData();
+  }, []);
 
   const [recentActivities] = useState<RecentActivity[]>([
     {
@@ -59,11 +83,8 @@ export const Dashboard = () => {
     }
   ]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(amount);
+  const formatMillion = (value: number) => {
+    return `${value.toLocaleString("vi-VN", { maximumFractionDigits: 2 })} triệu`;
   };
 
   const statsCards = [
@@ -93,7 +114,7 @@ export const Dashboard = () => {
     },
     {
       title: 'Doanh thu',
-      value: formatCurrency(stats.totalRevenue),
+      value: formatMillion(stats.totalRevenue),
       icon: '💰',
       color: 'warning',
       change: '+23%',
@@ -133,97 +154,97 @@ export const Dashboard = () => {
   ];
 
   return (
-    <div className="dashboard">
-      {/* Welcome Section */}
-      <div className="dashboard-welcome">
-        <div className="welcome-content">
-          <h1 className="welcome-title">
-            Chào mừng trở lại! 👋
-          </h1>
-          <p className="welcome-subtitle">
-            Đây là tổng quan về hoạt động kinh doanh của bạn hôm nay.
-          </p>
-        </div>
-        <div className="welcome-stats">
-          <div className="today-stat">
-            <span className="stat-label">Đơn hàng hôm nay</span>
-            <span className="stat-value">{stats.todayOrders}</span>
+      <div className="dashboard">
+        {/* Welcome Section */}
+        <div className="dashboard-welcome">
+          <div className="welcome-content">
+            <h1 className="welcome-title">
+              Chào mừng trở lại! 👋
+            </h1>
+            <p className="welcome-subtitle">
+              Đây là tổng quan về hoạt động kinh doanh của bạn hôm nay.
+            </p>
           </div>
-          <div className="today-stat">
-            <span className="stat-label">Đơn chờ xử lý</span>
-            <span className="stat-value pending">{stats.pendingOrders}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="stats-grid">
-        {statsCards.map((card, index) => (
-          <div key={index} className={`stat-card stat-card-${card.color}`}>
-            <div className="stat-card-header">
-              <div className="stat-icon">
-                {card.icon}
-              </div>
-              <div className={`stat-change ${card.changeType}`}>
-                {card.change}
-              </div>
+          <div className="welcome-stats">
+            <div className="today-stat">
+              <span className="stat-label">Đơn hàng hôm nay</span>
+              <span className="stat-value">{stats.todayOrders}</span>
             </div>
-            <div className="stat-card-body">
-              <h3 className="stat-value">{card.value}</h3>
-              <p className="stat-title">{card.title}</p>
+            <div className="today-stat">
+              <span className="stat-label">Đơn chờ xử lý</span>
+              <span className="stat-value pending">{stats.pendingOrders}</span>
             </div>
           </div>
-        ))}
-      </div>
-
-      <div className="dashboard-content">
-        {/* Quick Actions */}
-        <div className="dashboard-section">
-          <div className="section-header">
-            <h2 className="section-title">Thao tác nhanh</h2>
-            <p className="section-subtitle">Các hành động thường dùng nhất</p>
-          </div>
-          
-          <div className="quick-actions-grid">
-            {quickActions.map((action, index) => (
-              <div key={index} className={`quick-action-card action-${action.color}`}>
-                <div className="action-icon">
-                  {action.icon}
-                </div>
-                <div className="action-content">
-                  <h3 className="action-title">{action.title}</h3>
-                  <p className="action-description">{action.description}</p>
-                </div>
-                <button className="action-button btn btn-sm btn-primary">
-                  Thực hiện →
-                </button>
-              </div>
-            ))}
-          </div>
         </div>
 
-        {/* Recent Activities */}
-        <div className="dashboard-section">
-          <div className="section-header">
-            <h2 className="section-title">Hoạt động gần đây</h2>
-            <p className="section-subtitle">Các sự kiện mới nhất trong hệ thống</p>
-          </div>
-
-          <div className="activity-list card">
-            {recentActivities.map((activity) => (
-              <div key={activity.id} className="activity-item">
-                <div className="activity-icon">
-                  {activity.icon}
+        {/* Stats Cards */}
+        <div className="stats-grid">
+          {statsCards.map((card, index) => (
+              <div key={index} className={`stat-card stat-card-${card.color}`}>
+                <div className="stat-card-header">
+                  <div className="stat-icon">
+                    {card.icon}
+                  </div>
+                  <div className={`stat-change ${card.changeType}`}>
+                    {card.change}
+                  </div>
                 </div>
-                <div className="activity-content">
-                  <p className="activity-message">{activity.message}</p>
-                  <span className="activity-time">{activity.time}</span>
+                <div className="stat-card-body">
+                  <h3 className="stat-value">{card.value}</h3>
+                  <p className="stat-title">{card.title}</p>
                 </div>
               </div>
-            ))}
+          ))}
+        </div>
+
+        <div className="dashboard-content">
+          {/* Quick Actions */}
+          <div className="dashboard-section">
+            <div className="section-header">
+              <h2 className="section-title">Thao tác nhanh</h2>
+              <p className="section-subtitle">Các hành động thường dùng nhất</p>
+            </div>
+
+            <div className="quick-actions-grid">
+              {quickActions.map((action, index) => (
+                  <div key={index} className={`quick-action-card action-${action.color}`}>
+                    <div className="action-icon">
+                      {action.icon}
+                    </div>
+                    <div className="action-content">
+                      <h3 className="action-title">{action.title}</h3>
+                      <p className="action-description">{action.description}</p>
+                    </div>
+                    <button className="action-button btn btn-sm btn-primary">
+                      Thực hiện →
+                    </button>
+                  </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Activities */}
+          <div className="dashboard-section">
+            <div className="section-header">
+              <h2 className="section-title">Hoạt động gần đây</h2>
+              <p className="section-subtitle">Các sự kiện mới nhất trong hệ thống</p>
+            </div>
+
+            <div className="activity-list card">
+              {recentActivities.map((activity) => (
+                  <div key={activity.id} className="activity-item">
+                    <div className="activity-icon">
+                      {activity.icon}
+                    </div>
+                    <div className="activity-content">
+                      <p className="activity-message">{activity.message}</p>
+                      <span className="activity-time">{activity.time}</span>
+                    </div>
+                  </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 };

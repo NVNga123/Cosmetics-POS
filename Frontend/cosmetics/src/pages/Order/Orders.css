@@ -1,8 +1,10 @@
 .orders-page {
-    padding: 20px;
+    padding: 20px 20px 50px 20px;
     background: #f8fafc;
     min-height: 100vh;
     position: relative;
+    width: 90%;
+    margin: 0 auto;
 }
 
 .orders-header {
@@ -10,13 +12,17 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    position: fixed;
-    top: 70px;
-    left: 20px;
-    right: 20px;
+    position: relative;
     background: #f8fafc;
     z-index: 99;
     padding: 10px 20px;
+    width: 100%;
+    top: 70px;
+    left: 0px;
+    right: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-top: -30px;
 }
 
 .orders-header h1 {
@@ -81,22 +87,19 @@
 .status-tabs {
     display: flex;
     gap: 0;
-    margin-top: 25px;
+    margin-top: 10px;
     margin-bottom: 20px;
     border-bottom: 1px solid #e5e7eb;
-    position: fixed;
-    top: 120px;
-    left: 20px;
-    right: 20px;
+    position: relative;
     background: #ffffff;
     z-index: 98;
     padding: 5px 0;
-    border-radius: 3px;
+    border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: calc(100% - 40px);
+    width: 100%;
     justify-content: flex-start;
-    width: 90%;
-    margin-left: 3.5%;
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
 .tab {
@@ -134,10 +137,10 @@
     background: white;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-top: 170px;
-    margin-left: 20px;
-    margin-right: 20px;
-    width: calc(100% - 40px);
+    margin-top: 20px;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
     overflow: hidden;
 }
 
@@ -230,9 +233,10 @@
     display: flex;
     flex-direction: column;
     margin: 0;
-    width: 97%;
-    margin-left: 20px;
     margin-top: 20px;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .orders-table {
@@ -251,7 +255,7 @@
 
 .orders-table tbody {
     overflow-y: auto;
-    max-height: calc(100vh - 400px);
+    max-height: calc(100vh - 300px);
     display: block;
 }
 
@@ -405,6 +409,26 @@
     background-color: #91bdf3;
 }
 
+
+/* User Order Detail Modal - Product Name Size */
+.user-order-modal .product-name {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  max-width: 200px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.user-order-modal .product-info {
+  max-width: 250px !important;
+}
+
+.user-order-modal .col-product {
+  max-width: 300px !important;
+  overflow: hidden !important;
+}
 
 @media (max-width: 768px) {
     .orders-page {

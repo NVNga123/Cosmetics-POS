@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { orderApi } from "../../api/orderApi.ts";
 import type { Order } from "../../types/order.ts";
 import { OrderDetailModal } from "../../components/orders/OrderDetailModal.tsx";
@@ -8,6 +9,7 @@ import { formatPrice, getStatusText, getStatusColor, getPaymentMethodText } from
 import "./Orders.css";
 
 export const Orders: React.FC = () => {
+    const navigate = useNavigate();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -177,9 +179,12 @@ export const Orders: React.FC = () => {
             <div className="orders-header">
                 <h1>Danh sách đơn hàng</h1>
                 <div className="header-actions">
-                    <button className="btn btn-primary">
-                        Xuất Excel
-                        <span className="dropdown-arrow">▼</span>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => navigate("/user/sales")}
+                    >
+                        <span className="icon">+</span>
+                        Thêm ĐH
                     </button>
                 </div>
             </div>

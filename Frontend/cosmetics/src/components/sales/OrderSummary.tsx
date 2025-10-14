@@ -176,7 +176,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                                 <p>-{item.discountAmount?.toLocaleString() || '0'}đ</p>
                             </div>
                             <div className="item-controls">
-                            <button
+                                <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         const newQuantity = item.quantity - 1;
@@ -210,7 +210,10 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                                     <i className="fa fa-trash"></i>
                                 </button>
                             </div>
-                            <div className="item-total">{item.subtotal.toLocaleString()}đ</div>
+                            <div className="item-total">
+                                {(item.subtotal ?? 0).toLocaleString('vi-VN')}đ
+                            </div>
+
                         </div>
                     ))
                 )}

@@ -4,3 +4,4 @@ export const API_ORDER = "/orders"
 
 export const API_MOMO = "/momo-payment"
 
+export const API_REPORT =   "/reports"
