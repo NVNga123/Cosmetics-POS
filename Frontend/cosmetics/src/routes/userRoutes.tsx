@@ -6,6 +6,7 @@ import { Orders } from '../pages/Order/Orders.tsx';
 import { Invoice } from '../pages/Invoice';
 import { SalesScreen } from '../pages/Sale/SalesScreen.tsx';
 import { ProductDetail } from '../pages/Product/ProductDetail.tsx';
+import { Profile } from '../pages/Profile';
 
 export const UserRoutes = () => {
   return (
@@ -18,6 +19,7 @@ export const UserRoutes = () => {
       <Route path="orders" element={<Orders />} />
       <Route path="invoice/:id" element={<Invoice />} />
       <Route path="sales" element={<SalesScreen />} />
+      <Route path="profile" element={<Profile />} />
     </Routes>
   );
 };
