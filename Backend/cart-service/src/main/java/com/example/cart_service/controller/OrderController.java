@@ -64,4 +64,14 @@ public class OrderController {
         orderService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<ResultDTO> cancelOrder(@PathVariable Integer id) {
+        LOG.debug(() -> "REST request to cancel Order : " + id);
+        OrderRequest cancelRequest = new OrderRequest();
+        cancelRequest.setId(id);
+        cancelRequest.setStatus("CANCELLED");
+        ResultDTO result = orderService.update(cancelRequest);
+        return ResponseEntity.ok(result);
+    }
 }

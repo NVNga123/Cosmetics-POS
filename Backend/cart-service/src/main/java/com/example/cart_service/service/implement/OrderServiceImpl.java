@@ -80,10 +80,44 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public ResultDTO update(OrderRequest orderRequest) {
-        Order order = orderRepository.findById(orderRequest.getId())
+        Order existingOrder = orderRepository.findById(orderRequest.getId())
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-        order = orderMapper.updateEntity(orderRequest, order);
-        return new ResultDTO("success", "update đơn hàng thành công", true, order, 1);
+        
+        String oldStatus = existingOrder.getStatus();
+        String newStatus = orderRequest.getStatus();
+
+        if ("COMPLETED".equals(oldStatus) && "CANCELLED".equals(newStatus)) {
+            if (existingOrder.getOrderDetails() != null && !existingOrder.getOrderDetails().isEmpty()) {
+                try {
+                    returnInventory(existingOrder.getOrderDetails());
+                } catch (Exception e) {
+                    System.err.println("Failed to return inventory: " + e.getMessage());
+                }
+            }
+        }
+
+        existingOrder = orderMapper.updateEntity(orderRequest, existingOrder);
+        return new ResultDTO("success", "update đơn hàng thành công", true, existingOrder, 1);
+    }
+    
+    private void returnInventory(List<com.example.cart_service.entity.OrderDetail> orderDetails) {
+        List<Map<String, Object>> inventoryItems = new ArrayList<>();
+        
+        for (com.example.cart_service.entity.OrderDetail detail : orderDetails) {
+            Map<String, Object> inventoryItem = new HashMap<>();
+            inventoryItem.put("productId", detail.getProductId());
+            inventoryItem.put("quantity", detail.getQuantityProduct());
+            inventoryItem.put("operation", 1);
+            inventoryItems.add(inventoryItem);
+        }
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        
+        HttpEntity<List<Map<String, Object>>> entity = new HttpEntity<>(inventoryItems, headers);
+        
+        String url = "http://localhost:8085/inventory/update";
+        restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
     }
 
     @Override

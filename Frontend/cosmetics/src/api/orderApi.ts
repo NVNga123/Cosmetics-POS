@@ -48,4 +48,13 @@ export const orderApi = {
       throw error;
     }
   },
+
+  cancelOrder: async (orderId: string | number): Promise<Result<Order>> => {
+    const response = await axios.put<Result<Order>>(
+        `${API_URL}${API_ORDER}/${orderId}/cancel`,
+        {},
+        { headers: { "Content-Type": "application/json" } }
+    );
+    return response.data;
+  },
 };
