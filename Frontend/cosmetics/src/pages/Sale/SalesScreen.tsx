@@ -258,16 +258,8 @@ export const SalesScreen: React.FC = () => {
 
             let result;
 
-            if (currentOrder.orderId && currentOrder.orderId !== 0) {
-                result = await orderApi.updateOrderStatus(
-                    currentOrder.orderId,
-                    ORDER_STATUS.COMPLETED
-                );
-                console.log('Updated existing order:', result.data);
-            } else {
-                result = await orderApi.submitOrder(orderData);
-                console.log('Created new order:', result.data);
-            }
+            result = await orderApi.submitOrder(orderData);
+            console.log('Created new order:', result.data);
 
             setOrders(prev => {
                 const newOrders = [...prev];

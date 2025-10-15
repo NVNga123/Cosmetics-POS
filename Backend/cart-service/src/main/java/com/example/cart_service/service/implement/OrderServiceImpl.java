@@ -1,5 +1,6 @@
 package com.example.cart_service.service.implement;
 
+import com.example.cart_service.dto.response.OrderItemResponse;
 import com.example.cart_service.dto.response.OrderResponse;
 import com.example.cart_service.dto.request.OrderRequest;
 import com.example.cart_service.dto.response.ResultDTO;
@@ -10,6 +11,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.cart_service.mapper.OrderMapper;
 import com.example.cart_service.service.redis.RedisService;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,11 +31,13 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final RedisService redisService;
+    private final RestTemplate restTemplate;
 
-    public OrderServiceImpl(OrderRepository orderRepository, OrderMapper orderMapper, RedisService redisService) {
+    public OrderServiceImpl(OrderRepository orderRepository, OrderMapper orderMapper, RedisService redisService, RestTemplate restTemplate) {
         this.redisService = redisService;
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -35,7 +47,36 @@ public class OrderServiceImpl implements OrderService {
         String code = redisService.genCode("DH");
         order.setCode(code);
         order = orderRepository.save(order);
+
+        if (orderRequest.getItems() != null && !orderRequest.getItems().isEmpty()) {
+            try {
+                updateInventory(orderRequest.getItems());
+            } catch (Exception e) {
+                System.err.println("Failed to update inventory: " + e.getMessage());
+            }
+        }
+        
         return new ResultDTO("success", "lưu đơn hàng thành công", true, order, 1);
+    }
+    
+    private void updateInventory(List<OrderItemResponse> items) {
+        List<Map<String, Object>> inventoryItems = new ArrayList<>();
+        
+        for (OrderItemResponse item : items) {
+            Map<String, Object> inventoryItem = new HashMap<>();
+            inventoryItem.put("productId", item.getProductId());
+            inventoryItem.put("quantity", item.getQuantity());
+            inventoryItem.put("operation", -1);
+            inventoryItems.add(inventoryItem);
+        }
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        
+        HttpEntity<List<Map<String, Object>>> entity = new HttpEntity<>(inventoryItems, headers);
+        
+        String url = "http://localhost:8085/inventory/update";
+        restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
     }
 
     public ResultDTO update(OrderRequest orderRequest) {
