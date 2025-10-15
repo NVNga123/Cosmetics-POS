@@ -53,6 +53,8 @@ public class OrderServiceImpl implements OrderService {
         if(!"DRAFT".equals(order.getStatus())) {
             throw new RuntimeException("Only DRAFT orders can be deleted");
         }
+        // Thực sự xóa order khỏi database
+        orderRepository.delete(order);
         return new ResultDTO("success", "xoá đơn hàng thành công", true);
     }
 

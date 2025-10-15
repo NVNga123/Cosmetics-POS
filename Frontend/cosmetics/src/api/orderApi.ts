@@ -32,7 +32,20 @@ export const orderApi = {
   },
 
   deleteOrder: async (orderId: string): Promise<Result<null>> => {
-    const response = await axios.delete<Result<null>>(`${API_URL}${API_ORDER}/${orderId}`);
-    return response.data;
+    try {
+      await axios.delete(`${API_URL}${API_ORDER}/${orderId}`);
+      // Backend trả về 204 No Content, không có body
+      return {
+        status: true,
+        message: [{
+          code: "SUCCESS",
+          message: "Đơn hàng đã được xóa thành công"
+        }],
+        data: null
+      };
+    } catch (error: any) {
+      console.error('Error deleting order:', error);
+      throw error;
+    }
   },
 };
