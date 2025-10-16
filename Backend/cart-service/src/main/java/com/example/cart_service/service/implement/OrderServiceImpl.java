@@ -87,6 +87,7 @@ public class OrderServiceImpl implements OrderService {
         String oldStatus = existingOrder.getStatus();
         String newStatus = orderRequest.getStatus();
 
+        if ("COMPLETED".equals(oldStatus) && ("CANCELLED".equals(newStatus) || "RETURNED".equals(newStatus))) {
             if (existingOrder.getOrderDetails() != null && !existingOrder.getOrderDetails().isEmpty()) {
                 try {
                     returnInventory(existingOrder.getOrderDetails());
