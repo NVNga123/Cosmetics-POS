@@ -1,6 +1,5 @@
 package com.example.cart_service.controller;
 
-
 import com.example.cart_service.dto.request.OrderRequest;
 import com.example.cart_service.dto.response.ResultDTO;
 import com.example.cart_service.service.OrderService;
@@ -63,15 +62,5 @@ public class OrderController {
         LOG.debug(() -> "REST request to delete Order : " + id);
         orderService.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/{id}/cancel")
-    public ResponseEntity<ResultDTO> cancelOrder(@PathVariable Integer id) {
-        LOG.debug(() -> "REST request to cancel Order : " + id);
-        OrderRequest cancelRequest = new OrderRequest();
-        cancelRequest.setId(id);
-        cancelRequest.setStatus("CANCELLED");
-        ResultDTO result = orderService.update(cancelRequest);
-        return ResponseEntity.ok(result);
     }
 }

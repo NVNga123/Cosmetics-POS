@@ -58,7 +58,8 @@ public class OrderServiceImpl implements OrderService {
         
         return new ResultDTO("success", "lưu đơn hàng thành công", true, order, 1);
     }
-    
+
+    // giảm
     private void updateInventory(List<OrderItemResponse> items) {
         List<Map<String, Object>> inventoryItems = new ArrayList<>();
         
@@ -86,7 +87,6 @@ public class OrderServiceImpl implements OrderService {
         String oldStatus = existingOrder.getStatus();
         String newStatus = orderRequest.getStatus();
 
-        if ("COMPLETED".equals(oldStatus) && "CANCELLED".equals(newStatus)) {
             if (existingOrder.getOrderDetails() != null && !existingOrder.getOrderDetails().isEmpty()) {
                 try {
                     returnInventory(existingOrder.getOrderDetails());
@@ -99,7 +99,8 @@ public class OrderServiceImpl implements OrderService {
         existingOrder = orderMapper.updateEntity(orderRequest, existingOrder);
         return new ResultDTO("success", "update đơn hàng thành công", true, existingOrder, 1);
     }
-    
+
+    // hoàn
     private void returnInventory(List<com.example.cart_service.entity.OrderDetail> orderDetails) {
         List<Map<String, Object>> inventoryItems = new ArrayList<>();
         

@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Integer> {
 
-    @Query("select coalesce(sum(o.finalPrice), 0) from Order o Where o.createdDate BETWEEN :fromDate AND :toDate")
+    @Query("select coalesce(sum(o.finalPrice), 0) from Order o Where o.status = 'COMPLETED' AND o.createdDate BETWEEN :fromDate AND :toDate")
     BigDecimal getTotalRevenue (@Param("fromDate") Instant fromDate, @Param("toDate") Instant toDate);
 
     @Query("select count(o) from Order o")
