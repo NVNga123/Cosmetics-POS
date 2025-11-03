@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { OrderSummaryProps } from '../../types/order';
 import { PaymentModal } from './PaymentModal';
 import './PaymentModal.css';
@@ -20,6 +20,24 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                                                             onDeleteOrder,
                                                           }) => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isOrderDropdownOpen, setIsOrderDropdownOpen] = useState(false);
+  const orderDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Đóng dropdown khi click bên ngoài
+  useEffect(() => {
+    if (!isOrderDropdownOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (orderDropdownRef.current && !orderDropdownRef.current.contains(event.target as Node)) {
+        setIsOrderDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOrderDropdownOpen]);
 
   const handlePaymentClick = () => {
     setIsPaymentModalOpen(true);
@@ -27,10 +45,6 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   const handlePaymentSuccess = (paymentMethod?: any) => {
     setIsPaymentModalOpen(false);
-    // Cập nhật đơn hàng với phương thức thanh toán
-    if (paymentMethod) {
-      console.log('Payment method selected:', paymentMethod);
-    }
     onCheckout(paymentMethod);
   };
 
@@ -86,36 +100,89 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
 
                 {/* Order Dropdown */}
                 {orders.length > 1 && (
-                  <div className="order-dropdown">
-                    <button className="dropdown-trigger">
+                  <div 
+                    className="order-dropdown" 
+                    ref={orderDropdownRef} 
+                    style={{ position: 'relative', zIndex: 10001 }}
+                  >
+                    <button 
+                      type="button"
+                      className="dropdown-trigger"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsOrderDropdownOpen(!isOrderDropdownOpen);
+                      }}
+                      style={{ 
+                        position: 'relative', 
+                        zIndex: 10001, 
+                        pointerEvents: 'auto',
+                        cursor: 'pointer'
+                      }}
+                    >
                       <i className="fa fa-file-text"></i>
                       <span className="badge">{orders.length - 1}</span>
                       <i className="fa fa-chevron-down"></i>
                     </button>
-                    <div className="dropdown-menu">
-                      <div className="dropdown-header">Đơn hàng</div>
-                      {orders.map((ord, index) => (
-                        index !== activeOrderIndex && (
+                    {isOrderDropdownOpen && (
+                      <div 
+                        className="dropdown-menu order-dropdown-open" 
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ 
+                          display: 'block',
+                          visibility: 'visible',
+                          opacity: 1,
+                          position: 'absolute',
+                          top: '100%',
+                          left: '0',
+                          marginTop: '4px',
+                          maxHeight: '300px', 
+                          overflowY: 'auto',
+                          zIndex: 10002,
+                          minWidth: '200px',
+                          backgroundColor: 'white',
+                          border: '1px solid #ddd',
+                          borderRadius: '4px',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                          pointerEvents: 'auto'
+                        }}
+                      >
+                        <div className="dropdown-header">Danh sách đơn hàng ({orders.length})</div>
+                        {orders.map((ord, index) => (
                           <div
                             key={`${ord.orderId}-${index}`}
-                            className="dropdown-item"
-                            onClick={() => onSwitchOrder(index)}
+                            className={`dropdown-item ${index === activeOrderIndex ? 'active' : ''}`}
+                            onClick={() => {
+                              onSwitchOrder(index);
+                              setIsOrderDropdownOpen(false);
+                            }}
+                            style={{
+                              backgroundColor: index === activeOrderIndex ? '#e3f2fd' : 'transparent',
+                              fontWeight: index === activeOrderIndex ? 'bold' : 'normal'
+                            }}
                           >
-                            <span>Đơn hàng: {ord.code}</span>
+                            <span>
+                              {ord.code} 
+                              {index === activeOrderIndex && ' (Đang chọn)'}
+                            </span>
                             <button
                               className="remove-order-btn"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onDeleteOrder(index);
+                                if (orders.length > 1) {
+                                  onDeleteOrder(index);
+                                  setIsOrderDropdownOpen(false);
+                                }
                               }}
                               title="Xóa đơn hàng"
+                              disabled={orders.length <= 1}
                             >
                               <i className="fa fa-times"></i>
                             </button>
                           </div>
-                        )
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 

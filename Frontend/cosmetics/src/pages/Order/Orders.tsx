@@ -21,14 +21,12 @@ export const Orders: React.FC = () => {
 
 
     const fetchOrders = async () => {
-        console.log("fetchOrders() được gọi!");
         try {
             setLoading(true);
             setError(null);
             const result = await orderApi.getAllOrders();
             const { data = [], count = 0 } = result || {};
             setTotalOrders(count);
-            console.log("API response:", data);
 
 
 
@@ -104,22 +102,8 @@ export const Orders: React.FC = () => {
                 return;
             }
             
-            console.log('Deleting order with ID:', orderId);
-            const result = await orderApi.deleteOrder(String(orderId));
-            console.log('Delete result:', result);
-            
-            // Debug: Log current orders before filter
-            console.log('Orders before filter:', orders);
-            console.log('Looking for orderId:', orderId, 'type:', typeof orderId);
-            setOrders(prev => {
-                const filtered = prev.filter(order => {
-                    const shouldKeep = order.orderId !== Number(orderId);
-                    console.log(`Order ${order.orderId} (${typeof order.orderId}) vs ${orderId} (${typeof orderId}): ${shouldKeep ? 'KEEP' : 'REMOVE'}`);
-                    return shouldKeep;
-                });
-                console.log('Orders after filter:', filtered);
-                return filtered;
-            });
+            await orderApi.deleteOrder(String(orderId));
+            setOrders(prev => prev.filter(order => order.orderId !== Number(orderId)));
             alert('Đơn hàng đã được xoá thành công!');
             
             // Fallback: Refresh orders list after a short delay
@@ -128,14 +112,12 @@ export const Orders: React.FC = () => {
                     const response = await orderApi.getAllOrders();
                     if (response.data) {
                         setOrders(response.data);
-                        console.log('Orders refreshed from server:', response.data);
                     }
                 } catch (error) {
-                    console.error('Error refreshing orders:', error);
+                    // Silent error handling
                 }
             }, 1000);
         } catch (error: any) {
-            console.error('Delete order error:', error);
             const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra khi xoá đơn hàng. Vui lòng thử lại.';
             alert(errorMessage);
         }

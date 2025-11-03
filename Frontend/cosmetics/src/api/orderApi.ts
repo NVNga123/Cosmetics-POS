@@ -31,6 +31,15 @@ export const orderApi = {
     return response.data;
   },
 
+  updateOrder: async (orderId: string | number, orderData: OrderSubmitData): Promise<Result<Order>> => {
+    const response = await axios.put<Result<Order>>(
+        `${API_URL}${API_ORDER}/${orderId}`,
+        orderData,
+        { headers: { "Content-Type": "application/json" } }
+    );
+    return response.data;
+  },
+
   deleteOrder: async (orderId: string): Promise<Result<null>> => {
     try {
       await axios.delete(`${API_URL}${API_ORDER}/${orderId}`);
@@ -44,7 +53,6 @@ export const orderApi = {
         data: null
       };
     } catch (error: any) {
-      console.error('Error deleting order:', error);
       throw error;
     }
   },

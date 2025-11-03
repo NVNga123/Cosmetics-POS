@@ -46,7 +46,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         onPaymentSuccess(selectedMethod);
       }
     } catch (error) {
-      console.error('Lỗi thanh toán:', error);
       alert('Có lỗi xảy ra khi thanh toán. Vui lòng thử lại.');
     } finally {
       setIsProcessing(false);

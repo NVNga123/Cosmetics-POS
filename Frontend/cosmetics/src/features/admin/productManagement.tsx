@@ -65,8 +65,6 @@ export const ProductManagement = () => {
       form.reset(); // Xóa nội dung form sau khi thêm
 
     } catch (error) {
-
-      console.error("❌ Lỗi khi thêm sản phẩm:", error);
       Swal.fire({
         icon: "error",
         title: "Thêm sản phẩm thất bại",
@@ -108,8 +106,6 @@ export const ProductManagement = () => {
         setShowEdit(false)
       }, 1000);
     } catch (error) {
-
-      console.error("❌ Lỗi khi cập nhật sản phẩm:", error);
       Swal.fire({
         icon: "error",
         title: "Cập nhật sản phẩm thất bại",

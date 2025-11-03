@@ -409,6 +409,12 @@
   align-items: center;
   color: #ffffff;
   height: 100%;
+  position: relative;
+  z-index: 10001;
+}
+
+.area .left-header * {
+  pointer-events: auto;
 }
 
 .current-order {
@@ -1022,6 +1028,12 @@
   margin-bottom: 10px;
   align-items: center;
   min-height: 40px;
+  position: relative;
+  z-index: 10001;
+}
+
+.order-selection * {
+  pointer-events: auto;
 }
 
 
@@ -1117,6 +1129,11 @@
 .order-dropdown {
   position: relative;
   display: inline-block;
+  z-index: 1001;
+}
+
+.order-dropdown * {
+  pointer-events: auto;
 }
 
 .dropdown-trigger {
@@ -1132,11 +1149,13 @@
   font-size: 14px;
   transition: all 0.2s;
   position: relative;
+  z-index: 1001;
   outline: none;
   box-shadow: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  pointer-events: auto;
 }
 
 .dropdown-trigger:hover {
@@ -1199,8 +1218,34 @@
   display: none;
 }
 
-.order-dropdown:hover .dropdown-menu {
+.order-dropdown:hover .dropdown-menu:not(.order-dropdown-open) {
   display: block;
+}
+
+/* Đảm bảo dropdown menu hiển thị khi được mở bằng state - Priority cao nhất */
+.order-dropdown .dropdown-menu.order-dropdown-open {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 10002 !important;
+  pointer-events: auto !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  margin-top: 4px !important;
+  background: white !important;
+  border: 1px solid #ddd !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  min-width: 200px !important;
+  max-height: 300px !important;
+  overflow-y: auto !important;
+}
+
+/* Override tất cả các rule khác */
+.order-dropdown .dropdown-menu.order-dropdown-open,
+.order-dropdown:hover .dropdown-menu.order-dropdown-open {
+  display: block !important;
 }
 
 .dropdown-header {
