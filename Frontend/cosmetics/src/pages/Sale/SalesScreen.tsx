@@ -36,6 +36,52 @@ export const SalesScreen: React.FC = () => {
     const [customerName, setCustomerName] = useState('Khách lẻ');
     const [notes, setNotes] = useState('---');
 
+    // Tìm số lớn nhất trong orderId hiện tại để tạo ID mới
+    const getNextOrderId = () => {
+        if (orders.length === 0) return 1;
+        const maxId = Math.max(...orders.map(o => typeof o.orderId === 'number' ? o.orderId : 0), 0);
+        return maxId + 1;
+    };
+
+    const handleAddOrder = () => {
+        const newOrderId = getNextOrderId();
+        const newOrder = createNewOrder(newOrderId);
+        setOrders(prev => {
+            const newOrders = [...prev, newOrder];
+            setActiveOrderIndex(newOrders.length - 1);
+            return newOrders;
+        });
+        setCustomerName('Khách lẻ');
+        setNotes('---');
+    };
+
+    const handleSwitchOrder = (index: number) => {
+        if (index >= 0 && index < orders.length) {
+            setActiveOrderIndex(index);
+            setCustomerName(orders[index].customerName || 'Khách lẻ');
+            setNotes(orders[index].notes || '---');
+        }
+    };
+
+    const handleDeleteOrder = (index: number) => {
+        if (orders.length <= 1) {
+            alert('Không thể xóa đơn hàng cuối cùng. Vui lòng tạo đơn hàng mới trước.');
+            return;
+        }
+
+        setOrders(prev => {
+            const newOrders = prev.filter((_, i) => i !== index);
+            // Nếu xóa đơn hàng đang active hoặc đơn hàng trước active, điều chỉnh activeOrderIndex
+            if (index <= activeOrderIndex) {
+                const newActiveIndex = Math.max(0, activeOrderIndex - 1);
+                setActiveOrderIndex(newActiveIndex);
+                setCustomerName(newOrders[newActiveIndex]?.customerName || 'Khách lẻ');
+                setNotes(newOrders[newActiveIndex]?.notes || '---');
+            }
+            return newOrders;
+        });
+    };
+
     // ✅ Nhận dữ liệu từ Cart (navigate state)
     useEffect(() => {
         if (location.state?.selectedOrder) {
@@ -81,7 +127,6 @@ export const SalesScreen: React.FC = () => {
             setCustomerName(mappedOrder.customerName);
             setNotes(mappedOrder.notes || '');
             setActiveOrderIndex(0);
-            console.log('✅ Loaded order from Cart:', mappedOrder);
         }
     }, [location.state]);
 
@@ -373,11 +418,33 @@ export const SalesScreen: React.FC = () => {
                     onRemoveItem={removeFromOrder}
                     onCheckout={handleCheckout}
                     onSaveOrder={handleSaveOrder}
-                    onCustomerNameChange={setCustomerName}
-                    onNotesChange={setNotes}
-                    onAddOrder={() => {}}
-                    onSwitchOrder={() => {}}
-                    onDeleteOrder={() => {}}
+                    onCustomerNameChange={(name) => {
+                        setCustomerName(name);
+                        // Cập nhật customerName vào đơn hàng hiện tại
+                        setOrders(prev => {
+                            const newOrders = [...prev];
+                            newOrders[activeOrderIndex] = {
+                                ...newOrders[activeOrderIndex],
+                                customerName: name,
+                            };
+                            return newOrders;
+                        });
+                    }}
+                    onNotesChange={(notes) => {
+                        setNotes(notes);
+                        // Cập nhật notes vào đơn hàng hiện tại
+                        setOrders(prev => {
+                            const newOrders = [...prev];
+                            newOrders[activeOrderIndex] = {
+                                ...newOrders[activeOrderIndex],
+                                notes: notes,
+                            };
+                            return newOrders;
+                        });
+                    }}
+                    onAddOrder={handleAddOrder}
+                    onSwitchOrder={handleSwitchOrder}
+                    onDeleteOrder={handleDeleteOrder}
                 />
 
             </div>

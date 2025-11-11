@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { orderApi } from "../api/orderApi.ts";
 import type { Order } from "../types/order.ts";
 import { OrderDetailModal } from "../components/orders/OrderDetailModal.tsx";
@@ -24,6 +24,7 @@ const formatDate = (dateString: string | undefined) => {
 
 export const Cart = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -67,7 +68,7 @@ export const Cart = () => {
 
     useEffect(() => {
         fetchOrders();
-    }, []);
+    }, [location.key]);
 
     const handleViewOrder = (order: Order) => {
         setSelectedOrder(order);
@@ -83,21 +84,8 @@ export const Cart = () => {
         try {
             if (!orderId) return alert('ID không hợp lệ');
             
-            console.log('Deleting order with ID:', orderId);
-            const result = await orderApi.deleteOrder(String(orderId));
-            console.log('Delete result:', result);
-            
-            // Update local state with debug
-            console.log('Looking for orderId:', orderId, 'type:', typeof orderId);
-            setOrders(prev => {
-                const filtered = prev.filter(order => {
-                    const shouldKeep = order.orderId !== Number(orderId);
-                    console.log(`Order ${order.orderId} (${typeof order.orderId}) vs ${orderId} (${typeof orderId}): ${shouldKeep ? 'KEEP' : 'REMOVE'}`);
-                    return shouldKeep;
-                });
-                console.log('Orders after filter:', filtered);
-                return filtered;
-            });
+            await orderApi.deleteOrder(String(orderId));
+            setOrders(prev => prev.filter(order => order.orderId !== Number(orderId)));
             alert('Đơn hàng đã được xoá!');
             
             // Fallback: Refresh orders list after a short delay
@@ -106,14 +94,12 @@ export const Cart = () => {
                     const response = await orderApi.getAllOrders();
                     if (response.data) {
                         setOrders(response.data);
-                        console.log('Orders refreshed from server:', response.data);
                     }
                 } catch (error) {
-                    console.error('Error refreshing orders:', error);
+                    // Silent error handling
                 }
             }, 1000);
         } catch (error: any) {
-            console.error('Delete order error:', error);
             const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra khi xoá đơn hàng. Vui lòng thử lại.';
             alert(errorMessage);
         }
@@ -134,7 +120,6 @@ export const Cart = () => {
 
             navigate('/user/sales', { state: { selectedOrder: orderData } });
         } catch (error) {
-            console.error('Error completing order:', error);
             alert('Có lỗi khi tải đơn hàng.');
         }
     };

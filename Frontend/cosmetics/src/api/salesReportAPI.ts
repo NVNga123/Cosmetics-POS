@@ -48,7 +48,6 @@ export const saleReportApi = {
           toDate: params.toDate
         };
       } catch (error) {
-        console.error('Error fetching daily revenue data:', error);
         throw error;
       }
     },
@@ -74,7 +73,6 @@ export const saleReportApi = {
           toDate: params.toDate
         };
       } catch (error) {
-        console.error('Error fetching monthly revenue data:', error);
         throw error;
       }
     }

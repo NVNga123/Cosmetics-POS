@@ -52,18 +52,16 @@ export const Dashboard = () => {
           fromDate: formattedFrom,
           toDate: formattedTo
         });
-        console.log('→ Fetching DAILY report');
       } else {
         response = await saleReportApi.getMonthlyRevenue({
           fromDate: formattedFrom,
           toDate: formattedTo
         });
-        console.log('→ Fetching MONTHLY report');
       }
 
       setRevenueData(response.data);
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu doanh thu:", error);
+      // Silent error handling
     } finally {
       setIsLoadingRevenue(false);
     }
@@ -85,7 +83,7 @@ export const Dashboard = () => {
           }));
         }
       } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu báo cáo:", error);
+        // Silent error handling
       }
     };
 
