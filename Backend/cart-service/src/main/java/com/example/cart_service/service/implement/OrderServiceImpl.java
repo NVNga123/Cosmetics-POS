@@ -154,4 +154,16 @@ public class OrderServiceImpl implements OrderService {
 
         return new ResultDTO("success", "lấy danh sách order thành công", true, orders);
     }
+
+    @Override
+    @Transactional
+    public ResultDTO userSoftDelete(Integer id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        order.setDeletedByUser(true);
+        orderRepository.save(order);
+
+        return new ResultDTO("success", "Đã xóa đơn hàng khỏi lịch sử của bạn", true);
+    }
 }

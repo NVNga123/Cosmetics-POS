@@ -39,6 +39,10 @@ public class OrderRequest {
 
     private String paymentMethod;
 
+    private Double cashAmount;
+
+    private Double transferAmount;
+
     public List<OrderItemResponse> getItems() {
         return items;
     }
@@ -123,6 +127,22 @@ public class OrderRequest {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public Double getCashAmount() {
+        return cashAmount;
+    }
+
+    public void setCashAmount(Double cashAmount) {
+        this.cashAmount = cashAmount;
+    }
+
+    public Double getTransferAmount() {
+        return transferAmount;
+    }
+
+    public void setTransferAmount(Double transferAmount) {
+        this.transferAmount = transferAmount;
     }
 
     @Override

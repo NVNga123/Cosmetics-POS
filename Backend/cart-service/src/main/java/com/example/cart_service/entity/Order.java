@@ -64,6 +64,23 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
     @Column(name = "final_price")
     private Double finalPrice;
 
+    @Column(name = "cash_amount")
+    private Double cashAmount;
+
+    @Column(name = "transfer_amount")
+    private Double transferAmount;
+
+    @Column(name = "deleted_by_user")
+    private Boolean deletedByUser = false;
+
+    // Thêm cả getter/setter cho nó
+    public Boolean getDeletedByUser() {
+        return deletedByUser;
+    }
+
+    public void setDeletedByUser(Boolean deletedByUser) {
+        this.deletedByUser = deletedByUser;
+    }
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<OrderDetail> orderDetails;
@@ -175,6 +192,22 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
 
     public void setFinalPrice(Double finalPrice) {
         this.finalPrice = finalPrice;
+    }
+
+    public Double getCashAmount() {
+        return cashAmount;
+    }
+
+    public void setCashAmount(Double cashAmount) {
+        this.cashAmount = cashAmount;
+    }
+
+    public Double getTransferAmount() {
+        return transferAmount;
+    }
+
+    public void setTransferAmount(Double transferAmount) {
+        this.transferAmount = transferAmount;
     }
 
     public String getUserName() {

@@ -94,28 +94,30 @@ export const SalesScreen: React.FC = () => {
                 status: orderData.status || 'DRAFT',
                 createdDate: orderData.createdDate,
                 items: (orderData.items || orderData.orderDetails || []).map((item: any) => {
-                    // Lấy giá đơn vị gốc (unitPrice hoặc price)
-                    const unitPrice = item.unitPrice || item.price || 0;
+                    // Dữ liệu từ backend (OrderMapper.java -> OrderItemResponse.java)
+                    // item.price là giá GỐC (unitPrice)
+                    // item.subtotal là TỔNG ĐÃ GIẢM (totalPrice)
+                    const unitPrice = item.price || item.unitPrice || 0;
                     const quantity = item.quantity || item.quantityProduct || 0;
-                    const totalPrice = item.totalPrice || item.total || 0;
-                    
-                    // Tính lại subtotal (giá cũ) = quantity * unitPrice
-                    const subtotal = quantity * unitPrice;
-                    
-                    // Tính discountAmount = subtotal - totalPrice (nếu có giảm giá)
-                    const discountAmount = subtotal > totalPrice ? subtotal - totalPrice : 0;
+                    const discountedTotalForItem = item.subtotal || item.totalPrice || 0;
+
+                    // Tính toán lại cho đúng kiểu OrderItem của frontend
+                    const originalTotalForItem = unitPrice * quantity; // Tổng gốc (chưa giảm)
+                    const discountAmount = originalTotalForItem - discountedTotalForItem; // Tiền giảm
                     
                     return {
                         productId: item.productId,
                         product: item.product || {
                             id: item.productId,
                             name: item.productName,
-                            price: unitPrice,
+                            price: unitPrice, // Giá gốc (phục vụ hàm updateQuantity)
+                            // Thêm discount để hàm updateQuantity tính đúng
+                            discount: (item.product?.discount || 0) 
                         },
                         quantity: quantity,
-                        subtotal: subtotal,
-                        discountAmount: discountAmount || item.discountAmount || 0,
-                        total: totalPrice,
+                        subtotal: originalTotalForItem, // (vd: 250,000)
+                        discountAmount: discountAmount, // (vd: 20,000)
+                        total: discountedTotalForItem, // (vd: 230,000)
                     };
                 }),
                 notes: orderData.notes || '',
@@ -253,13 +255,19 @@ export const SalesScreen: React.FC = () => {
         updateOrder(updatedItems);
     };
 
-    const buildOrderData = (status: string, paymentMethod?: string) => {
+    const buildOrderData = (status: string, paymentMethod?: string, transferAmount?: number) => {
         const currentOrder = orders[activeOrderIndex];
         const subtotal = currentOrder.items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
         const discount = currentOrder.items.reduce((sum, item) => sum + (item.subtotal - item.total), 0);
         const totalAfterDiscount = subtotal - discount;
         const tax = totalAfterDiscount * 0.1;
         const total = totalAfterDiscount + tax;
+        // SỬA TỪ ĐÂY
+        // Tính toán tiền mặt và tiền chuyển khoản
+        const finalTransferAmount = transferAmount || 0;
+        // Nếu là TMCK, tiền mặt là phần còn lại. Nếu là tiền mặt, chuyển khoản là 0, tiền mặt là tổng.
+        const finalCashAmount = (paymentMethod === 'tmck' || paymentMethod === 'cash') ? (total - finalTransferAmount) : 0;
+        // SỬA ĐẾN ĐÂY
 
         return {
             id: currentOrder.orderId || 0, // Thêm trường id bắt buộc
@@ -268,7 +276,7 @@ export const SalesScreen: React.FC = () => {
                 productName: item.product?.name || item.productName || '',
                 price: item.product?.price || item.unitPrice || item.price || 0,
                 quantity: item.quantity,
-                subtotal: item.subtotal,
+                subtotal: item.total,
             })),
             subtotal: subtotal,
             discount: discount,
@@ -278,6 +286,8 @@ export const SalesScreen: React.FC = () => {
             notes: notes || '',
             status,
             paymentMethod: paymentMethod || currentOrder.paymentMethod,
+            cashAmount: finalCashAmount, // THÊM DÒNG NÀY
+            transferAmount: finalTransferAmount, // THÊM DÒNG NÀY
         };
     };
 
@@ -306,21 +316,22 @@ export const SalesScreen: React.FC = () => {
         }
     };
 
-    const handleCheckout = async (paymentMethod?: string) => {
+   const handleCheckout = async (paymentMethod?: string, transferAmount?: number) => { 
         try {
             const currentOrder = orders[activeOrderIndex];
-            const orderData = buildOrderData(ORDER_STATUS.COMPLETED, paymentMethod);
-            
-            // Nếu đơn hàng đã có orderId (đã lưu trong Cart), thì update thay vì tạo mới
+            const orderData = buildOrderData(ORDER_STATUS.COMPLETED, paymentMethod, transferAmount); 
+
             let result;
-            if (currentOrder.orderId && currentOrder.orderId > 0) {
-                // Update đơn hàng đã tồn tại
+            if (currentOrder.orderId && currentOrder.status === 'DRAFT') {
+                console.log(`Updating existing order ID: ${currentOrder.orderId} to COMPLETED`);
                 result = await orderApi.updateOrder(currentOrder.orderId, orderData);
             } else {
-                // Tạo đơn hàng mới
+                console.log('Creating new order as COMPLETED');
                 result = await orderApi.submitOrder(orderData);
             }
+            console.log('Order save/update result:', result.data);
 
+            // Cập nhật state nội bộ
             setOrders(prev => {
                 const newOrders = [...prev];
                 newOrders[activeOrderIndex] = {
@@ -333,14 +344,21 @@ export const SalesScreen: React.FC = () => {
                 return newOrders;
             });
 
-            alert('✅ Đơn hàng đã được thanh toán và cập nhật trạng thái thành công!');
-            navigate('/user/cart');
+            // SỬA: Chỉ alert và navigate NẾU là 'cash' (tiền mặt)
+            if (paymentMethod === 'cash') { 
+                alert('✅ Đơn hàng đã được thanh toán và cập nhật trạng thái thành công!');
+                navigate('/user/cart');
+            }
+            // Nếu là 'bank' hoặc 'tmck', hàm này sẽ kết thúc
+            // và để PaymentModal xử lý việc chuyển hướng.
+            
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Unknown error';
-            alert(`❌ Có lỗi xảy ra khi thanh toán: ${message}`);
+            console.error(`❌ Có lỗi xảy ra khi lưu đơn hàng: ${message}`);
+            // Ném lỗi ra ngoài để PaymentModal có thể bắt được
+            throw error; 
         }
     };
-
 
     return (
         <div className={`pos-customer ${!sidebarOpen ? 'hidden-sidebar' : ''}`}>

@@ -4,6 +4,7 @@ import type { OrderListProps } from '../../types/order.ts';
 export const OrderList: React.FC<OrderListProps> = ({
   orders,
   onViewOrder,
+  onDeleteOrder,
   formatPrice,
   getStatusText,
   getStatusColor,
@@ -85,6 +86,24 @@ export const OrderList: React.FC<OrderListProps> = ({
               >
                 ☰
               </button>
+              {/* THÊM NÚT XÓA MỚI (chỉ hiển thị nếu có hàm onDeleteOrder) */}
+              {onDeleteOrder && (
+                  <button
+                      className="action-btn"
+                      onClick={(e) => {
+                          e.stopPropagation(); // Ngăn modal mở
+                          onDeleteOrder(order.orderId);
+                      }}
+                      title="Xóa đơn hàng"
+                      style={{ 
+                          marginLeft: '8px', 
+                          color: '#dc2626', 
+                          borderColor: '#fca5a5' 
+                      }}
+                  >
+                      <i className="fa fa-trash"></i>
+                  </button>
+              )}
             </td>
           </tr>
       ))}
