@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { invoiceApi } from "../../api/invoiceApi.ts";
 import { orderApi } from "../../api/orderApi.ts";
 import type { Order } from "../../types/order.ts";
 import { OrderDetailModal } from "../../components/orders/OrderDetailModal.tsx";
@@ -7,6 +8,7 @@ import { OrderFilters } from "../../components/orders/OrderFilters.tsx";
 import { OrderTable } from "../../components/orders/OrderTable.tsx";
 import { formatPrice, getStatusText, getStatusColor, getPaymentMethodText } from "../../utils/orderUtils.ts";
 import "./Orders.css";
+
 
 export const Orders: React.FC = () => {
     const navigate = useNavigate();
@@ -25,7 +27,7 @@ export const Orders: React.FC = () => {
         try {
             setLoading(true);
             setError(null);
-            const result = await orderApi.getAllOrders();
+            const result = await invoiceApi.getMyOrderHistory();
             const { data = [], count = 0 } = result || {};
             setTotalOrders(count);
             console.log("API response:", data);
@@ -35,7 +37,8 @@ export const Orders: React.FC = () => {
             const transformedOrders = (data || []).map((order: any) => ({
                 ...order,
                 orderId: order.id || order.orderId,
-                total: order.finalPrice,
+                total: order.total || order.finalPrice, // SỬA: Ưu tiên 'total' từ DTO
+                createdDate: order.createdDate || order.createdAt || order.created_date, // SỬA: Thêm dòng này
 
                 items: (order.items || order.orderDetails || []).map((item: any) => ({
                     ...item,
@@ -51,7 +54,7 @@ export const Orders: React.FC = () => {
                 }))
             }));
 
-            setOrders(transformedOrders);
+            setOrders(transformedOrders.filter(o => o.status !== 'DRAFT'));
         } catch (err: any) {
             const errorMessage =
                 err.response?.data?.message ||
@@ -159,6 +162,22 @@ export const Orders: React.FC = () => {
         }
     };
 
+    const handleUserSoftDelete = async (orderId: string | number) => {
+        // Lấy mã code để hiển thị
+        const orderCode = orders.find(o => o.orderId === orderId)?.code || orderId;
+        
+        if (window.confirm(`Bạn có chắc muốn ẩn đơn hàng ${orderCode} khỏi lịch sử?`)) {
+            try {
+                await orderApi.userSoftDelete(orderId); // Gọi API "xóa mềm"
+                
+                // Cập nhật UI ngay lập tức
+                setOrders(prev => prev.filter(order => order.orderId !== orderId));
+            } catch (err) {
+                alert("Lỗi khi xóa đơn hàng. Vui lòng thử lại.");
+            }
+        }
+    };
+
     const filteredOrders = orders.filter((order) => {
         const matchesSearch =
             order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -207,7 +226,7 @@ export const Orders: React.FC = () => {
         <div className="orders-page">
             {/* Header */}
             <div className="orders-header">
-                <h1>Danh sách đơn hàng</h1>
+                <h1>Danh sách hóa đơn</h1>
                 <div className="header-actions">
                     <button
                         className="btn btn-primary"
@@ -232,7 +251,7 @@ export const Orders: React.FC = () => {
             <OrderTable
                 orders={filteredOrders}
                 onViewOrder={handleViewOrder}
-                onDeleteOrder={handleDeleteOrder}
+                onDeleteOrder={handleUserSoftDelete} // <-- THÊM DÒNG NÀY
                 formatPrice={formatPrice}
                 getStatusText={getStatusText}
                 getStatusColor={getStatusColor}

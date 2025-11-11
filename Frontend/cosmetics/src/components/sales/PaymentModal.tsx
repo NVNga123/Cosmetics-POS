@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createMomoPayment } from '../../api/paymentApi';
+import { createMomoPayment, createVNPayPayment } from '../../api/paymentApi';
 import './PaymentModal.css';
 import type { PaymentModalProps, MomoPaymentRequest } from "../../types/payment.ts";
 import { paymentMethods } from "../../constants/paymentConstants.ts";
@@ -23,33 +23,70 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     }
   };
 
-  const handlePayment = async () => {
+ const handlePayment = async () => {
     if (!selectedMethod) return;
 
-    if (selectedMethod === 'tmck' && transferAmount <= 0) {
-      alert('Vui lòng nhập số tiền chuyển khoản');
+    // Kiểm tra số tiền hợp lệ cho TMCK
+    if (selectedMethod === 'tmck' && (transferAmount <= 0 || transferAmount >= orderTotal)) {
+      alert('Vui lòng nhập số tiền chuyển khoản hợp lệ (lớn hơn 0 và nhỏ hơn tổng tiền)');
       return;
     }
-    setIsProcessing(true);
+    
+    setIsProcessing(true); // Bật loading
 
     try {
-      if (selectedMethod === 'momo') {
-        const momoPaymentRequest: MomoPaymentRequest = {
+      // Xác định số tiền sẽ chuyển khoản (cho Bước 1)
+      let amountToTransfer = 0;
+      if (selectedMethod === 'bank' || selectedMethod === 'momo') {
+        amountToTransfer = orderTotal;
+      } else if (selectedMethod === 'tmck') {
+        amountToTransfer = transferAmount;
+      }
+
+      // BƯỚC 1: Luôn luôn LƯU ĐƠN HÀNG (gọi handleCheckout) trước
+      await onPaymentSuccess(selectedMethod, amountToTransfer);
+
+      // BƯỚC 2: Xử lý CỔNG THANH TOÁN (nếu cần)
+      
+      if (selectedMethod === 'bank') { 
+        // Đã lưu (Bước 1). Giờ tạo URL và chuyển hướng.
+        const paymentRequest: MomoPaymentRequest = {
+          orderInfo: orderCode,
+          amount: orderTotal, // Gửi tổng tiền
+        };
+        await createVNPayPayment(paymentRequest);
+        // Giữ loading vì đang chuyển trang
+        
+      } else if (selectedMethod === 'momo') {
+        // Đã lưu (Bước 1). Giờ tạo URL và chuyển hướng.
+         const paymentRequest: MomoPaymentRequest = {
           orderInfo: orderCode,
           amount: orderTotal,
         };
-        await createMomoPayment(momoPaymentRequest);
-        onPaymentSuccess(selectedMethod);
+        await createMomoPayment(paymentRequest);
+        // Giữ loading vì đang chuyển trang
+
       } else if (selectedMethod === 'tmck') {
-        onPaymentSuccess(selectedMethod);
+        // Đã lưu (Bước 1). Giờ tạo URL (chỉ cho phần CK) và chuyển hướng.
+        const tmckPaymentRequest: MomoPaymentRequest = {
+            orderInfo: `${orderCode} (CK)`,
+            amount: transferAmount, // Chỉ gửi số tiền chuyển khoản
+        };
+        await createVNPayPayment(tmckPaymentRequest);
+        // Giữ loading vì đang chuyển trang
+
       } else {
-        onPaymentSuccess(selectedMethod);
+        // Đây là 'cash' (Tiền mặt)
+        // Đã lưu ở Bước 1. Đã hiện alert (từ SalesScreen).
+        setIsProcessing(false); // Tắt loading
+        onClose(); // Đóng modal
       }
+      
     } catch (error) {
-      console.error('Lỗi thanh toán:', error);
-      alert('Có lỗi xảy ra khi thanh toán. Vui lòng thử lại.');
-    } finally {
-      setIsProcessing(false);
+      // Lỗi này có thể đến từ (1) lưu đơn hàng, hoặc (2) gọi cổng thanh toán
+      console.error('Lỗi xử lý thanh toán:', error);
+      alert('Có lỗi xảy ra khi xử lý. Vui lòng thử lại.');
+      setIsProcessing(false); // Tắt loading nếu có LỖI
     }
   };
 

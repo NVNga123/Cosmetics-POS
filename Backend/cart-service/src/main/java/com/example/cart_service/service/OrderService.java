@@ -14,4 +14,5 @@ public interface OrderService {
 
     ResultDTO findAll();
 
+    ResultDTO userSoftDelete(Integer id);
 }

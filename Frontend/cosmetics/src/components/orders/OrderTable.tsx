@@ -5,6 +5,7 @@ import { OrderList } from './OrderList.tsx';
 export const OrderTable: React.FC<OrderTableProps> = ({
   orders,
   onViewOrder,
+  onDeleteOrder,//
   formatPrice,
   getStatusText,
   getStatusColor,
@@ -30,6 +31,7 @@ export const OrderTable: React.FC<OrderTableProps> = ({
           <OrderList
             orders={orders}
             onViewOrder={onViewOrder}
+            onDeleteOrder={onDeleteOrder}
             formatPrice={formatPrice}
             getStatusText={getStatusText}
             getStatusColor={getStatusColor}

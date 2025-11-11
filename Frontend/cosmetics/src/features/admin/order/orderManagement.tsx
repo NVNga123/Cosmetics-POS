@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { invoiceApi } from "../../../api/invoiceApi.ts";
 import { orderApi } from "../../../api/orderApi.ts";
 import type { Order } from "../../../types/order.ts";
 import { OrderDetailModal } from "./OrderDetailModal.tsx";
@@ -26,13 +27,13 @@ export const OrderManagement = () => {
         try {
             setLoading(true);
             setError(null);
-            const result = await orderApi.getAllOrders();
+            const result = await invoiceApi.getAllInvoicesForAdmin();
             const { data = [] } = result || {};
 
             const transformedOrders = (data || []).map((order: any) => ({
                 ...order,
                 orderId: order.id || order.orderId,
-                total: order.finalPrice,
+                total: order.total || order.finalPrice || 0,
                 createdDate: order.createdDate || order.createdAt || order.created_date,
                 items: (order.items || order.orderDetails || []).map((item: any) => ({
                     ...item,
@@ -249,6 +250,7 @@ export const OrderManagement = () => {
             <OrderTable
                 orders={paginatedOrders}
                 onViewOrder={handleViewOrder}
+                onDeleteOrder={handleDeleteOrder}
                 formatPrice={formatPrice}
                 getStatusText={getStatusText}
                 getStatusColor={getStatusColor}

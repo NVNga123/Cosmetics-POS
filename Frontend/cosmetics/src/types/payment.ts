@@ -20,5 +20,5 @@ export interface PaymentModalProps {
     onClose: () => void;
     orderTotal: number;
     orderCode: string;
-    onPaymentSuccess: (paymentMethod?: PaymentMethod) => void; // Callback khi thanh toán thành công
+    onPaymentSuccess: (paymentMethod?: PaymentMethod, transferAmount?: number) => Promise<void>;
 }

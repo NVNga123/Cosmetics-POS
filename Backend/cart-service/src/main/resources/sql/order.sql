@@ -26,3 +26,9 @@ CREATE TABLE orders (
 /*                         CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES customers(id),
                        CONSTRAINT fk_discount FOREIGN KEY (discount_id) REFERENCES discounts(id)  */
 );
+USE cartdb;
+ALTER TABLE orders
+    ADD COLUMN deleted_by_user BOOLEAN DEFAULT FALSE;
+ALTER TABLE orders
+    ADD COLUMN cash_amount DOUBLE DEFAULT 0,
+ADD COLUMN transfer_amount DOUBLE DEFAULT 0;

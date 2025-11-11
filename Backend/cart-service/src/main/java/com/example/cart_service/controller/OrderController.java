@@ -43,6 +43,13 @@ public class OrderController {
         return ResponseEntity.ok(result);
     }
 
+    @PutMapping("/{id}/user-delete")
+    public ResponseEntity<ResultDTO> userSoftDelete(@PathVariable Integer id) {
+        LOG.debug(() -> "REST request to user soft delete Order : " + id);
+        ResultDTO result = orderService.userSoftDelete(id);
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping
     public ResponseEntity<ResultDTO> getAllOrders(){
         LOG.debug(() -> "REST request to get all Orders");
