@@ -29,7 +29,6 @@ export const OrderList: React.FC<OrderListProps> = ({
       
       return date.toLocaleString("vi-VN");
     } catch (error) {
-      console.error('Error formatting date:', error);
       return 'N/A';
     }
   };
