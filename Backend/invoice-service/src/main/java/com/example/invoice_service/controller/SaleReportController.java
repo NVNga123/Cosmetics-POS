@@ -22,8 +22,14 @@ public class SaleReportController {
     }
 
     @GetMapping
-    public ResponseEntity<ResultDTO> getAllReport(){
+    public ResponseEntity<ResultDTO> getAllReport(
+            @RequestParam(required = false) String fromDate, // <-- THÊM DÒNG NÀY
+            @RequestParam(required = false) String toDate) { // <-- THÊM DÒNG NÀY
+
         SalesReportRequest salesReportRequest = new SalesReportRequest();
+        salesReportRequest.setFromDate(fromDate); // <-- THÊM DÒNG NÀY
+        salesReportRequest.setToDate(toDate);   // <-- THÊM DÒNG NÀY
+
         ResultDTO resultDTO = salesReportService.getAllReport(salesReportRequest);
         return ResponseEntity.ok(resultDTO);
     }

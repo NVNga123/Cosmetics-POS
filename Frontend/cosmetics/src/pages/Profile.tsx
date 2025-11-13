@@ -4,6 +4,9 @@ import './Profile.css';
 import { saleReportApi } from '../api/salesReportAPI'; // <-- THÊM
 import { productApi } from '../api/productApi'; // <-- THÊM
 import { getUserStats } from '../api/userApi'; // <-- THÊM
+import { invoiceApi } from '../api/invoiceApi.ts';
+import type { Order } from '../types/order.ts';
+import { ORDER_STATUS } from '../constants/orderStatusConstants.ts';
 
 export const Profile: React.FC = () => {
     const navigate = useNavigate();
@@ -37,31 +40,47 @@ export const Profile: React.FC = () => {
 
     // THÊM: useEffect để tải dữ liệu
     useEffect(() => {
-        const fetchAllStats = async () => {
+        const fetchUserSpecificStats = async () => {
             setIsLoadingStats(true);
             try {
-                // Gọi cả 3 API
-                const [reportRes, productRes, userRes] = await Promise.all([
-                    saleReportApi.getReportSummary(),
-                    productApi.getProductStats(),
-                    getUserStats() 
-                ]);
+                // 1. Chỉ gọi API lấy lịch sử đơn hàng của user
+                const historyRes = await invoiceApi.getMyOrderHistory();
+                const allUserOrders = historyRes?.data || [];
 
+                // 2. Lọc ra chỉ các đơn hàng ĐÃ HOÀN THÀNH (COMPLETED)
+                const completedOrders = allUserOrders.filter(
+                    order => order.status === ORDER_STATUS.COMPLETED
+                );
+
+                // 3. Tính toán các chỉ số dựa trên các đơn ĐÃ HOÀN THÀNH
+                const totalOrders = completedOrders.length;
+                const totalRevenue = completedOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+                
+                // 4. Đếm khách hàng duy nhất từ các đơn ĐÃ HOÀN THÀNH
+                const customerNames = new Set(completedOrders.map(order => order.customerName));
+                const customerCount = customerNames.size;
+
+                // 5. TÍNH TỔNG SỐ LƯỢNG SẢN PHẨM (MỤC TIÊU CỦA BẠN)
+                const totalProductsSold = completedOrders.reduce((sum, order) => 
+                    sum + order.items.reduce((itemSum, item) => itemSum + (item.quantity || item.quantityProduct || 0), 0), 
+                0);
+
+                // 6. Cập nhật state với dữ liệu chính xác
                 setStats({
-                    totalOrders: reportRes?.data?.totalOrders || 0,
-                    totalRevenue: reportRes?.data?.totalRevenue || 0,
-                    totalProducts: productRes?.result || 0,
-                    customerCount: userRes?.result || 0, // Dùng tạm "tổng người dùng"
+                    totalOrders: totalOrders,
+                    totalRevenue: totalRevenue,
+                    totalProducts: totalProductsSold, // Đây là số sản phẩm đã bán
+                    customerCount: customerCount,
                 });
                 
             } catch (error) {
-                console.error("Lỗi khi lấy dữ liệu thống kê:", error);
+                console.error("Lỗi khi lấy dữ liệu thống kê của user:", error);
             } finally {
                 setIsLoadingStats(false);
             }
         };
 
-        fetchAllStats();
+        fetchUserSpecificStats();
     }, []);
 
     const handleEdit = () => {
@@ -282,7 +301,7 @@ export const Profile: React.FC = () => {
                         <div className="stat-icon">🛍️</div>
                         <div className="stat-content">
                             <h3>{isLoadingStats ? '...' : stats.totalProducts.toLocaleString()}</h3>
-                            <p>Sản phẩm</p>
+                            <p>Sản phẩm đã bán</p>
                         </div>
                     </div>
                     
