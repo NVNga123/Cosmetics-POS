@@ -82,17 +82,20 @@ public class VNPayController {
                 String fieldValue = vnp_Params.get(fieldName);
                 if ((fieldValue != null) && (fieldValue.length() > 0)) {
 
-                    // SỬA LỖI Chữ ký: Thay thế '+' bằng '%20'
+                    // 1. Mã hóa GIÁ TRỊ (Value)
                     String encodedValue = URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString()).replace("+", "%20");
 
+                    // 2. Xây dựng hashData: Dùng KEY THÔ + VALUE ĐÃ MÃ HÓA
                     hashData.append(fieldName);
                     hashData.append('=');
                     hashData.append(encodedValue);
 
-                    query.append(URLEncoder.encode(fieldName, StandardCharsets.UTF_8.toString()));
+                    // 3. Xây dựng query: Dùng KEY THÔ + VALUE ĐÃ MÃ HÓA
+                    query.append(fieldName); // <-- Sửa: Không encode fieldName
                     query.append('=');
                     query.append(encodedValue);
 
+                    // 4. Thêm dấu & vào cả hai
                     if (itr.hasNext()) {
                         query.append('&');
                         hashData.append('&');

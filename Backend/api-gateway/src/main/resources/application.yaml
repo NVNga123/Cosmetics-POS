@@ -72,7 +72,7 @@ spring:
           filters:
             - StripPrefix=2
         - id: product_service
-          uri: lb://product_service
+          uri: lb://product-service
           predicates:
             - Path=${app.api-prefix}/products/**
           filters:

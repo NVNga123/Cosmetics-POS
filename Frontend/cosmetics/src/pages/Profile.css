@@ -278,11 +278,17 @@
     color: white;
 }
 
+.stat-content {
+    flex: 1;
+    min-width: 0; /* <-- THÊM DÒNG NÀY */
+}
+
 .stat-content h3 {
     font-size: 1.75rem;
     font-weight: 700;
     color: #1a1a1a;
     margin: 0 0 4px 0;
+    overflow-wrap: break-word;
 }
 
 .stat-content p {
@@ -290,6 +296,7 @@
     margin: 0;
     font-size: 14px;
     font-weight: 500;
+    overflow-wrap: break-word;
 }
 
 /* Quick Actions */

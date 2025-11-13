@@ -17,7 +17,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @Query("select count(o) from Order o")
     long count();
 
-    @Query("SELECT COALESCE(SUM(o.finalPrice), 0) from Order o ")
+    @Query("SELECT COALESCE(SUM(o.finalPrice), 0) from Order o WHERE o.status = 'COMPLETED'")
     BigDecimal getTotalRevenue ();
 
     @Query("SELECT COUNT(o) FROM Order o WHERE o.status = 'RETURNED'")

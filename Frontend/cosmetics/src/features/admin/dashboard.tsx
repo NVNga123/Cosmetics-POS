@@ -65,12 +65,9 @@ export const Dashboard = () => {
     const fetchAllStats = async () => {
       setIsLoadingStats(true);
       try {
-        const formattedFrom = dayjs(fromDate, 'DD/MM/YYYY').format('YYYY-MM-DD');
-        const formattedTo = dayjs(toDate, 'DD/MM/YYYY').format('YYYY-MM-DD');
-
-        // Gọi cả 3 API, stats cũng có date range
+        // Gọi cả 3 API, NHƯNG KHÔNG gửi date range cho getReportSummary
         const [reportRes, productRes, userRes] = await Promise.all([
-          saleReportApi.getReportSummary({ fromDate: formattedFrom, toDate: formattedTo }),
+          saleReportApi.getReportSummary(), // <-- Xóa params date range
           productApi.getProductStats(),
           getUserStats() 
         ]);
@@ -93,6 +90,10 @@ export const Dashboard = () => {
     };
 
     fetchAllStats();
+  }, []); // <-- Mảng dependency rỗng, chỉ chạy 1 lần
+
+  // Hook 2: Chỉ chạy khi ngày thay đổi, để tải lại BIỂU ĐỒ
+  useEffect(() => {
     fetchRevenueData(fromDate, toDate);
   }, [fromDate, toDate]); // Chạy khi fromDate hoặc toDate thay đổi
 
