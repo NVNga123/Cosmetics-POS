@@ -70,15 +70,28 @@ export const getMyInfo = async (): Promise<ApiResponse<User>> => {
 };
 
 // Thống kê users theo role
-export const getUserStats = async (): Promise<{ total: number; userRole: number; adminRole: number }> => {
-  const response = await getUsers();
-  const users = response.result;
+// export const getUserStats = async (): Promise<{ total: number; userRole: number; adminRole: number }> => {
+//   const response = await getUsers();
+//   const users = response.result;
   
-  const stats = {
-    total: users.length,
-    userRole: users.filter(user => user.roles.some(role => role.name === 'USER')).length,
-    adminRole: users.filter(user => user.roles.some(role => role.name === 'ADMIN')).length
-  };
+//   const stats = {
+//     total: users.length,
+//     userRole: users.filter(user => user.roles.some(role => role.name === 'USER')).length,
+//     adminRole: users.filter(user => user.roles.some(role => role.name === 'ADMIN')).length
+//   };
   
-  return stats;
+//   return stats;
+// };
+
+export const getUserStats = async (): Promise<ApiResponse<number>> => {
+  try {
+    const response = await axiosClient.get('/identity/users/stats/count');
+    console.log('✅ User stats response:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("❌ Error fetching user stats:", error.response?.data || error.message);
+    console.error("Status:", error.response?.status);
+    // Trả về default response để không crash
+    return { code: error.response?.status || 500, message: error.message, result: 0 };
+  }
 };

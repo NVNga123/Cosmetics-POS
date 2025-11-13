@@ -3,8 +3,7 @@ import {
   getUsers, 
   createUser, 
   updateUser, 
-  deleteUser, 
-  getUserStats
+  deleteUser
 } from '../../api/userApi';
 import type { 
   User,
@@ -61,8 +60,13 @@ export const UserManagement = () => {
       const response = await getUsers();
       setUsers(response.result);
       
-      const statsData = await getUserStats();
-      setStats(statsData);
+      // Tính toán stats từ danh sách users
+      const users = response.result;
+      const total = users.length;
+      const adminRole = users.filter(u => u.roles.some(r => r.name === 'ADMIN')).length;
+      const userRole = total - adminRole;
+      
+      setStats({ total, userRole, adminRole });
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setError(error.response?.data?.message || 'Không thể tải danh sách người dùng');

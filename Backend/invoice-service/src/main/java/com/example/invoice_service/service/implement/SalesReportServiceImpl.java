@@ -33,17 +33,47 @@ public class SalesReportServiceImpl implements SalesReportService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true) // Sửa: Thêm readOnly = true
     public ResultDTO getAllReport(SalesReportRequest salesReportRequest){
-        BigDecimal totalRevenue = orderRepository.getTotalRevenue();
+        // Xử lý date range nếu được cung cấp
+        BigDecimal totalRevenue;
+        
+        if (salesReportRequest != null && 
+            salesReportRequest.getFromDate() != null && !salesReportRequest.getFromDate().isEmpty() &&
+            salesReportRequest.getToDate() != null && !salesReportRequest.getToDate().isEmpty()) {
+            // Nếu có date range, lấy doanh thu trong khoảng này
+            ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            Instant fromDate = LocalDate.parse(salesReportRequest.getFromDate(), formatter)
+                    .atStartOfDay(vietnamZone).toInstant();
+            Instant toDate = LocalDate.parse(salesReportRequest.getToDate(), formatter)
+                    .atTime(23, 59, 59).atZone(vietnamZone).toInstant();
+            totalRevenue = orderRepository.getTotalRevenue(fromDate, toDate);
+        } else {
+            // Nếu không có date range, lấy tổng toàn bộ
+            totalRevenue = orderRepository.getTotalRevenue();
+        }
+        
         Long totalOrder = orderRepository.count();
         Long totalQuantityProduct = orderDetailReposotory.getTotalQuantityProduct();
         Long totalOrdersReturned = orderRepository.countReturnedOrders();
-        BigDecimal totalRevenueDisplay = totalRevenue.divide(BigDecimal.valueOf(1_000_000)).setScale(2, RoundingMode.HALF_UP);
 
-        SaleReportResponse reportSummary = new SaleReportResponse(totalRevenue, totalOrder,totalQuantityProduct, totalOrdersReturned );
+        // Xử lý nếu totalRevenue là null
+        if (totalRevenue == null) {
+            totalRevenue = BigDecimal.ZERO;
+        }
 
-        reportSummary.setTotalRevenueDisplay(totalRevenueDisplay.toPlainString());
+        // Tính toán hiển thị triệu
+        BigDecimal totalRevenueDisplay = totalRevenue.divide(BigDecimal.valueOf(1_000_000), 2, RoundingMode.HALF_UP);
+
+        SaleReportResponse reportSummary = new SaleReportResponse(
+                totalRevenue,
+                totalOrder,
+                totalQuantityProduct,
+                totalOrdersReturned
+        );
+
+        reportSummary.setTotalRevenueDisplay(totalRevenueDisplay.toPlainString() + " triệu"); // vd: "47.22 triệu"
 
         return new ResultDTO("success", "lấy báo cáo thành công", true, reportSummary);
     }

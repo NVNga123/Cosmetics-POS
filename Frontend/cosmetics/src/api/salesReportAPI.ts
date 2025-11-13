@@ -21,9 +21,15 @@ export interface RevenueResponse {
 }
 
 export const saleReportApi = {
-    /** Lấy bao cao tong  */
-    getAllReport: async (): Promise<Result<reportSumary>> => {
-        const response = await axios.get<Result<reportSumary>>(API_URL + API_REPORT);
+    /** Lấy báo cáo tổng với optional date range */
+    getReportSummary: async (params?: RevenueRequest): Promise<Result<reportSumary>> => {
+        // Sửa: API này giờ trỏ đến invoice-service (đã được gateway config)
+        const response = await axios.get<Result<reportSumary>>(API_URL + API_REPORT, {
+          params: params ? {
+            fromDate: params.fromDate,
+            toDate: params.toDate
+          } : undefined
+        });
         return response.data;
     },
 

@@ -97,4 +97,11 @@ public class ProductService {
         }
         productRepository.deleteById(id);
     }
+
+    // Đếm sản phẩm
+    public long countTotalProducts() {
+        return productRepository.count();
+    }
 }
+
+

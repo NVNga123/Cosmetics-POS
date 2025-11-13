@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Profile.css';
+import { saleReportApi } from '../api/salesReportAPI'; // <-- THÊM
+import { productApi } from '../api/productApi'; // <-- THÊM
+import { getUserStats } from '../api/userApi'; // <-- THÊM
 
 export const Profile: React.FC = () => {
     const navigate = useNavigate();
@@ -22,14 +25,44 @@ export const Profile: React.FC = () => {
     });
 
     const [stats, setStats] = useState({
-        totalOrders: 1250,
-        totalRevenue: 125000000,
-        totalProducts: 150,
-        customerCount: 850
+        totalOrders: 0,
+        totalRevenue: 0,
+        totalProducts: 0,
+        customerCount: 0
     });
 
+    const [isLoadingStats, setIsLoadingStats] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState(storeInfo);
+
+    // THÊM: useEffect để tải dữ liệu
+    useEffect(() => {
+        const fetchAllStats = async () => {
+            setIsLoadingStats(true);
+            try {
+                // Gọi cả 3 API
+                const [reportRes, productRes, userRes] = await Promise.all([
+                    saleReportApi.getReportSummary(),
+                    productApi.getProductStats(),
+                    getUserStats() 
+                ]);
+
+                setStats({
+                    totalOrders: reportRes?.data?.totalOrders || 0,
+                    totalRevenue: reportRes?.data?.totalRevenue || 0,
+                    totalProducts: productRes?.result || 0,
+                    customerCount: userRes?.result || 0, // Dùng tạm "tổng người dùng"
+                });
+                
+            } catch (error) {
+                console.error("Lỗi khi lấy dữ liệu thống kê:", error);
+            } finally {
+                setIsLoadingStats(false);
+            }
+        };
+
+        fetchAllStats();
+    }, []);
 
     const handleEdit = () => {
         setIsEditing(true);
@@ -232,7 +265,7 @@ export const Profile: React.FC = () => {
                     <div className="stat-card">
                         <div className="stat-icon">📦</div>
                         <div className="stat-content">
-                            <h3>{stats.totalOrders.toLocaleString()}</h3>
+                            <h3>{isLoadingStats ? '...' : stats.totalOrders.toLocaleString()}</h3>
                             <p>Tổng đơn hàng</p>
                         </div>
                     </div>
@@ -240,7 +273,7 @@ export const Profile: React.FC = () => {
                     <div className="stat-card">
                         <div className="stat-icon">💰</div>
                         <div className="stat-content">
-                            <h3>{formatPrice(stats.totalRevenue)}</h3>
+                            <h3>{isLoadingStats ? '...' : formatPrice(stats.totalRevenue)}</h3>
                             <p>Doanh thu tổng</p>
                         </div>
                     </div>
@@ -248,7 +281,7 @@ export const Profile: React.FC = () => {
                     <div className="stat-card">
                         <div className="stat-icon">🛍️</div>
                         <div className="stat-content">
-                            <h3>{stats.totalProducts}</h3>
+                            <h3>{isLoadingStats ? '...' : stats.totalProducts.toLocaleString()}</h3>
                             <p>Sản phẩm</p>
                         </div>
                     </div>
@@ -256,7 +289,7 @@ export const Profile: React.FC = () => {
                     <div className="stat-card">
                         <div className="stat-icon">👥</div>
                         <div className="stat-content">
-                            <h3>{stats.customerCount}</h3>
+                            <h3>{isLoadingStats ? '...' : stats.customerCount.toLocaleString()}</h3>
                             <p>Khách hàng</p>
                         </div>
                     </div>

@@ -106,4 +106,9 @@ public class UserService {
         return userMapper.toUserResponse(
                 userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public long countTotalUsers() {
+        return userRepository.count();
+    }
 }
