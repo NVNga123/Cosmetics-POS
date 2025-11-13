@@ -5,7 +5,9 @@ import com.example.invoice_service.dto.response.ResultDTO;
 import com.example.invoice_service.service.InvoiceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
+@CrossOrigin("http://localhost:5173")
 @RestController
 @RequestMapping("/invoices")
 public class InvoiceController {

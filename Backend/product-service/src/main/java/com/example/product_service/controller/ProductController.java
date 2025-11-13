@@ -70,6 +70,13 @@ public class ProductController {
                 .build();
     }
 
+    @GetMapping("/stats/count")
+    public ApiResponse<Long> countProducts() {
+        return ApiResponse.<Long>builder()
+                .result(productService.countTotalProducts())
+                .build();
+    }
+
     @DeleteMapping("/{productId}")
     public ApiResponse<String> deleteProduct(@PathVariable("productId") String productId) {
         productService.deleteProduct(productId);

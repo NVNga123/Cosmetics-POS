@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.example.identify_service.dto.request.ApiResponse;
 import com.example.identify_service.dto.request.UserCreationRequest;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+@CrossOrigin("http://localhost:5173")
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -53,6 +55,13 @@ public class UserController {
     ApiResponse<UserResponse> getMyInfo() {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.getMyInfo())
+                .build();
+    }
+
+    @GetMapping("/stats/count")
+    public ApiResponse<Long> countUsers() {
+        return ApiResponse.<Long>builder()
+                .result(userService.countTotalUsers())
                 .build();
     }
 

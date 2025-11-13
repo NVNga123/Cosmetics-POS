@@ -41,6 +41,30 @@ spring:
 #              - "*"
 #            allowCredentials: true
       routes:
+        # ⭐ SPECIFIC ROUTES TRƯỚC (stats endpoints)
+        - id: product_service_stats
+          uri: lb://product-service
+          predicates:
+            - Path=${app.api-prefix}/products/stats/**
+          filters:
+            - StripPrefix=2
+
+        - id: identity_service_stats
+          uri: lb://identity-service
+          predicates:
+            - Path=${app.api-prefix}/identity/users/stats/**
+          filters:
+            - StripPrefix=2
+
+        # ⭐ AUTH ROUTES (không strip prefix vì /auth được giữ nguyên)
+        - id: identity_service_auth
+          uri: lb://identity-service
+          predicates:
+            - Path=${app.api-prefix}/identity/auth/**
+          filters:
+            - StripPrefix=2
+
+        # ⭐ GENERIC ROUTES SAU
         - id: identity_service
           uri: lb://identity-service
           predicates:

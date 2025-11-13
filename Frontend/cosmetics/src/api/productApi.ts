@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosClient from './axiosClient';
 import type { Product } from "../types/product";
 
 const API_URL = "http://localhost:8085/products";
@@ -69,6 +70,20 @@ export const productApi = {
       await axios.delete(`${API_URL}/${id}`);
     } catch (error) {
       throw error;
+    }
+  },
+
+  getProductStats: async (): Promise<any> => {
+    try {
+      const response = await axiosClient.get('/products/stats/count'); 
+      console.log('✅ Product stats response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error("❌ Error fetching product stats:", error.response?.data || error.message);
+      console.error("Status:", error.response?.status);
+      console.error("Full error:", error);
+      // Trả về default response để không crash
+      return { result: 0, code: 500, message: error.message };
     }
   },
 };
