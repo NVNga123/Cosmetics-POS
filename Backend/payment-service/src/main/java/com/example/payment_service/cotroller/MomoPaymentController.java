@@ -20,8 +20,8 @@ public class MomoPaymentController {
     private static final String ACCESS_KEY = "F8BBA842ECF85";
     private static final String SECRET_KEY = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private static final String PARTNER_CODE = "MOMO";
-    private static final String REDIRECT_URL = "http://localhost:5173/user/sales";
-    private static final String IPN_URL = "http://localhost:5173/user/sales";
+    private static final String BASE_REDIRECT_URL = "http://localhost:5173/user/sales";
+    private static final String BASE_IPN_URL = "http://localhost:5173/user/sales";
 
     @PostMapping()
     public ResponseEntity<?> createMomoPayment(@RequestBody MomoPaymentRequest request) {
@@ -38,22 +38,37 @@ public class MomoPaymentController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Collections.singletonMap("error", "Amount must be greater than 0"));
             }
+            if (request.getOrderId() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Collections.singletonMap("error", "OrderId is required"));
+            }
 
-            String orderId = PARTNER_CODE + System.currentTimeMillis();
-            String requestId = orderId;
+            // Dùng orderId từ request (orderId của hệ thống)
+            Integer systemOrderId = request.getOrderId();
+            
+            // Tạo orderId cho MoMo (phải unique cho MoMo)
+            String momoOrderId = PARTNER_CODE + System.currentTimeMillis();
+            String requestId = momoOrderId;
             String orderInfo = request.getOrderInfo();
             long amount = request.getAmount();
 
-            System.out.println("MoMo Payment Request - OrderInfo: " + orderInfo + ", Amount: " + amount);
+            // Tạo redirect URL và IPN URL với orderId của hệ thống
+            String redirectUrl = BASE_REDIRECT_URL + "/" + systemOrderId;
+            String ipnUrl = BASE_IPN_URL + "/" + systemOrderId;
 
+            System.out.println("MoMo Payment Request - System OrderId: " + systemOrderId + ", OrderInfo: " + orderInfo + ", Amount: " + amount);
+            System.out.println("Redirect URL: " + redirectUrl);
+            System.out.println("IPN URL: " + ipnUrl);
+
+            // rawSignature dùng momoOrderId (orderId của MoMo payment)
             String rawSignature = "accessKey=" + ACCESS_KEY +
                     "&amount=" + amount +
                     "&extraData=" +
-                    "&ipnUrl=" + IPN_URL +
-                    "&orderId=" + orderId +
+                    "&ipnUrl=" + ipnUrl +
+                    "&orderId=" + momoOrderId +
                     "&orderInfo=" + orderInfo +
                     "&partnerCode=" + PARTNER_CODE +
-                    "&redirectUrl=" + REDIRECT_URL +
+                    "&redirectUrl=" + redirectUrl +
                     "&requestId=" + requestId +
                     "&requestType=captureWallet";
 
@@ -65,10 +80,10 @@ public class MomoPaymentController {
             body.put("storeId", "MomoTestStore");
             body.put("requestId", requestId);
             body.put("amount", String.valueOf(amount));
-            body.put("orderId", orderId);
+            body.put("orderId", momoOrderId);  // MoMo orderId
             body.put("orderInfo", orderInfo);
-            body.put("redirectUrl", REDIRECT_URL);
-            body.put("ipnUrl", IPN_URL);
+            body.put("redirectUrl", redirectUrl);  // URL có systemOrderId
+            body.put("ipnUrl", ipnUrl);  // URL có systemOrderId
             body.put("lang", "vi");
             body.put("requestType", "captureWallet");
             body.put("autoCapture", true);

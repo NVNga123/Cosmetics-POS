@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import './SalesScreen.css';
 import type { Order, OrderItem } from '../../types/order.ts';
 import type { Product } from '../../types/product.ts';
@@ -25,6 +25,7 @@ const createNewOrder = (): Order => ({
 export const SalesScreen: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { orderId: orderIdParam } = useParams<{ orderId?: string }>();
 
     const [sidebarOpen] = useState(true);
 
@@ -282,6 +283,66 @@ export const SalesScreen: React.FC = () => {
         }
     }, []); // Chỉ chạy khi component mount
 
+    // Xử lý khi có orderId trong URL (sau khi redirect từ MoMo)
+    useEffect(() => {
+        const loadOrderFromUrl = async () => {
+            if (orderIdParam) {
+                try {
+                    console.log('Loading order from URL param:', orderIdParam);
+                    const orderResult = await orderApi.getById(orderIdParam);
+                    if (orderResult.data) {
+                        const orderData = orderResult.data;
+                        const mappedOrder: Order = {
+                            orderId: orderData.orderId,
+                            code: orderData.code || '',
+                            customerName: orderData.customerName || 'Khách lẻ',
+                            total: orderData.total || 0,
+                            status: orderData.status,
+                            createdDate: orderData.createdDate,
+                            items: (orderData.items || []).map((item: any) => {
+                                const unitPrice = item.price || item.unitPrice || 0;
+                                const quantity = item.quantity || 0;
+                                const discountedTotal = item.total || item.subtotal || 0;
+                                const originalTotal = unitPrice * quantity;
+                                const discountAmount = originalTotal - discountedTotal;
+
+                                return {
+                                    productId: item.productId,
+                                    product: {
+                                        id: item.productId,
+                                        name: item.productName || item.product?.name || 'Sản phẩm không xác định',
+                                        price: unitPrice,
+                                        discount: item.discount || 0,
+                                    },
+                                    quantity,
+                                    subtotal: originalTotal,
+                                    discountAmount,
+                                    total: discountedTotal,
+                                };
+                            }),
+                            notes: orderData.notes || '',
+                            paymentMethod: orderData.paymentMethod,
+                        };
+
+                        // Chỉ hiển thị InvoiceInfo nếu order đã completed
+                        if (orderData.status === ORDER_STATUS.COMPLETED) {
+                            setPaidOrder(mappedOrder);
+                            setShowInvoiceInfo(true);
+                        }
+
+                        // Xóa localStorage vì đã xử lý xong
+                        localStorage.removeItem('pendingPaymentOrderId');
+                        localStorage.removeItem('pendingPaymentMethod');
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi lấy thông tin đơn hàng từ URL:', error);
+                }
+            }
+        };
+
+        loadOrderFromUrl();
+    }, [orderIdParam]);
+
     useEffect(() => {
         if (location.state?.selectedOrder) {
             const orderData = location.state.selectedOrder;
@@ -515,7 +576,7 @@ export const SalesScreen: React.FC = () => {
     };
 
 
-    const handleCheckout = async (paymentMethod?: string, transferAmount?: number) => {
+    const handleCheckout = async (paymentMethod?: string, transferAmount?: number): Promise<number | undefined> => {
         try {
             const currentOrder = orders[activeOrderIndex];
             const payload = buildOrderData(ORDER_STATUS.COMPLETED, paymentMethod, transferAmount);
@@ -528,12 +589,28 @@ export const SalesScreen: React.FC = () => {
                 result = await orderApi.submitOrder(payload);
             }
 
+            // Debug: log response để kiểm tra
+            console.log('Checkout response:', result);
+            console.log('Result data:', result.data);
+            
+            if (!result.data) {
+                console.error('Response data is null or undefined:', result);
+                throw new Error('Không nhận được dữ liệu từ server');
+            }
+
+            const orderId = result.data.orderId || result.data.id; // Hỗ trợ cả orderId và id
+
+            if (!orderId) {
+                console.error('OrderId is missing in response:', result.data);
+                throw new Error('Không nhận được orderId từ server sau khi lưu đơn hàng');
+            }
+
             const updatedOrder: Order = {
                 ...orders[activeOrderIndex],
-                orderId: result.data.orderId,
+                orderId: orderId,
                 status: ORDER_STATUS.COMPLETED,
                 paymentMethod,
-                createdDate: result.data.createdDate,
+                createdDate: result.data.createdDate || result.data.createdAt,
             };
 
             setOrders(prev => {
@@ -543,8 +620,8 @@ export const SalesScreen: React.FC = () => {
             });
 
             // Lưu orderId vào localStorage để xử lý callback sau khi thanh toán online
-            if (result.data.orderId) {
-                localStorage.setItem('pendingPaymentOrderId', String(result.data.orderId));
+            if (orderId) {
+                localStorage.setItem('pendingPaymentOrderId', String(orderId));
                 localStorage.setItem('pendingPaymentMethod', paymentMethod || '');
             }
 
@@ -557,6 +634,9 @@ export const SalesScreen: React.FC = () => {
                 localStorage.removeItem('pendingPaymentOrderId');
                 localStorage.removeItem('pendingPaymentMethod');
             }
+
+            // Trả về orderId để PaymentModal sử dụng
+            return orderId;
 
         } catch (err) {
             console.error(err);

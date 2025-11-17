@@ -43,9 +43,10 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
         setIsPaymentModalOpen(true);
     };
 
-    const handlePaymentSuccess = async (paymentMethod?: any, transferAmount?: number) => {
+    const handlePaymentSuccess = async (paymentMethod?: any, transferAmount?: number): Promise<number | undefined> => {
         setIsPaymentModalOpen(false);
-        await onCheckout(paymentMethod, transferAmount);
+        // onCheckout sẽ trả về orderId
+        return await onCheckout(paymentMethod, transferAmount);
     };
 
     const handleClosePaymentModal = () => {

@@ -2,9 +2,9 @@ package com.example.cart_service.controller;
 
 import com.example.cart_service.dto.request.OrderRequest;
 import com.example.cart_service.dto.response.ResultDTO;
+import com.example.cart_service.dto.response.OrderResponse;
 import com.example.cart_service.service.OrderService;
 import org.junit.platform.commons.logging.Logger;
-import com.example.cart_service.entity.Order;
 import org.junit.platform.commons.logging.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +28,10 @@ public class OrderController {
     public ResponseEntity<ResultDTO> create(@RequestBody OrderRequest orderRequest) throws URISyntaxException {
         LOG.debug(() -> "REST request to save Order : " + orderRequest);
         ResultDTO result = orderService.save(orderRequest);
+        // result.getData() now returns OrderResponse, not Order entity
+        OrderResponse orderResponse = (OrderResponse) result.getData();
         return ResponseEntity
-                .created(new URI("/orders/" + ((Order) result.getData()).getId()))
+                .created(new URI("/orders/" + orderResponse.getOrderId()))
                 .body(result);
     }
 

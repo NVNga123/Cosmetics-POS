@@ -1,10 +1,19 @@
 package com.example.payment_service.model;
 
 public class MomoPaymentRequest {
+    private Integer orderId;  // 👈 ADD
     private Long amount;
     private String orderInfo;
 
     // Getters & Setters
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
 
     public Long getAmount() {
         return amount;

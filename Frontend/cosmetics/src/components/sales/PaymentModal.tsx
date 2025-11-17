@@ -44,13 +44,17 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       }
 
       // BƯỚC 1: Luôn luôn LƯU ĐƠN HÀNG (gọi handleCheckout) trước
-      await onPaymentSuccess(selectedMethod, amountToTransfer);
+      const orderId = await onPaymentSuccess(selectedMethod, amountToTransfer);
 
       // BƯỚC 2: Xử lý CỔNG THANH TOÁN (nếu cần)
       
       if (selectedMethod === 'bank') { 
         // Đã lưu (Bước 1). Giờ tạo URL và chuyển hướng.
+        if (!orderId) {
+          throw new Error('Không có orderId sau khi lưu đơn hàng');
+        }
         const paymentRequest: MomoPaymentRequest = {
+          orderId: orderId,  // 👈 ADD
           orderInfo: orderCode,
           amount: orderTotal, // Gửi tổng tiền
         };
@@ -59,7 +63,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         
       } else if (selectedMethod === 'momo') {
         // Đã lưu (Bước 1). Giờ tạo URL và chuyển hướng.
+        if (!orderId) {
+          throw new Error('Không có orderId sau khi lưu đơn hàng');
+        }
          const paymentRequest: MomoPaymentRequest = {
+          orderId: orderId,  // 👈 ADD
           orderInfo: orderCode,
           amount: orderTotal,
         };
@@ -68,7 +76,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
       } else if (selectedMethod === 'tmck') {
         // Đã lưu (Bước 1). Giờ tạo URL (chỉ cho phần CK) và chuyển hướng.
+        if (!orderId) {
+          throw new Error('Không có orderId sau khi lưu đơn hàng');
+        }
         const tmckPaymentRequest: MomoPaymentRequest = {
+            orderId: orderId,  // 👈 ADD
             orderInfo: `${orderCode} (CK)`,
             amount: transferAmount, // Chỉ gửi số tiền chuyển khoản
         };

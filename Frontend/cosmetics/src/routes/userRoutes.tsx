@@ -19,6 +19,7 @@ export const UserRoutes = () => {
       <Route path="orders" element={<Orders />} />
       <Route path="invoice/:id" element={<Invoice />} />
       <Route path="sales" element={<SalesScreen />} />
+      <Route path="sales/:orderId" element={<SalesScreen />} />
       <Route path="profile" element={<Profile />} />
     </Routes>
   );

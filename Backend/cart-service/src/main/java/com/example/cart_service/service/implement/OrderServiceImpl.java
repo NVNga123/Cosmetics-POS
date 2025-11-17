@@ -56,7 +56,9 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        return new ResultDTO("success", "lưu đơn hàng thành công", true, order, 1);
+        // Convert Order entity to OrderResponse DTO
+        OrderResponse orderResponse = orderMapper.toDTO(order);
+        return new ResultDTO("success", "lưu đơn hàng thành công", true, orderResponse, 1);
     }
 
     // giảm
@@ -98,7 +100,9 @@ public class OrderServiceImpl implements OrderService {
         }
 
         existingOrder = orderMapper.updateEntity(orderRequest, existingOrder);
-        return new ResultDTO("success", "update đơn hàng thành công", true, existingOrder, 1);
+        // Convert Order entity to OrderResponse DTO
+        OrderResponse orderResponse = orderMapper.toDTO(existingOrder);
+        return new ResultDTO("success", "update đơn hàng thành công", true, orderResponse, 1);
     }
 
     // hoàn
@@ -140,7 +144,9 @@ public class OrderServiceImpl implements OrderService {
     public ResultDTO findOne(Integer id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-        return new ResultDTO("success", "lấy đơn hàng thành công", true, order, 1);
+        // Convert Order entity to OrderResponse DTO
+        OrderResponse orderResponse = orderMapper.toDTO(order);
+        return new ResultDTO("success", "lấy đơn hàng thành công", true, orderResponse, 1);
     }
 
     @Override

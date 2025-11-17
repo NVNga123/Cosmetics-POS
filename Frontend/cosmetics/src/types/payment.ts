@@ -7,6 +7,7 @@ export interface Payment {
 }
 
 export interface MomoPaymentRequest {
+    orderId: number;   // 👈 ADD
     orderInfo: string;
     amount: number;
 }
@@ -20,5 +21,5 @@ export interface PaymentModalProps {
     onClose: () => void;
     orderTotal: number;
     orderCode: string;
-    onPaymentSuccess: (paymentMethod?: PaymentMethod, transferAmount?: number) => Promise<void>;
+    onPaymentSuccess: (paymentMethod?: PaymentMethod, transferAmount?: number) => Promise<number | undefined>;  // 👈 Return orderId
 }
