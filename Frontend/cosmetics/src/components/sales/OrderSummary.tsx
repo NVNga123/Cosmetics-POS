@@ -82,7 +82,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                                         className="order-tab active"
                                         onClick={() => onSwitchOrder(activeOrderIndex)}
                                     >
-                                        {orders[activeOrderIndex]?.code || `ĐH-${activeOrderIndex + 1}`}
+                                        {orders[activeOrderIndex]?.code}
                                     </button>
                                     {orders.length > 1 && (
                                         <button
@@ -162,7 +162,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                                                         }}
                                                     >
                             <span>
-                              {ord.code || `ĐH-${index + 1}`}
+                              {ord.code}
                                 {index === activeOrderIndex && ' (Đang chọn)'}
                             </span>
                                                         <button

@@ -5,11 +5,13 @@ import com.example.payment_service.model.MomoPaymentRequest;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/momo-payment")
@@ -24,10 +26,25 @@ public class MomoPaymentController {
     @PostMapping()
     public ResponseEntity<?> createMomoPayment(@RequestBody MomoPaymentRequest request) {
         try {
+            // Validate request
+            if (request == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Collections.singletonMap("error", "Request body is required"));
+            }
+            if (request.getOrderInfo() == null || request.getOrderInfo().trim().isEmpty()) {
+                request.setOrderInfo("Order payment");
+            }
+            if (request.getAmount() == null || request.getAmount() <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Collections.singletonMap("error", "Amount must be greater than 0"));
+            }
+
             String orderId = PARTNER_CODE + System.currentTimeMillis();
             String requestId = orderId;
             String orderInfo = request.getOrderInfo();
             long amount = request.getAmount();
+
+            System.out.println("MoMo Payment Request - OrderInfo: " + orderInfo + ", Amount: " + amount);
 
             String rawSignature = "accessKey=" + ACCESS_KEY +
                     "&amount=" + amount +
@@ -58,23 +75,48 @@ public class MomoPaymentController {
             body.put("extraData", "");
             body.put("signature", signature);
 
-            RestTemplate restTemplate = new RestTemplate();
+            // Configure RestTemplate with timeout
+            SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+            factory.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(10));
+            factory.setReadTimeout((int) TimeUnit.SECONDS.toMillis(30));
+            RestTemplate restTemplate = new RestTemplate(factory);
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(body, headers);
 
             String momoEndpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
+            System.out.println("Calling MoMo API: " + momoEndpoint);
+            System.out.println("Request body: " + body);
+
             ResponseEntity<Map> momoResponse = restTemplate.postForEntity(URI.create(momoEndpoint), httpEntity, Map.class);
 
-            if (momoResponse.getStatusCode().is2xxSuccessful()) {Map<String, Object> responseBody = momoResponse.getBody();
-                String payUrl = (String) responseBody.get("payUrl");
-                return ResponseEntity.ok(Collections.singletonMap("payUrl", payUrl));
+            System.out.println("MoMo Response Status: " + momoResponse.getStatusCode());
+            System.out.println("MoMo Response Body: " + momoResponse.getBody());
+
+            if (momoResponse.getStatusCode().is2xxSuccessful()) {
+                Map<String, Object> responseBody = momoResponse.getBody();
+                if (responseBody != null && responseBody.containsKey("payUrl")) {
+                    String payUrl = (String) responseBody.get("payUrl");
+                    System.out.println("MoMo Payment URL created: " + payUrl);
+                    return ResponseEntity.ok(Collections.singletonMap("payUrl", payUrl));
+                } else {
+                    System.err.println("MoMo response missing payUrl. Response: " + responseBody);
+                    return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                            .body(Collections.singletonMap("error", "MoMo response missing payUrl: " + responseBody));
+                }
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Failed to create MoMo payment");
+                System.err.println("MoMo API returned error. Status: " + momoResponse.getStatusCode() + ", Body: " + momoResponse.getBody());
+                return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                        .body(Collections.singletonMap("error", "Failed to create MoMo payment. Status: " +
+                                momoResponse.getStatusCode() + ", Response: " + momoResponse.getBody()));
             }
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Server error: " + e.getMessage() +
+                            (e.getCause() != null ? " - Cause: " + e.getCause().getMessage() : "")));
         }
     }
 
