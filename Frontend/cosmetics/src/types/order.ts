@@ -65,7 +65,7 @@ export interface OrderSummaryProps {
     notes: string;
     onUpdateQuantity: (productId: string, quantity: number) => void;
     onRemoveItem: (productId: string) => void;
-    onCheckout: (paymentMethod?: string) => void;
+    onCheckout: (paymentMethod?: string, transferAmount?: number) => Promise<void>;
     onSaveOrder: () => void;
     onCustomerNameChange: (name: string) => void;
     onNotesChange: (notes: string) => void;

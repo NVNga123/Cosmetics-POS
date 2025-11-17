@@ -43,9 +43,9 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
         setIsPaymentModalOpen(true);
     };
 
-    const handlePaymentSuccess = (paymentMethod?: any) => {
+    const handlePaymentSuccess = async (paymentMethod?: any, transferAmount?: number) => {
         setIsPaymentModalOpen(false);
-        onCheckout(paymentMethod);
+        await onCheckout(paymentMethod, transferAmount);
     };
 
     const handleClosePaymentModal = () => {
@@ -82,7 +82,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                                         className="order-tab active"
                                         onClick={() => onSwitchOrder(activeOrderIndex)}
                                     >
-                                        {orders[activeOrderIndex]?.code}
+                                        {orders[activeOrderIndex]?.code || `ĐH-${activeOrderIndex + 1}`}
                                     </button>
                                     {orders.length > 1 && (
                                         <button
@@ -162,7 +162,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                                                         }}
                                                     >
                             <span>
-                              {ord.code}
+                              {ord.code || `ĐH-${index + 1}`}
                                 {index === activeOrderIndex && ' (Đang chọn)'}
                             </span>
                                                         <button

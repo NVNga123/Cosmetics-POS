@@ -259,6 +259,7 @@ export const SalesScreen: React.FC = () => {
                 newOrders[activeOrderIndex] = {
                     ...newOrders[activeOrderIndex],
                     orderId: result.data.orderId,
+                    code: result.data.code || newOrders[activeOrderIndex].code,
                     status: ORDER_STATUS.DRAFT,
                     createdDate: result.data.createdDate,
                 };
@@ -290,6 +291,7 @@ export const SalesScreen: React.FC = () => {
                 updated[activeOrderIndex] = {
                     ...updated[activeOrderIndex],
                     orderId: result.data.orderId,
+                    code: result.data.code || updated[activeOrderIndex].code,
                     status: ORDER_STATUS.COMPLETED,
                     paymentMethod,
                     createdDate: result.data.createdDate,
