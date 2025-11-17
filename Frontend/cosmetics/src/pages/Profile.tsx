@@ -347,7 +347,7 @@ export const Profile: React.FC = () => {
                     >
                         <div className="action-icon">🛍️</div>
                         <div className="action-content">
-                            <h3>Giỏ hàng</h3>
+                            <h3>Hoá đơn</h3>
                             <p>Đơn hàng chưa hoàn thành</p>
                         </div>
                     </button>

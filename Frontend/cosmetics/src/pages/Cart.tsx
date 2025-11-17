@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { orderApi } from "../api/orderApi.ts";
 import type { Order } from "../types/order.ts";
 import { OrderDetailModal } from "../components/orders/OrderDetailModal.tsx";
-import { formatPrice, getStatusText, getStatusColor, getPaymentMethodText } from "../utils/orderUtils.ts";
+/*import { formatPrice, getStatusText, getStatusColor, getPaymentMethodText } from "../utils/orderUtils.ts";*/
 import "./Cart.css";
 
 const formatDate = (dateString: string | undefined) => {
@@ -80,50 +80,6 @@ export const Cart = () => {
         setSelectedOrder(null);
     };
 
-    const handleDeleteOrder = async (orderId: string | number) => {
-        try {
-            if (!orderId) return alert('ID không hợp lệ');
-            
-            await orderApi.deleteOrder(String(orderId));
-            setOrders(prev => prev.filter(order => order.orderId !== Number(orderId)));
-            alert('Đơn hàng đã được xoá!');
-            
-            // Fallback: Refresh orders list after a short delay
-            setTimeout(async () => {
-                try {
-                    const response = await orderApi.getAllOrders();
-                    if (response.data) {
-                        setOrders(response.data);
-                    }
-                } catch (error) {
-                    // Silent error handling
-                }
-            }, 1000);
-        } catch (error: any) {
-            const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra khi xoá đơn hàng. Vui lòng thử lại.';
-            alert(errorMessage);
-        }
-    };
-
-    /** ✅ Khi bấm Hoàn thành → mở bên SalesScreen **/
-    const handleCompleteOrder = async (orderId: string | number) => {
-        try {
-            if (!orderId) return alert('Không thể hoàn thành: ID không hợp lệ.');
-
-            const result = await orderApi.getById(String(orderId));
-            const orderData = result?.data;
-
-            if (!orderData) {
-                alert('Không tìm thấy đơn hàng.');
-                return;
-            }
-
-            navigate('/user/sales', { state: { selectedOrder: orderData } });
-        } catch (error) {
-            alert('Có lỗi khi tải đơn hàng.');
-        }
-    };
-
     if (loading)
         return (
             <div className="loading-container">
@@ -148,7 +104,7 @@ export const Cart = () => {
 
     return (
         <div className="cart-page">
-            <div className="page-title">Danh sách đơn hàng chưa hoàn thành</div>
+            <div className="page-title">Danh hoá đơn</div>
 
             <div className="orders-table-container">
                 <table className="orders-table">
@@ -165,39 +121,7 @@ export const Cart = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {orders.map((order, index) => (
-                        <tr key={order.orderId}>
-                            <td>{index + 1}</td>
-                            <td
-                                onClick={() => handleViewOrder(order)}
-                                title="Xem chi tiết"
-                                style={{ cursor: "pointer" }}
-                            >
-                                {order.code}
-                            </td>
-                            <td>{order.customerName || "Khách lẻ"}</td>
-                            <td>{formatDate(order.createdDate)}</td>
-                            <td>{formatPrice(order.total)}</td>
-                            <td>{getPaymentMethodText(order.paymentMethod)}</td>
-                            <td>
-                                    <span
-                                        className="status-badge"
-                                        style={{ color: getStatusColor(order.status) }}
-                                    >
-                                        {getStatusText(order.status)}
-                                    </span>
-                            </td>
-                            <td>
-                                <button
-                                    className="action-btn complete-btn"
-                                    onClick={() => handleCompleteOrder(order.orderId)}
-                                    title="Hoàn thành đơn hàng"
-                                >
-                                    Hoàn thành
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
+
                     </tbody>
                 </table>
             </div>
@@ -206,7 +130,6 @@ export const Cart = () => {
                 order={selectedOrder}
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                onDeleteOrder={handleDeleteOrder}
             />
         </div>
     );

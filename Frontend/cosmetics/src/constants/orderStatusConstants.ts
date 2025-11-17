@@ -46,7 +46,7 @@ export const formatPrice = (price: number) => {
 
 export const formatDate = (dateString: string | undefined) => {
   if (!dateString) return 'N/A';
-  
+
   try {
     // Xử lý timestamp Unix (milliseconds hoặc seconds)
     if (typeof dateString === 'number' || /^\d+$/.test(dateString)) {
@@ -62,11 +62,11 @@ export const formatDate = (dateString: string | undefined) => {
         minute: '2-digit'
       });
     }
-    
+
     // Xử lý ISO string hoặc date string
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return 'N/A';
-    
+
     return date.toLocaleString('vi-VN', {
       year: 'numeric',
       month: '2-digit',

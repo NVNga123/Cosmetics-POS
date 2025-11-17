@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import './dashboard.css';
-// Sửa: Đổi tên hàm đã sửa
 import { saleReportApi, type RevenueData } from '../../api/salesReportAPI';
 import type { reportSumary } from "../../types/report.ts";
 import RevenueChart from '../../components/charts/RevenueChart';
 import dayjs from 'dayjs';
-import { productApi } from '../../api/productApi'; // <-- THÊM
-import { getUserStats } from '../../api/userApi'; // <-- THÊM
+interface DashboardStats {
+  totalUsers: number;
+  totalProducts: number;
+  totalOrders: number;
+  totalRevenue: number;
+  todayOrders: number;
+  pendingOrders: number;
+}
 
 interface RecentActivity {
   id: number;
@@ -17,16 +22,20 @@ interface RecentActivity {
 }
 
 export const Dashboard = () => {
-  const [stats, setStats] = useState<reportSumary | null>(null);
-  const [userCount, setUserCount] = useState(0);
-  const [productCount, setProductCount] = useState(0);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalUsers: 1250,
+    totalProducts: 340,
+    totalOrders: 0,
+    totalRevenue: 0,
+    todayOrders: 23,
+    pendingOrders: 5
+  });
 
   const [fromDate, setFromDate] = useState('14/10/2025');
   const [toDate, setToDate] = useState('14/10/2025');
 
   const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
   const [isLoadingRevenue, setIsLoadingRevenue] = useState(false);
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
 
   const fetchRevenueData = async (from: string, to: string) => {
@@ -60,40 +69,34 @@ export const Dashboard = () => {
 
 
   useEffect(() => {
-    const fetchAllStats = async () => {
-      setIsLoadingStats(true);
+    const fetchReportData = async () => {
       try {
-        // Gọi cả 3 API, NHƯNG KHÔNG gửi date range cho getReportSummary
-        const [reportRes, productRes, userRes] = await Promise.all([
-          saleReportApi.getReportSummary(), // <-- Xóa params date range
-          productApi.getProductStats(),
-          getUserStats() 
-        ]);
+        const res = await saleReportApi.getAllReport();
+        const data: reportSumary = res?.data;
 
-        if (reportRes?.data) {
-          setStats(reportRes.data);
+        if (data) {
+          setStats((prev) => ({
+            ...prev,
+            totalOrders: data.totalOrders ?? 0,
+            totalRevenue: data.totalRevenueDisplay ?? 0,
+            totalProducts: data.totalQuantityProduct ?? 0,
+          }));
         }
-        if (productRes?.result) {
-          setProductCount(productRes.result);
-        }
-        if (userRes?.result) {
-          setUserCount(userRes.result);
-        }
-        
       } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu thống kê:", error);
-      } finally {
-        setIsLoadingStats(false);
+        // Silent error handling
       }
     };
 
-    fetchAllStats();
-  }, []); // <-- Mảng dependency rỗng, chỉ chạy 1 lần
+    fetchReportData();
 
-  // Hook 2: Chỉ chạy khi ngày thay đổi, để tải lại BIỂU ĐỒ
-  useEffect(() => {
     fetchRevenueData(fromDate, toDate);
-  }, [fromDate, toDate]); // Chạy khi fromDate hoặc toDate thay đổi
+  }, []);
+
+  const handleDateChange = (newFromDate: string, newToDate: string) => {
+    setFromDate(newFromDate);
+    setToDate(newToDate);
+    fetchRevenueData(newFromDate, newToDate);
+  };
 
   const [recentActivities] = useState<RecentActivity[]>([
     { id: 1, type: 'order', message: 'Đơn hàng mới từ Nguyễn Thị Lan', time: '5 phút trước', icon: '🛒' },
@@ -102,17 +105,15 @@ export const Dashboard = () => {
     { id: 4, type: 'order', message: 'Đơn hàng #DH123 đã được thanh toán', time: '1 giờ trước', icon: '💰' }
   ]);
 
-  const handleDateChange = (from: string, to: string) => {
-    setFromDate(from);
-    setToDate(to);
-    fetchRevenueData(from, to);
+  const formatMillion = (value: number) => {
+    return `${value.toLocaleString("vi-VN", { maximumFractionDigits: 2 })} triệu`;
   };
 
   const statsCards = [
-    { title: 'Tổng người dùng', value: isLoadingStats ? '...' : userCount.toLocaleString(), icon: '👥', color: 'primary', change: '+12%', changeType: 'increase' },
-    { title: 'Tổng sản phẩm', value: isLoadingStats ? '...' : productCount.toLocaleString(), icon: '💄', color: 'success', change: '+8%', changeType: 'increase' },
-    { title: 'Tổng đơn hàng', value: isLoadingStats ? '...' : (stats?.totalOrders || 0).toLocaleString(), icon: '📦', color: 'info', change: '+15%', changeType: 'increase' },
-    { title: 'Doanh thu', value: isLoadingStats ? '...' : (stats?.totalRevenueDisplay || '0 triệu'), icon: '💰', color: 'warning', change: '+23%', changeType: 'increase' },
+    { title: 'Tổng người dùng', value: stats.totalUsers.toLocaleString(), icon: '👥', color: 'primary', change: '+12%', changeType: 'increase' },
+    { title: 'Tổng sản phẩm', value: stats.totalProducts.toLocaleString(), icon: '💄', color: 'success', change: '+8%', changeType: 'increase' },
+    { title: 'Tổng đơn hàng', value: stats.totalOrders.toLocaleString(), icon: '📦', color: 'info', change: '+15%', changeType: 'increase' },
+    { title: 'Doanh thu', value: formatMillion(stats.totalRevenue), icon: '💰', color: 'warning', change: '+23%', changeType: 'increase' },
   ];
 
   return (
@@ -128,11 +129,11 @@ export const Dashboard = () => {
               <div className="welcome-stats">
                 <div className="today-stat">
                   <span className="stat-label">Đơn hàng hôm nay</span>
-                  <span className="stat-value">{stats?.totalOrders || 0}</span>
+                  <span className="stat-value">{stats.todayOrders}</span>
                 </div>
                 <div className="today-stat">
                   <span className="stat-label">Đơn chờ xử lý</span>
-                  <span className="stat-value pending">{stats?.totalOrdersReturned || 0}</span>
+                  <span className="stat-value pending">{stats.pendingOrders}</span>
                 </div>
               </div>
             </div>

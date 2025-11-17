@@ -55,14 +55,14 @@ public class OrderServiceImpl implements OrderService {
                 System.err.println("Failed to update inventory: " + e.getMessage());
             }
         }
-        
+
         return new ResultDTO("success", "lưu đơn hàng thành công", true, order, 1);
     }
 
     // giảm
     private void updateInventory(List<OrderItemResponse> items) {
         List<Map<String, Object>> inventoryItems = new ArrayList<>();
-        
+
         for (OrderItemResponse item : items) {
             Map<String, Object> inventoryItem = new HashMap<>();
             inventoryItem.put("productId", item.getProductId());
@@ -70,12 +70,12 @@ public class OrderServiceImpl implements OrderService {
             inventoryItem.put("operation", -1);
             inventoryItems.add(inventoryItem);
         }
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        
+
         HttpEntity<List<Map<String, Object>>> entity = new HttpEntity<>(inventoryItems, headers);
-        
+
         String url = "http://localhost:8085/inventory/update";
         restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
     }
@@ -83,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
     public ResultDTO update(OrderRequest orderRequest) {
         Order existingOrder = orderRepository.findById(orderRequest.getId())
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-        
+
         String oldStatus = existingOrder.getStatus();
         String newStatus = orderRequest.getStatus();
 
@@ -104,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
     // hoàn
     private void returnInventory(List<com.example.cart_service.entity.OrderDetail> orderDetails) {
         List<Map<String, Object>> inventoryItems = new ArrayList<>();
-        
+
         for (com.example.cart_service.entity.OrderDetail detail : orderDetails) {
             Map<String, Object> inventoryItem = new HashMap<>();
             inventoryItem.put("productId", detail.getProductId());
@@ -112,12 +112,12 @@ public class OrderServiceImpl implements OrderService {
             inventoryItem.put("operation", 1);
             inventoryItems.add(inventoryItem);
         }
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        
+
         HttpEntity<List<Map<String, Object>>> entity = new HttpEntity<>(inventoryItems, headers);
-        
+
         String url = "http://localhost:8085/inventory/update";
         restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
     }
@@ -153,17 +153,5 @@ public class OrderServiceImpl implements OrderService {
         }).collect(Collectors.toList());
 
         return new ResultDTO("success", "lấy danh sách order thành công", true, orders);
-    }
-
-    @Override
-    @Transactional
-    public ResultDTO userSoftDelete(Integer id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-
-        order.setDeletedByUser(true);
-        orderRepository.save(order);
-
-        return new ResultDTO("success", "Đã xóa đơn hàng khỏi lịch sử của bạn", true);
     }
 }

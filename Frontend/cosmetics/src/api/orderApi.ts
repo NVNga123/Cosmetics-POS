@@ -57,22 +57,6 @@ export const orderApi = {
     }
   },
 
-  // THÊM HÀM MỚI NÀY
-  updateOrder: async (id: string | number, orderData: OrderSubmitData): Promise<Result<Order>> => {
-    const response = await axios.put<Result<Order>>(`${API_URL}${API_ORDER}/${id}`, orderData, {
-      headers: { "Content-Type": "application/json" },
-    });
-    return response.data;
-  },
-
-  userSoftDelete: async (orderId: string | number): Promise<Result<null>> => {
-    const response = await axios.put<Result<null>>(
-        `${API_URL}${API_ORDER}/${orderId}/user-delete`,
-        {}
-    );
-    return response.data;
-  },
-
   cancelOrder: async (orderId: string | number): Promise<Result<Order>> => {
     const response = await axios.put<Result<Order>>(
         `${API_URL}${API_ORDER}/${orderId}/cancel`,

@@ -20,8 +20,8 @@ export const Home = () => {
       path: '/user/products'
     },
     {
-      title: 'Giỏ hàng',
-      description: 'Xem và quản lý giỏ hàng',
+      title: 'Hoá đơn',
+      description: 'Xem và quản lý hoá đơn',
       icon: '🛍️',
       color: 'warning',
       path: '/user/cart'

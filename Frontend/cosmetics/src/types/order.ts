@@ -38,23 +38,23 @@ export interface OrderDetailModalProps {
 
 
 export interface OrderSubmitData {
-  items: {
-      productId: string;
-      productName: string;
-      price: number;
-      quantity: number;
-      subtotal: number;
-  }[];
-  id: number;
-  subtotal: number;
-  discount: number;
-  tax: number;
-  total: number;
-  customerName: string;
-  notes: string;
-  returnReason?: string;
-  status: string;
-  paymentMethod?: string;
+    items: {
+        productId: string;
+        productName: string;
+        price: number;
+        quantity: number;
+        subtotal: number;
+    }[];
+    id: number;
+    subtotal: number;
+    discount: number;
+    tax: number;
+    total: number;
+    customerName: string;
+    notes: string;
+    returnReason?: string;
+    status: string;
+    paymentMethod?: string;
 }
 
 export interface OrderSummaryProps {
@@ -87,7 +87,6 @@ export interface OrderTableProps {
 export interface OrderListProps {
     orders: Order[];
     onViewOrder: (order: Order) => void;
-    onDeleteOrder?: (id: string | number) => void; // <-- THÊM DÒNG NÀY
     formatPrice: (price: number) => string;
     getStatusText: (status: string) => string;
     getStatusColor: (status: string) => string;

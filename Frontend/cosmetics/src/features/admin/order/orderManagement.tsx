@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { invoiceApi } from "../../../api/invoiceApi.ts";
 import { orderApi } from "../../../api/orderApi.ts";
 import type { Order } from "../../../types/order.ts";
 import { OrderDetailModal } from "./OrderDetailModal.tsx";
@@ -27,13 +26,13 @@ export const OrderManagement = () => {
         try {
             setLoading(true);
             setError(null);
-            const result = await invoiceApi.getAllInvoicesForAdmin();
+            const result = await orderApi.getAllOrders();
             const { data = [] } = result || {};
 
             const transformedOrders = (data || []).map((order: any) => ({
                 ...order,
                 orderId: order.id || order.orderId,
-                total: order.total || order.finalPrice || 0,
+                total: order.finalPrice,
                 createdDate: order.createdDate || order.createdAt || order.created_date,
                 items: (order.items || order.orderDetails || []).map((item: any) => ({
                     ...item,
@@ -101,11 +100,11 @@ export const OrderManagement = () => {
                 alert('Không thể xoá đơn hàng: ID không hợp lệ');
                 return;
             }
-            
+
             await orderApi.deleteOrder(String(orderId));
             setOrders(prev => prev.filter(order => order.orderId !== Number(orderId)));
             alert('Đơn hàng đã được xoá thành công!');
-            
+
             // Fallback: Refresh orders list after a short delay
             setTimeout(async () => {
                 try {
@@ -235,7 +234,6 @@ export const OrderManagement = () => {
             <OrderTable
                 orders={paginatedOrders}
                 onViewOrder={handleViewOrder}
-                onDeleteOrder={handleDeleteOrder}
                 formatPrice={formatPrice}
                 getStatusText={getStatusText}
                 getStatusColor={getStatusColor}
@@ -256,7 +254,7 @@ export const OrderManagement = () => {
                         >
                             Trước
                         </button>
-                        
+
                         <div className="pagination-numbers">
                             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                                 <button
@@ -268,7 +266,7 @@ export const OrderManagement = () => {
                                 </button>
                             ))}
                         </div>
-                        
+
                         <button
                             className="pagination-btn"
                             onClick={() => handlePageChange(currentPage + 1)}

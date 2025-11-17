@@ -3,18 +3,17 @@ import type { OrderTableProps } from '../../types/order.ts';
 import { OrderList } from './OrderList.tsx';
 
 export const OrderTable: React.FC<OrderTableProps> = ({
-  orders,
-  onViewOrder,
-  onDeleteOrder,//
-  formatPrice,
-  getStatusText,
-  getStatusColor,
-  getPaymentMethodText
-}) => {
+                                                        orders,
+                                                        onViewOrder,
+                                                        formatPrice,
+                                                        getStatusText,
+                                                        getStatusColor,
+                                                        getPaymentMethodText
+                                                      }) => {
   return (
-    <div className="orders-table-container">
-      <table className="orders-table">
-        <thead>
+      <div className="orders-table-container">
+        <table className="orders-table">
+          <thead>
           <tr>
             <th>STT</th>
             <th>Mã đơn hàng</th>
@@ -26,19 +25,18 @@ export const OrderTable: React.FC<OrderTableProps> = ({
             <th>Trạng thái</th>
             <th>Thao tác</th>
           </tr>
-        </thead>
-        <tbody>
+          </thead>
+          <tbody>
           <OrderList
-            orders={orders}
-            onViewOrder={onViewOrder}
-            onDeleteOrder={onDeleteOrder}
-            formatPrice={formatPrice}
-            getStatusText={getStatusText}
-            getStatusColor={getStatusColor}
-            getPaymentMethodText={getPaymentMethodText}
+              orders={orders}
+              onViewOrder={onViewOrder}
+              formatPrice={formatPrice}
+              getStatusText={getStatusText}
+              getStatusColor={getStatusColor}
+              getPaymentMethodText={getPaymentMethodText}
           />
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      </div>
   );
 };
