@@ -4,6 +4,7 @@ import com.example.cart_service.dto.response.OrderItemResponse;
 import com.example.cart_service.dto.response.OrderResponse;
 import com.example.cart_service.dto.request.OrderRequest;
 import com.example.cart_service.dto.response.ResultDTO;
+import com.example.cart_service.entity.OrderDetail;
 import com.example.cart_service.service.OrderService;
 import com.example.cart_service.entity.Order;
 import com.example.cart_service.repository.OrderRepository;
@@ -90,6 +91,8 @@ public class OrderServiceImpl implements OrderService {
         String newStatus = orderRequest.getStatus();
 
         if ("COMPLETED".equals(oldStatus) && ("CANCELLED".equals(newStatus) || "RETURNED".equals(newStatus))) {
+
+            // return inventory
             if (existingOrder.getOrderDetails() != null && !existingOrder.getOrderDetails().isEmpty()) {
                 try {
                     returnInventory(existingOrder.getOrderDetails());
@@ -97,7 +100,15 @@ public class OrderServiceImpl implements OrderService {
                     System.err.println("Failed to return inventory: " + e.getMessage());
                 }
             }
+
+            // create invoice
+            try {
+                sendInvoiceCreateRequest(existingOrder, newStatus);
+            } catch (Exception e) {
+                System.err.println("Failed to create invoice: " + e.getMessage());
+            }
         }
+
 
         existingOrder = orderMapper.updateEntity(orderRequest, existingOrder);
         // Convert Order entity to OrderResponse DTO
@@ -105,11 +116,11 @@ public class OrderServiceImpl implements OrderService {
         return new ResultDTO("success", "update đơn hàng thành công", true, orderResponse, 1);
     }
 
-    // hoàn
-    private void returnInventory(List<com.example.cart_service.entity.OrderDetail> orderDetails) {
+    // send full order to inventory
+    private void returnInventory(List<OrderDetail> orderDetails) {
         List<Map<String, Object>> inventoryItems = new ArrayList<>();
 
-        for (com.example.cart_service.entity.OrderDetail detail : orderDetails) {
+        for (OrderDetail detail : orderDetails) {
             Map<String, Object> inventoryItem = new HashMap<>();
             inventoryItem.put("productId", detail.getProductId());
             inventoryItem.put("quantity", detail.getQuantityProduct());
@@ -124,6 +135,41 @@ public class OrderServiceImpl implements OrderService {
 
         String url = "http://localhost:8085/inventory/update";
         restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+    }
+
+
+    // send full order to invoice
+    private void sendInvoiceCreateRequest(Order existingOrder, String newStatus) {
+        try {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("orderId", existingOrder.getId());
+            payload.put("invoiceType", newStatus);
+            payload.put("customerId", existingOrder.getCustomerId());
+            payload.put("totalAmount", existingOrder.getTotalAmount());
+
+            List<Map<String, Object>> detailList = new ArrayList<>();
+
+            for (OrderDetail d : existingOrder.getOrderDetails()) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("productId", d.getProductId());
+                item.put("productName", d.getProductName()); // nếu có
+                item.put("quantity", d.getQuantityProduct());
+                item.put("unitPrice", d.getUnitPrice());
+                detailList.add(item);
+            }
+
+            payload.put("items", detailList);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
+
+            restTemplate.postForEntity("http://localhost:8089/invoices/create", entity, Void.class);
+
+        } catch (Exception e) {
+            System.err.println("Error creating invoice: " + e.getMessage());
+        }
     }
 
     @Override
