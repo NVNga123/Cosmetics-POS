@@ -1,4 +1,4 @@
-cdpackage com.example.invoice_service.controller;
+package com.example.invoice_service.controller;
 
 import com.example.invoice_service.dto.request.SalesReportRequest;
 import com.example.invoice_service.dto.response.ResultDTO;

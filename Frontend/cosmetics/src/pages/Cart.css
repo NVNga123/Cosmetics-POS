@@ -1,231 +1,181 @@
-/* Cart Page Styles */
+/* Frontend/cosmetics/src/pages/Cart.css */
+
 .cart-page {
-  padding: 100px 20px 40px;
-  background: #f8fafc;
-  min-height: 100vh;
-  width: 90%;
-  margin: 0 auto;
+    padding: 20px;
+    background: #f8fafc;
+    min-height: 100vh;
+    width: 100%;
+    margin: 0 auto;
 }
 
-/* Page Title */
+/* --- Header Box (Giống trang Đơn hàng) --- */
+.page-header-box {
+    background-color: #fff;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    border-left: 5px solid #3C95FB; /* Viền xanh thương hiệu */
+}
+
 .page-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #3C95FB;
-  margin-bottom: 24px;
-  text-align: left;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #265B9F;
+    margin: 0;
+    line-height: 1.2;
 }
 
-/* Orders Table */
+/* --- Search Bar --- */
+.search-filter-bar {
+    background: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.search-container {
+    position: relative;
+    max-width: 400px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 10px 10px 36px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    outline: none;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* --- Table Styles --- */
 .orders-table-container {
-  background: white;
-  overflow: hidden;
-  max-height: calc(100vh - 200px);
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  width: 100%;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
 }
 
 .orders-table {
-  width: 100%;
-  border-collapse: collapse;
-  display: flex;
-  flex-direction: column;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Cố định layout để cột không bị nhảy */
 }
 
 .orders-table thead {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #f8fafc;
-}
-
-.orders-table tbody {
-  overflow-y: auto;
-  max-height: calc(100vh - 300px);
-  display: block;
-}
-
-.orders-table tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
+    background-color: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
 }
 
 .orders-table th {
-  background: #f8fafc;
-  padding: 16px 12px;
-  font-weight: 600;
-  color: #374151;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 14px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  text-align: center;
-  vertical-align: middle;
+    padding: 14px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #4b5563;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
 .orders-table td {
-  padding: 16px 12px;
-  border-bottom: 1px solid #f3f4f6;
-  font-size: 14px;
-  color: #374151;
-  text-align: center;
-  vertical-align: middle;
+    padding: 14px 12px;
+    font-size: 13px;
+    color: #374151;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+    height: 64px; /* Chiều cao cố định cho dòng */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .orders-table tr:hover {
-  background: #f9fafb;
+    background-color: #f8fafc;
 }
 
-.customer-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.orders-table tr:last-child td {
+    border-bottom: none;
 }
 
+/* --- Alignment Utilities --- */
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+
+/* --- Cột Thao Tác (Căn chỉnh đặc biệt) --- */
+.orders-table th:last-child,
+.orders-table td:last-child {
+    text-align: center !important;
+    padding-left: 0 !important;  /* Xóa padding ngang để căn giữa chuẩn */
+    padding-right: 0 !important;
+}
+
+/* --- Status Badge --- */
 .status-badge {
-  font-weight: 500;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  background: #dbeafe;
-  color: #1e40af;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+    height: 28px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
 }
 
+/* --- Action Button (Con mắt hình tròn) --- */
 .action-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid #d1d5db;
-  background: white;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.complete-btn {
-  background: #3C95FB !important;
-  color: white !important;
-  border-color: #3C95FB !important;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 8px 16px;
-  width: auto !important;
-  min-width: 100px;
-  height: 36px !important;
-  border-radius: 0px !important;
-  display: inline-flex !important;
-  justify-content: center !important;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%; /* Hình tròn */
+    border: 1px solid #d1d5db; /* Viền xám nhạt */
+    background-color: white;
+    color: #6b7280;
+    transition: all 0.2s;
+    display: flex; /* Dùng flex để căn icon vào chính giữa nút */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0 auto; /* Căn nút vào giữa ô td */
+    padding: 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .action-btn:hover {
-  background: #f3f4f6;
-  border-color: #3C95FB;
+    background-color: #eff6ff;
+    color: #3b82f6;
+    border-color: #3b82f6;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.menu-btn {
-  font-size: 16px;
-  font-weight: bold;
+.action-btn i {
+    font-size: 14px; /* Kích thước icon */
 }
 
-.complete-btn:hover {
-  background: #2563EB !important;
-  border-color: #2563EB !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(60, 149, 251, 0.3);
-}
-
-/* Loading and Error States */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f4f6;
-  border-top: 4px solid #3C95FB;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.error-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-}
-
-.error-content {
-  text-align: center;
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.error-content h3 {
-  color: #dc2626;
-  margin: 0 0 16px 0;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .cart-page {
-    padding: 100px 16px 40px;
-  }
-
-  .cart-header {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
-  }
-
-  .search-filter-bar {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .search-container {
-    max-width: none;
-  }
-
-  .orders-table-container {
-    overflow-x: auto;
-  }
-
-  .orders-table th,
-  .orders-table td {
-    padding: 12px 8px;
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .cart-header h1 {
-    font-size: 1.5rem;
-  }
-
-  .btn {
-    padding: 10px 16px;
-    font-size: 12px;
-  }
+/* --- Empty State --- */
+.empty-state {
+    padding: 60px !important;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 14px;
 }

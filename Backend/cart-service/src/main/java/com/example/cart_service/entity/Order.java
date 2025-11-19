@@ -64,9 +64,46 @@ public class Order extends AbstractAuditing<Integer> implements Serializable {
     @Column(name = "final_price")
     private Double finalPrice;
 
+    // --- BỔ SUNG 3 TRƯỜNG MỚI ---
+    @Column(name = "cash_amount")
+    private Double cashAmount;
+
+    @Column(name = "transfer_amount")
+    private Double transferAmount;
+
+    @Column(name = "deleted_by_user")
+    private Boolean deletedByUser = false;
+    // ----------------------------
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<OrderDetail> orderDetails;
+
+    // --- GETTER / SETTER CHO CÁC TRƯỜNG MỚI ---
+    public Double getCashAmount() {
+        return cashAmount;
+    }
+
+    public void setCashAmount(Double cashAmount) {
+        this.cashAmount = cashAmount;
+    }
+
+    public Double getTransferAmount() {
+        return transferAmount;
+    }
+
+    public void setTransferAmount(Double transferAmount) {
+        this.transferAmount = transferAmount;
+    }
+
+    public Boolean getDeletedByUser() {
+        return deletedByUser;
+    }
+
+    public void setDeletedByUser(Boolean deletedByUser) {
+        this.deletedByUser = deletedByUser;
+    }
+    // -------------------------------------------
 
     @Override
     public Integer getId() {

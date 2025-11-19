@@ -3,6 +3,7 @@ import { Dashboard } from '../features/admin/dashboard';
 import { ProductManagement } from '../features/admin/productManagement';
 import { OrderManagement } from '../features/admin/order/orderManagement.tsx';
 import { UserManagement } from '../features/admin/userManagement';
+import { InvoiceManagement } from '../features/admin/invoice/InvoiceManagement'; // Import mới
 
 export const AdminRoutes = () => {
   return (
@@ -11,6 +12,7 @@ export const AdminRoutes = () => {
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="products" element={<ProductManagement />} />
       <Route path="orders" element={<OrderManagement />} />
+      <Route path="invoices" element={<InvoiceManagement />} /> {/* Route mới */}
       <Route path="users" element={<UserManagement />} />
     </Routes>
   );

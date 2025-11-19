@@ -4,6 +4,7 @@ import type { OrderListProps } from '../../types/order.ts';
 export const OrderList: React.FC<OrderListProps> = ({
                                                       orders,
                                                       onViewOrder,
+                                                      onContinueOrder,
                                                       formatPrice,
                                                       getStatusText,
                                                       getStatusColor,
@@ -54,7 +55,7 @@ export const OrderList: React.FC<OrderListProps> = ({
               <td
                   onClick={() => onViewOrder(order)}
                   title="Xem chi tiết"
-                  style={{cursor: "pointer"}}
+                  style={{cursor: "pointer", color: "#2c77d5", fontWeight: 500}}
               >
                 {order.code}
               </td>
@@ -78,13 +79,35 @@ export const OrderList: React.FC<OrderListProps> = ({
             </span>
               </td>
               <td>
-                <button
-                    className="action-btn menu-btn"
-                    onClick={() => onViewOrder(order)}
-                    title="Xem chi tiết"
-                >
-                  ☰
-                </button>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                    
+                    {/* Nút Tiếp tục (Chỉ hiện khi là DRAFT) */}
+                    {order.status === 'DRAFT' && (
+                        <button
+                            className="action-btn"
+                            style={{ border: '1px solid #f59e0b', color: '#f59e0b' }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onContinueOrder(order);
+                            }}
+                            title="Tiếp tục thanh toán"
+                        >
+                            ✏️
+                        </button>
+                    )}
+
+                    {/* Nút Xem chi tiết (Luôn hiện) */}
+                    <button
+                        className="action-btn menu-btn"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onViewOrder(order);
+                        }}
+                        title="Xem chi tiết"
+                    >
+                        ☰
+                    </button>
+                </div>
               </td>
             </tr>
         ))}

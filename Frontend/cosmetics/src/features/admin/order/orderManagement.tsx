@@ -32,7 +32,7 @@ export const OrderManagement = () => {
             const transformedOrders = (data || []).map((order: any) => ({
                 ...order,
                 orderId: order.id || order.orderId,
-                total: order.finalPrice,
+                total: order.total !== undefined ? order.total : (order.finalPrice || 0),
                 createdDate: order.createdDate || order.createdAt || order.created_date,
                 items: (order.items || order.orderDetails || []).map((item: any) => ({
                     ...item,

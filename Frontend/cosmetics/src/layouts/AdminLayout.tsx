@@ -1,4 +1,5 @@
-import { ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
+import {  useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthProvider';
 import '../assets/styles/admin.css';
@@ -17,6 +18,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/admin/products', label: 'Sản phẩm', icon: '📦' },
     { path: '/admin/orders', label: 'Đơn hàng', icon: '🧾' },
+    { path: '/admin/invoices', label: 'Hóa đơn', icon: '💰' },
     { path: '/admin/users', label: 'Người dùng', icon: '👥' },
   ];
 

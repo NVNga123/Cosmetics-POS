@@ -33,7 +33,8 @@ export const Orders: React.FC = () => {
             const transformedOrders = (data || []).map((order: any) => ({
                 ...order,
                 orderId: order.id || order.orderId,
-                total: order.finalPrice,
+                total: order.total !== undefined ? order.total : (order.finalPrice || 0),
+                createdDate: order.createdAt || order.createdDate,
 
                 items: (order.items || order.orderDetails || []).map((item: any) => ({
                     ...item,
@@ -70,6 +71,11 @@ export const Orders: React.FC = () => {
     const handleViewOrder = (order: Order) => {
         setSelectedOrder(order);
         setIsModalOpen(true);
+    };
+
+    const handleContinueOrder = (order: Order) => {
+         // Chuyển hướng kèm ID đơn hàng
+         navigate(`/user/sales/${order.orderId}`);
     };
 
     const handleCloseModal = () => {
@@ -214,6 +220,7 @@ export const Orders: React.FC = () => {
             <OrderTable
                 orders={filteredOrders}
                 onViewOrder={handleViewOrder}
+                onContinueOrder={handleContinueOrder}
                 onDeleteOrder={handleDeleteOrder}
                 formatPrice={formatPrice}
                 getStatusText={getStatusText}

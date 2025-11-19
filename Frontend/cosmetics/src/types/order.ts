@@ -78,6 +78,7 @@ export interface OrderTableProps {
     orders: Order[];
     onViewOrder: (order: Order) => void;
     onDeleteOrder?: (id: string | number) => void;
+    onContinueOrder: (order: Order) => void;
     formatPrice: (price: number) => string;
     getStatusText: (status: string) => string;
     getStatusColor: (status: string) => string;
@@ -87,6 +88,7 @@ export interface OrderTableProps {
 export interface OrderListProps {
     orders: Order[];
     onViewOrder: (order: Order) => void;
+    onContinueOrder: (order: Order) => void;
     formatPrice: (price: number) => string;
     getStatusText: (status: string) => string;
     getStatusColor: (status: string) => string;

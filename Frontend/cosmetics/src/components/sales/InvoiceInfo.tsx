@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Order } from '../../types/order';
+import { formatPrice, getStatusText, getStatusColor, getPaymentMethodText } from '../../utils/orderUtils';
 import './InvoiceInfo.css';
 
 interface InvoiceInfoProps {
@@ -24,25 +25,35 @@ export const InvoiceInfo: React.FC<InvoiceInfoProps> = ({
   const vat = Math.round(discountedSubtotal * 0.1);
   const total = discountedSubtotal + vat;
 
-  const getPaymentMethodText = (method?: string) => {
-    switch (method) {
-      case 'cash': return 'Tiền mặt';
-      case 'bank': return 'Chuyển khoản ngân hàng';
-      case 'momo': return 'Ví MoMo';
-      case 'tmck': return 'Tiền mặt + Chuyển khoản';
-      default: return 'Chưa xác định';
-    }
+  // Xử lý hiển thị trạng thái động cho Modal
+  const getModalStatusBadge = (status: string) => {
+    const color = getStatusColor(status);
+    const text = status === 'COMPLETED' ? 'Thanh toán thành công' : getStatusText(status);
+    
+    return (
+      <div 
+        className="invoice-status-badge" 
+        style={{ 
+          backgroundColor: color, // Dùng màu từ utils
+          color: '#fff'
+        }}
+      >
+        <i className={`fas ${status === 'COMPLETED' ? 'fa-check-circle' : status === 'RETURNED' ? 'fa-undo' : 'fa-info-circle'}`}></i>
+        {text}
+      </div>
+    );
   };
 
   return (
     <div className="invoice-info-overlay">
       <div className="invoice-info-modal">
-        <div className="invoice-info-header">
+        {/* Header với màu nền động theo trạng thái */}
+        <div 
+            className="invoice-info-header"
+            style={{ background: order.status === 'RETURNED' ? '#f59e0b' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+        >
           <h2>Thông tin hóa đơn</h2>
-          <div className="invoice-status-badge success">
-            <i className="fas fa-check-circle"></i>
-            Thanh toán thành công
-          </div>
+          {getModalStatusBadge(order.status)}
         </div>
 
         <div className="invoice-info-body">
@@ -51,7 +62,7 @@ export const InvoiceInfo: React.FC<InvoiceInfoProps> = ({
             <h3>Thông tin đơn hàng</h3>
             <div className="invoice-details">
               <div className="detail-row">
-                <span className="detail-label">Mã đơn hàng:</span>
+                <span className="detail-label">Mã hóa đơn:</span>
                 <span className="detail-value">{order.code}</span>
               </div>
               <div className="detail-row">
@@ -98,10 +109,13 @@ export const InvoiceInfo: React.FC<InvoiceInfoProps> = ({
                     </div>
                     <div className="item-col quantity">{item.quantity}</div>
                     <div className="item-col price">
-                      {((item.subtotal || 0) / item.quantity).toLocaleString('vi-VN')}đ
+                      {((item.subtotal || 0) / (item.quantity || 1)).toLocaleString('vi-VN')}đ
                     </div>
                     <div className="item-col discount">
-                      {item.discountAmount ? `-${item.discountAmount.toLocaleString('vi-VN')}đ` : '0đ'}
+                      {/* Tính giảm giá nếu có */}
+                      {(item.subtotal - item.total) > 0 
+                        ? `-${(item.subtotal - item.total).toLocaleString('vi-VN')}đ` 
+                        : '0đ'}
                     </div>
                     <div className="item-col total">
                       {(item.total || 0).toLocaleString('vi-VN')}đ
@@ -139,15 +153,14 @@ export const InvoiceInfo: React.FC<InvoiceInfoProps> = ({
         <div className="invoice-info-footer">
           <button className="btn btn-secondary" onClick={onCancel}>
             <i className="fas fa-times"></i>
-            Hủy
+            Đóng
           </button>
           <button className="btn btn-primary" onClick={onCreateInvoice}>
-            <i className="fas fa-file-invoice"></i>
-            Tạo hóa đơn
+            <i className="fas fa-print"></i>
+            In hóa đơn
           </button>
         </div>
       </div>
     </div>
   );
 };
-

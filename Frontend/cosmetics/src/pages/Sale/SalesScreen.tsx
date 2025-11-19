@@ -288,10 +288,13 @@ export const SalesScreen: React.FC = () => {
         const loadOrderFromUrl = async () => {
             if (orderIdParam) {
                 try {
-                    console.log('Loading order from URL param:', orderIdParam);
+                    setLoading(true);
                     const orderResult = await orderApi.getById(orderIdParam);
+                    
                     if (orderResult.data) {
                         const orderData = orderResult.data;
+                        
+                        // Map dữ liệu từ Backend về cấu trúc Frontend
                         const mappedOrder: Order = {
                             orderId: orderData.orderId,
                             code: orderData.code || '',
@@ -300,48 +303,57 @@ export const SalesScreen: React.FC = () => {
                             status: orderData.status,
                             createdDate: orderData.createdDate,
                             items: (orderData.items || []).map((item: any) => {
+                                // Xử lý giá trị số an toàn
                                 const unitPrice = item.price || item.unitPrice || 0;
                                 const quantity = item.quantity || 0;
-                                const discountedTotal = item.total || item.subtotal || 0;
-                                const originalTotal = unitPrice * quantity;
-                                const discountAmount = originalTotal - discountedTotal;
+                                const subtotal = item.subtotal || (unitPrice * quantity);
+                                const total = item.total || subtotal; // Tổng sau giảm giá
+                                const discountAmount = subtotal - total;
 
                                 return {
-                                    productId: item.productId,
+                                    productId: item.productId, // Quan trọng: phải khớp ID để update/xóa hoạt động
                                     product: {
                                         id: item.productId,
-                                        name: item.productName || item.product?.name || 'Sản phẩm không xác định',
+                                        name: item.productName || item.product?.name || 'Sản phẩm',
                                         price: unitPrice,
-                                        discount: item.discount || 0,
+                                        image: item.product?.image || item.image || '', // Đảm bảo có ảnh nếu có
+                                        discount: item.product?.discount || 0,
+                                        stock: item.product?.stock || 999 // Fallback nếu thiếu stock
                                     },
-                                    quantity,
-                                    subtotal: originalTotal,
-                                    discountAmount,
-                                    total: discountedTotal,
+                                    quantity: quantity,
+                                    subtotal: subtotal,
+                                    discountAmount: discountAmount,
+                                    total: total,
                                 };
                             }),
                             notes: orderData.notes || '',
                             paymentMethod: orderData.paymentMethod,
                         };
 
-                        // Chỉ hiển thị InvoiceInfo nếu order đã completed
-                        if (orderData.status === ORDER_STATUS.COMPLETED) {
+                        // Cập nhật State
+                        setOrders([mappedOrder]);
+                        setActiveOrderIndex(0);
+                        setCustomerName(mappedOrder.customerName);
+                        setNotes(mappedOrder.notes);
+
+                        // Nếu đơn đã hoàn thành thì hiện hóa đơn luôn
+                        if (orderData.status === 'COMPLETED') {
                             setPaidOrder(mappedOrder);
                             setShowInvoiceInfo(true);
                         }
-
-                        // Xóa localStorage vì đã xử lý xong
-                        localStorage.removeItem('pendingPaymentOrderId');
-                        localStorage.removeItem('pendingPaymentMethod');
                     }
                 } catch (error) {
-                    console.error('Lỗi khi lấy thông tin đơn hàng từ URL:', error);
+                    console.error('Lỗi tải đơn hàng:', error);
+                    alert('Không tìm thấy đơn hàng hoặc có lỗi xảy ra.');
+                    navigate('/user/sales'); // Quay về trang bán mới nếu lỗi
+                } finally {
+                    setLoading(false);
                 }
             }
         };
 
         loadOrderFromUrl();
-    }, [orderIdParam]);
+    }, [orderIdParam, navigate]);
 
     useEffect(() => {
         if (location.state?.selectedOrder) {
