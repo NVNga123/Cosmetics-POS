@@ -56,7 +56,7 @@ public class VNPayController {
 
             // SỬA LỖI Chữ ký: Xóa dấu tiếng Việt
             String orderInfo = "Thanh toan don hang " + paymentReq.getOrderInfo();
-            String vnp_OrderInfo = removeAccents(orderInfo);
+            String vnp_OrderInfo = removeAccents(orderInfo).trim();
 
             Map<String, String> vnp_Params = new HashMap<>();
             vnp_Params.put("vnp_Version", vnp_Version);
@@ -88,20 +88,21 @@ public class VNPayController {
                 String fieldValue = vnp_Params.get(fieldName);
                 if ((fieldValue != null) && (fieldValue.length() > 0)) {
 
-                    // 1. Mã hóa GIÁ TRỊ (Value)
-                    String encodedValue = URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString()).replace("+", "%20");
+                    // Mã hóa GIÁ TRỊ (Value) theo chuẩn VNPay
+                    // Use URLEncoder default (spaces -> '+') to match VNPay expected encoding
+                    String encodedValue = URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString());
 
-                    // 2. Xây dựng hashData: Dùng KEY THÔ + VALUE ĐÃ MÃ HÓA
+                    // Xây dựng hashData: KEY=VALUE_ENCODED (đây là cách VNPay tính hash)
                     hashData.append(fieldName);
                     hashData.append('=');
-                    hashData.append(encodedValue);
+                    hashData.append(encodedValue); // <- Dùng value ĐÃ ENCODE
 
-                    // 3. Xây dựng query: Dùng KEY THÔ + VALUE ĐÃ MÃ HÓA
-                    query.append(fieldName); // <-- Sửa: Không encode fieldName
+                    // Xây dựng query: KEY=VALUE_ENCODED
+                    query.append(fieldName);
                     query.append('=');
                     query.append(encodedValue);
 
-                    // 4. Thêm dấu & vào cả hai
+                    // Thêm dấu & vào cả hai
                     if (itr.hasNext()) {
                         query.append('&');
                         hashData.append('&');
@@ -112,7 +113,12 @@ public class VNPayController {
             String queryUrl = query.toString();
             String vnp_SecureHash = vnPayConfig.hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
             queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+            // Include hash type (recommended by VNPay)
+            queryUrl += "&vnp_SecureHashType=HMACSHA512";
             String paymentUrl = vnPayConfig.getVnpUrl() + "?" + queryUrl;
+
+            // Log full payment URL for debugging (you can copy & paste to browser)
+            System.out.println("VNPay paymentUrl: " + paymentUrl);
 
             // In ra chuỗi hash và chữ ký để debug (nếu cần)
             System.out.println("VNPay hashData (final): " + hashData.toString());
@@ -128,10 +134,14 @@ public class VNPayController {
     @GetMapping("/vnpay-payment-return")
     public ResponseEntity<?> paymentCallback(HttpServletRequest request) {
         try {
+            // Log raw query string for debugging (shows how VNPay sent params)
+            System.out.println("VNPay callback raw query: " + request.getQueryString());
+
             Map<String, String> fields = new HashMap<>();
             for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements(); ) {
                 String fieldName = params.nextElement();
                 String fieldValue = request.getParameter(fieldName);
+                System.out.println("VNPay callback param: " + fieldName + " = [" + fieldValue + "]");
                 if ((fieldValue != null) && (fieldValue.length() > 0)) {
                     fields.put(fieldName, fieldValue);
                 }
@@ -143,7 +153,10 @@ public class VNPayController {
 
             // Kiểm tra chữ ký
             String signValue = vnPayConfig.hashAllFields(fields);
-            if (signValue.equals(vnp_SecureHash)) {
+            // Debug logs: in cả chữ ký nhận được và chữ ký tính được
+            System.out.println("VNPay received vnp_SecureHash: " + vnp_SecureHash);
+            System.out.println("VNPay computed signValue: " + signValue);
+            if (signValue.equalsIgnoreCase(vnp_SecureHash)) {
                 if ("00".equals(request.getParameter("vnp_ResponseCode"))) {
                     // TODO: Đoạn này nên gọi sang Cart-Service để update status đơn hàng
                     // Nhưng tạm thời cứ trả về OK để Frontend biết là thành công đã

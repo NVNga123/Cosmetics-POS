@@ -10,6 +10,8 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -60,7 +62,7 @@ public class MomoPaymentController {
             System.out.println("Redirect URL: " + redirectUrl);
             System.out.println("IPN URL: " + ipnUrl);
 
-            // rawSignature dùng momoOrderId (orderId của MoMo payment)
+            // rawSignature - KHÔNG encode URL (MoMo yêu cầu URL raw, không encode)
             String rawSignature = "accessKey=" + ACCESS_KEY +
                     "&amount=" + amount +
                     "&extraData=" +

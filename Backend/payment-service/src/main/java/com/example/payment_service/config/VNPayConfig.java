@@ -51,7 +51,7 @@ public class VNPayConfig {
                 throw new NullPointerException();
             }
             final Mac hmac512 = Mac.getInstance("HmacSHA512");
-            byte[] hmacKeyBytes = key.getBytes();
+            byte[] hmacKeyBytes = key.getBytes(StandardCharsets.UTF_8);
             final SecretKeySpec secretKey = new SecretKeySpec(hmacKeyBytes, "HmacSHA512");
             hmac512.init(secretKey);
 
@@ -61,7 +61,7 @@ public class VNPayConfig {
             byte[] result = hmac512.doFinal(dataBytes);
             StringBuilder sb = new StringBuilder(2 * result.length);
             for (byte b : result) {
-                sb.append(String.format("%02x", b & 0xff));
+                sb.append(String.format("%02X", b & 0xff));
             }
             return sb.toString();
 
@@ -108,8 +108,11 @@ public class VNPayConfig {
                 sb.append(fieldName);
                 sb.append("=");
                 try {
-                    // SỬA LỖI: Thêm try-catch cho URLEncoder
-                    sb.append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString()));
+                    // SỬA LỖI: Khi VNPay callback, dữ liệu đã được decode
+                    // Phải encode lại để tính hash giống như lúc tạo payment
+                    // Use URLEncoder default (spaces -> '+') so hash matches created payment URL
+                    String encodedValue = URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString());
+                    sb.append(encodedValue);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -118,6 +121,9 @@ public class VNPayConfig {
                 }
             }
         }
-        return hmacSHA512(secretKey, sb.toString());
+        String toHash = sb.toString();
+        // Debug log: chuỗi dữ liệu sẽ dùng để tính chữ ký
+        System.out.println("VNPay.hashAllFields input: " + toHash);
+        return hmacSHA512(secretKey, toHash);
     }
 }

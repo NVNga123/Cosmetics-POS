@@ -81,7 +81,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         }
         const tmckPaymentRequest: MomoPaymentRequest = {
             orderId: orderId,  // 👈 ADD
-            orderInfo: `${orderCode} (CK)`,
+            orderInfo: `${orderCode}-CK`,
             amount: transferAmount, // Chỉ gửi số tiền chuyển khoản
         };
         await createVNPayPayment(tmckPaymentRequest);
