@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer; // Import
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -118,4 +124,41 @@ public class VNPayController {
             return ResponseEntity.status(500).body(Collections.singletonMap("error", "Lỗi khi tạo thanh toán VNPay: " + e.getMessage()));
         }
     }
+
+    @GetMapping("/vnpay-payment-return")
+    public ResponseEntity<?> paymentCallback(HttpServletRequest request) {
+        try {
+            Map<String, String> fields = new HashMap<>();
+            for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements(); ) {
+                String fieldName = params.nextElement();
+                String fieldValue = request.getParameter(fieldName);
+                if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                    fields.put(fieldName, fieldValue);
+                }
+            }
+
+            String vnp_SecureHash = request.getParameter("vnp_SecureHash");
+            if (fields.containsKey("vnp_SecureHashType")) fields.remove("vnp_SecureHashType");
+            if (fields.containsKey("vnp_SecureHash")) fields.remove("vnp_SecureHash");
+
+            // Kiểm tra chữ ký
+            String signValue = vnPayConfig.hashAllFields(fields);
+            if (signValue.equals(vnp_SecureHash)) {
+                if ("00".equals(request.getParameter("vnp_ResponseCode"))) {
+                    // TODO: Đoạn này nên gọi sang Cart-Service để update status đơn hàng
+                    // Nhưng tạm thời cứ trả về OK để Frontend biết là thành công đã
+                    System.out.println("GIAO DỊCH THÀNH CÔNG: " + request.getParameter("vnp_TxnRef"));
+
+                    return ResponseEntity.ok(Collections.singletonMap("message", "Thanh toán thành công"));
+                } else {
+                    return ResponseEntity.status(400).body(Collections.singletonMap("message", "Giao dịch thất bại"));
+                }
+            } else {
+                return ResponseEntity.status(400).body(Collections.singletonMap("message", "Chữ ký không hợp lệ"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Collections.singletonMap("message", "Lỗi server: " + e.getMessage()));
+        }
+    }
+
 }

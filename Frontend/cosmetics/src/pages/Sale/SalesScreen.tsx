@@ -46,98 +46,101 @@ export const SalesScreen: React.FC = () => {
     // Xử lý callback sau khi thanh toán MoMo/VNPay thành công
     useEffect(() => {
         const checkPaymentCallback = async () => {
-            // Kiểm tra query params từ MoMo/VNPay callback
             const urlParams = new URLSearchParams(window.location.search);
-            const resultCode = urlParams.get('resultCode');
-            const momoOrderId = urlParams.get('orderId'); // orderId từ MoMo (không phải orderId của hệ thống)
             
-            // Lấy orderId của hệ thống từ localStorage
-            const pendingOrderId = localStorage.getItem('pendingPaymentOrderId');
-            const pendingPaymentMethod = localStorage.getItem('pendingPaymentMethod');
+            // --- 1. XỬ LÝ VNPAY (LOGIC MỚI) ---
+            // Kiểm tra nếu URL có tham số đặc trưng của VNPay
+            const vnp_ResponseCode = urlParams.get('vnp_ResponseCode');
             
-            // Kiểm tra nếu có resultCode từ MoMo (resultCode = 0 nghĩa là thanh toán thành công)
-            const isPaymentSuccess = resultCode === '0' || resultCode === '9000'; // 0 hoặc 9000 = thành công
-            
-            // Nếu thanh toán thành công (có resultCode = 0) hoặc có pendingPaymentOrderId
-            if (isPaymentSuccess && pendingOrderId && pendingPaymentMethod === 'momo') {
-                console.log('MoMo payment successful. Loading invoice for order:', pendingOrderId);
-                // Retry logic: thử lấy order với delay vì có thể chưa được cập nhật status ngay
-                const fetchOrderWithRetry = async (retries = 5, delay = 1000) => {
-                    for (let i = 0; i < retries; i++) {
-                        try {
-                            // Lấy thông tin order từ API
-                            const orderResult = await orderApi.getById(pendingOrderId);
-                            if (orderResult.data && orderResult.data.status === ORDER_STATUS.COMPLETED) {
-                                // Map order data để hiển thị InvoiceInfo
-                                const orderData = orderResult.data;
-                                const mappedOrder: Order = {
-                                    orderId: orderData.orderId,
-                                    code: orderData.code || '',
-                                    customerName: orderData.customerName || 'Khách lẻ',
-                                    total: orderData.total || 0,
-                                    status: orderData.status,
-                                    createdDate: orderData.createdDate,
-                                    items: (orderData.items || []).map((item: any) => {
-                                        const unitPrice = item.price || item.unitPrice || 0;
-                                        const quantity = item.quantity || 0;
-                                        const discountedTotal = item.total || item.subtotal || 0;
-                                        const originalTotal = unitPrice * quantity;
-                                        const discountAmount = originalTotal - discountedTotal;
+            if (vnp_ResponseCode) {
+                const pendingOrderId = localStorage.getItem('pendingPaymentOrderId');
+                
+                try {
+                    // Lấy tất cả params từ URL để gửi về Backend xác thực
+                    const params = Object.fromEntries(urlParams.entries());
+                    
+                    // Gọi API xác thực chữ ký bảo mật ở Backend
+                    // (Lưu ý: Bạn cần import hàm verifyVNPayPayment từ paymentApi)
+                    const { verifyVNPayPayment } = await import('../../api/paymentApi');
+                    await verifyVNPayPayment(params);
+                    
+                    console.log('VNPay: Backend xác thực thành công.');
 
-                                        return {
-                                            productId: item.productId,
-                                            product: {
-                                                id: item.productId,
-                                                name: item.productName || item.product?.name || 'Sản phẩm không xác định',
-                                                price: unitPrice,
-                                                discount: item.discount || 0,
-                                            },
-                                            quantity,
-                                            subtotal: originalTotal,
-                                            discountAmount,
-                                            total: discountedTotal,
-                                        };
-                                    }),
-                                    notes: orderData.notes || '',
-                                    paymentMethod: orderData.paymentMethod,
-                                };
-
-                                setPaidOrder(mappedOrder);
-                                setShowInvoiceInfo(true);
-                                
-                                // Xóa localStorage sau khi xử lý
-                                localStorage.removeItem('pendingPaymentOrderId');
-                                localStorage.removeItem('pendingPaymentMethod');
-                                
-                                // Xóa query params từ URL
-                                window.history.replaceState({}, document.title, window.location.pathname);
-                                return; // Thành công, thoát khỏi retry loop
-                            }
-                        } catch (error) {
-                            console.error(`Lỗi khi lấy thông tin đơn hàng (lần thử ${i + 1}/${retries}):`, error);
-                        }
+                    // Nếu xác thực OK, nghĩa là Backend đã update status = COMPLETED
+                    // Ta chỉ cần lấy lại đơn hàng để hiển thị
+                    if (pendingOrderId) {
+                        const orderResult = await orderApi.getById(pendingOrderId);
                         
-                        // Đợi trước khi retry (trừ lần cuối)
-                        if (i < retries - 1) {
-                            await new Promise(resolve => setTimeout(resolve, delay));
+                        if (orderResult.data && orderResult.data.status === ORDER_STATUS.COMPLETED) {
+                            const orderData = orderResult.data;
+                            
+                            // Mapping dữ liệu (Copy từ logic cũ để đảm bảo hiển thị đúng)
+                            const mappedOrder: Order = {
+                                orderId: orderData.orderId,
+                                code: orderData.code || '',
+                                customerName: orderData.customerName || 'Khách lẻ',
+                                total: orderData.total || 0,
+                                status: orderData.status,
+                                createdDate: orderData.createdDate,
+                                items: (orderData.items || []).map((item: any) => {
+                                    const unitPrice = item.price || item.unitPrice || 0;
+                                    const quantity = item.quantity || 0;
+                                    const discountedTotal = item.total || item.subtotal || 0;
+                                    const originalTotal = unitPrice * quantity;
+                                    const discountAmount = originalTotal - discountedTotal;
+                                    return {
+                                        productId: item.productId,
+                                        product: {
+                                            id: item.productId,
+                                            name: item.productName || item.product?.name || 'Sản phẩm',
+                                            price: unitPrice,
+                                            discount: item.discount || 0,
+                                        },
+                                        quantity,
+                                        subtotal: originalTotal,
+                                        discountAmount,
+                                        total: discountedTotal,
+                                    };
+                                }),
+                                notes: orderData.notes || '',
+                                paymentMethod: orderData.paymentMethod,
+                            };
+
+                            setPaidOrder(mappedOrder);
+                            setShowInvoiceInfo(true);
                         }
                     }
-                    
-                    // Nếu sau tất cả retry vẫn không thành công, xóa localStorage
-                    console.warn('Không thể lấy thông tin đơn hàng sau thanh toán sau nhiều lần thử');
+
+                    // Dọn dẹp URL và LocalStorage sau khi thành công
+                    window.history.replaceState({}, document.title, window.location.pathname);
                     localStorage.removeItem('pendingPaymentOrderId');
                     localStorage.removeItem('pendingPaymentMethod');
-                };
 
-                fetchOrderWithRetry();
-            } else if (pendingOrderId && (pendingPaymentMethod === 'bank' || pendingPaymentMethod === 'tmck')) {
-                // Xử lý cho VNPay (bank, tmck) - tương tự MoMo
-                console.log('VNPay payment callback. Loading invoice for order:', pendingOrderId);
+                } catch (error) {
+                    console.error("Lỗi xác thực VNPay:", error);
+                    alert("Thanh toán thất bại hoặc chữ ký không hợp lệ!");
+                    // Dọn dẹp để tránh kẹt
+                    localStorage.removeItem('pendingPaymentOrderId');
+                    localStorage.removeItem('pendingPaymentMethod');
+                }
+                return; // Kết thúc xử lý VNPay
+            }
+
+            // --- 2. XỬ LÝ MOMO (LOGIC CŨ - GIỮ NGUYÊN) ---
+            const resultCode = urlParams.get('resultCode');
+            const pendingOrderId = localStorage.getItem('pendingPaymentOrderId');
+            const pendingPaymentMethod = localStorage.getItem('pendingPaymentMethod');
+            const isPaymentSuccess = resultCode === '0' || resultCode === '9000';
+
+            if (isPaymentSuccess && pendingOrderId && pendingPaymentMethod === 'momo') {
+                console.log('MoMo payment successful. Loading invoice for order:', pendingOrderId);
+                
                 const fetchOrderWithRetry = async (retries = 5, delay = 1000) => {
                     for (let i = 0; i < retries; i++) {
                         try {
                             const orderResult = await orderApi.getById(pendingOrderId);
                             if (orderResult.data && orderResult.data.status === ORDER_STATUS.COMPLETED) {
+                                // Logic map cũ của MoMo
                                 const orderData = orderResult.data;
                                 const mappedOrder: Order = {
                                     orderId: orderData.orderId,
@@ -152,12 +155,11 @@ export const SalesScreen: React.FC = () => {
                                         const discountedTotal = item.total || item.subtotal || 0;
                                         const originalTotal = unitPrice * quantity;
                                         const discountAmount = originalTotal - discountedTotal;
-
                                         return {
                                             productId: item.productId,
                                             product: {
                                                 id: item.productId,
-                                                name: item.productName || item.product?.name || 'Sản phẩm không xác định',
+                                                name: item.productName || item.product?.name || 'SP',
                                                 price: unitPrice,
                                                 discount: item.discount || 0,
                                             },
@@ -181,20 +183,15 @@ export const SalesScreen: React.FC = () => {
                         } catch (error) {
                             console.error(`Lỗi khi lấy thông tin đơn hàng (lần thử ${i + 1}/${retries}):`, error);
                         }
-                        
-                        if (i < retries - 1) {
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                        }
+                        if (i < retries - 1) await new Promise(resolve => setTimeout(resolve, delay));
                     }
-                    
                     console.warn('Không thể lấy thông tin đơn hàng sau thanh toán sau nhiều lần thử');
                     localStorage.removeItem('pendingPaymentOrderId');
                     localStorage.removeItem('pendingPaymentMethod');
                 };
-
                 fetchOrderWithRetry();
+
             } else if (resultCode && resultCode !== '0' && resultCode !== '9000') {
-                // Thanh toán thất bại
                 console.warn('Payment failed with resultCode:', resultCode);
                 alert('Thanh toán thất bại. Vui lòng thử lại.');
                 localStorage.removeItem('pendingPaymentOrderId');

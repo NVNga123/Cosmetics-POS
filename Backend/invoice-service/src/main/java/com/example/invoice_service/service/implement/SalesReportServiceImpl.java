@@ -64,15 +64,49 @@ public class SalesReportServiceImpl implements SalesReportService {
 
     @Override
     public ResultDTO getDailySalesReport(SalesReportRequest request) {
-        // Logic tương tự, gọi invoiceRepository.getTotalRevenueBetween(...)
-        // ... (Bạn có thể copy logic cũ và thay orderRepository bằng invoiceRepository như trên)
-        return new ResultDTO("success", "Chức năng đang cập nhật", true, null);
+        // 1. Xử lý ngày tháng từ request (Giống hàm getAllReport)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDateTime fromDate;
+        LocalDateTime toDate;
+
+        if (request != null && request.getFromDate() != null) {
+            fromDate = LocalDate.parse(request.getFromDate(), formatter).atStartOfDay();
+            toDate = LocalDate.parse(request.getToDate(), formatter).atTime(LocalTime.MAX);
+        } else {
+            // Mặc định lấy ngày hôm nay nếu không truyền
+            fromDate = LocalDate.now().atStartOfDay();
+            toDate = LocalDate.now().atTime(LocalTime.MAX);
+        }
+
+        // 2. Gọi Repository để tính tổng tiền
+        BigDecimal totalRevenue = invoiceRepository.getTotalRevenueBetween(fromDate, toDate);
+
+        // Xử lý null nếu không có đơn nào
+        if (totalRevenue == null) totalRevenue = BigDecimal.ZERO;
+
+        // 3. Trả về đúng format mà Frontend cần
+        // Frontend salesReportAPI.ts dòng 47 đang lấy: response.data.data
+        return new ResultDTO("success", "Lấy báo cáo ngày thành công", true, totalRevenue);
     }
 
     @Override
     public ResultDTO getMonthlySalesReport(SalesReportRequest request) {
-        // Logic tương tự, gọi invoiceRepository.getTotalRevenueBetween(...)
-        // ...
-        return new ResultDTO("success", "Chức năng đang cập nhật", true, null);
+        // Logic tương tự cho tháng
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDateTime fromDate;
+        LocalDateTime toDate;
+
+        if (request != null && request.getFromDate() != null) {
+            fromDate = LocalDate.parse(request.getFromDate(), formatter).atStartOfDay();
+            toDate = LocalDate.parse(request.getToDate(), formatter).atTime(LocalTime.MAX);
+        } else {
+            fromDate = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+            toDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).atTime(LocalTime.MAX);
+        }
+
+        BigDecimal totalRevenue = invoiceRepository.getTotalRevenueBetween(fromDate, toDate);
+        if (totalRevenue == null) totalRevenue = BigDecimal.ZERO;
+
+        return new ResultDTO("success", "Lấy báo cáo tháng thành công", true, totalRevenue);
     }
 }
