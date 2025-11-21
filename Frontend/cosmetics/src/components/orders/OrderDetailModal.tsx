@@ -15,7 +15,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   onDeleteOrder,
   onReturnOrder,
 }) => {
-  // Không cần dùng isAdmin nữa
+  const { isAdmin } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
@@ -199,10 +199,12 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     zIndex: 99999,
                     display: 'block' // Đảm bảo hiển thị
                   }}>
-                    {/* Nút Hủy đơn - Không check quyền admin nữa */}
-                    <button onClick={handleCancelOrder} style={{ color: '#dc2626' }}>
-                      Huỷ đơn hàng
-                    </button>
+                    {isAdmin() && (
+                        <button onClick={handleCancelOrder}>
+                          <span style={{ marginRight: '4px' }}></span>
+                          Huỷ đơn hàng
+                        </button>
+                    )}
                     
                     {/* Nút Trả hàng */}
                     <button onClick={handleReturnOrder} style={{ color: '#ea580c' }}>

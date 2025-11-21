@@ -32,9 +32,6 @@ public class OrderServiceImpl implements OrderService {
     private final RedisService redisService;
     private final RestTemplate restTemplate;
 
-    // URL của Invoice Service (thông qua Gateway localhost:8888 hoặc trực tiếp 8089)
-    // Nếu chạy qua Gateway thì là: http://localhost:8888/api/v1/invoices/create
-    // Nếu chạy trực tiếp thì là: http://localhost:8089/invoices/create
     private static final String INVOICE_SERVICE_URL = "http://localhost:8089/invoices/create";
     private static final String INVENTORY_SERVICE_URL = "http://localhost:8085/inventory/update";
 
@@ -53,17 +50,13 @@ public class OrderServiceImpl implements OrderService {
         order.setCode(code);
         order = orderRepository.save(order);
 
-        // Nếu tạo đơn mới mà trạng thái đã là COMPLETED (ví dụ thanh toán ngay)
-        // thì cũng cần trừ kho và tạo hóa đơn ngay lập tức.
         if ("COMPLETED".equals(orderRequest.getStatus())) {
             if (orderRequest.getItems() != null && !orderRequest.getItems().isEmpty()) {
                 updateInventory(orderRequest.getItems());
             }
-            // Tạo hóa đơn ngay
             sendInvoiceCreateRequest(order, "COMPLETED");
         }
         else if (orderRequest.getItems() != null && !orderRequest.getItems().isEmpty()) {
-            // Nếu chỉ là DRAFT thì chỉ giữ chỗ tồn kho (nếu logic yêu cầu) hoặc trừ kho
             updateInventory(orderRequest.getItems());
         }
 
@@ -79,33 +72,25 @@ public class OrderServiceImpl implements OrderService {
         String oldStatus = existingOrder.getStatus();
         String newStatus = orderRequest.getStatus();
 
-        // 1. Cập nhật thông tin đơn hàng
         existingOrder = orderMapper.updateEntity(orderRequest, existingOrder);
-        existingOrder = orderRepository.save(existingOrder); // Lưu xuống DB trước
+        existingOrder = orderRepository.save(existingOrder);
 
-        // 2. Kiểm tra thay đổi trạng thái để xử lý nghiệp vụ
         if (!oldStatus.equals(newStatus)) {
 
-            // Trường hợp 1: Hoàn thành đơn hàng (DRAFT -> COMPLETED)
             if ("COMPLETED".equals(newStatus)) {
                 sendInvoiceCreateRequest(existingOrder, "COMPLETED");
             }
 
-            // Trường hợp 2: Hủy đơn hoặc Trả hàng (COMPLETED -> CANCELLED/RETURNED)
             else if ("COMPLETED".equals(oldStatus) && ("CANCELLED".equals(newStatus) || "RETURNED".equals(newStatus))) {
 
-                // Hoàn trả tồn kho
                 if (existingOrder.getOrderDetails() != null && !existingOrder.getOrderDetails().isEmpty()) {
                     returnInventory(existingOrder.getOrderDetails());
                 }
 
-                // Tạo hóa đơn (Hóa đơn hoàn trả / Credit Note)
                 sendInvoiceCreateRequest(existingOrder, newStatus);
             }
 
-            // Trường hợp 3: Đang DRAFT mà Hủy luôn (DRAFT -> CANCELLED)
             else if ("DRAFT".equals(oldStatus) && "CANCELLED".equals(newStatus)) {
-                // Chỉ cần hoàn tồn kho, không cần tạo hóa đơn tài chính (hoặc tùy nghiệp vụ)
                 if (existingOrder.getOrderDetails() != null && !existingOrder.getOrderDetails().isEmpty()) {
                     returnInventory(existingOrder.getOrderDetails());
                 }
@@ -116,7 +101,6 @@ public class OrderServiceImpl implements OrderService {
         return new ResultDTO("success", "update đơn hàng thành công", true, orderResponse, 1);
     }
 
-    // Hàm gửi yêu cầu sang Invoice Service
     private void sendInvoiceCreateRequest(Order order, String invoiceType) {
         try {
             Map<String, Object> payload = new HashMap<>();
@@ -127,7 +111,6 @@ public class OrderServiceImpl implements OrderService {
             payload.put("totalAmount", order.getFinalPrice());
             payload.put("paymentMethod", order.getPaymentMethod());
 
-            // Map chi tiết sản phẩm
             List<Map<String, Object>> detailList = new ArrayList<>();
             if (order.getOrderDetails() != null) {
                 for (OrderDetail d : order.getOrderDetails()) {
@@ -145,11 +128,9 @@ public class OrderServiceImpl implements OrderService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
 
-            // Gọi API bất đồng bộ hoặc try-catch để không chặn luồng chính nếu lỗi
             restTemplate.postForEntity(INVOICE_SERVICE_URL, entity, ResultDTO.class);
 
         } catch (Exception e) {
-            // Chỉ log lỗi, không throw exception để tránh rollback giao dịch đơn hàng
             System.err.println("Lỗi khi gọi Invoice Service: " + e.getMessage());
         }
     }
@@ -198,21 +179,11 @@ public class OrderServiceImpl implements OrderService {
     public ResultDTO delete(Integer id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-
-        // Logic xóa mềm (soft delete)
-        if ("DRAFT".equals(order.getStatus())) {
-            // Nếu là nháp thì có thể xóa cứng hoặc trả tồn kho rồi xóa
-            if (order.getOrderDetails() != null && !order.getOrderDetails().isEmpty()) {
-                returnInventory(order.getOrderDetails());
-            }
-            orderRepository.delete(order);
-            return new ResultDTO("success", "Xóa đơn hàng nháp thành công", true);
-        } else {
-            // Nếu đã hoàn thành, chỉ đánh dấu xóa (soft delete)
-            order.setDeletedByUser(true);
-            orderRepository.save(order);
-            return new ResultDTO("success", "Đã ẩn đơn hàng khỏi lịch sử", true);
+        if(!"DRAFT".equals(order.getStatus())) {
+            throw new RuntimeException("Only DRAFT orders can be deleted");
         }
+        orderRepository.delete(order);
+        return new ResultDTO("success", "xoá đơn hàng thành công", true);
     }
 
     @Override

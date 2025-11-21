@@ -1,7 +1,9 @@
 import type {Product} from "./product.ts";
 
 export interface Order {
-    orderId: number;
+    orderId?: number;
+    tempId?: number;
+    tempCode?: string;
     code: string;
     customerName: string;
     total: number;
@@ -45,7 +47,7 @@ export interface OrderSubmitData {
         quantity: number;
         subtotal: number;
     }[];
-    id: number;
+    id: number | null;
     subtotal: number;
     discount: number;
     tax: number;

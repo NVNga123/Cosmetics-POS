@@ -79,26 +79,27 @@ export const OrderList: React.FC<OrderListProps> = ({
             </span>
               </td>
               <td>
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', alignItems: 'center', flexWrap: 'nowrap' }}>
                     
                     {/* Nút Tiếp tục (Chỉ hiện khi là DRAFT) */}
                     {order.status === 'DRAFT' && (
                         <button
                             className="action-btn"
-                            style={{ border: '1px solid #f59e0b', color: '#f59e0b' }}
+                            style={{ border: '1px solid #f59e0b', color: '#f59e0b', margin: 0 }}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onContinueOrder(order);
                             }}
                             title="Tiếp tục thanh toán"
                         >
-                            ✏️
+                            ✅
                         </button>
                     )}
 
                     {/* Nút Xem chi tiết (Luôn hiện) */}
                     <button
                         className="action-btn menu-btn"
+                        style={{ margin: 0 }}
                         onClick={(e) => {
                             e.stopPropagation();
                             onViewOrder(order);

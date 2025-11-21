@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import './SalesScreen.css';
-import type { Order, OrderItem } from '../../types/order.ts';
-import type { Product } from '../../types/product.ts';
-import { ProductCard } from '../../components/sales/ProductCard.tsx';
-import { OrderSummary } from '../../components/sales/OrderSummary.tsx';
-import { InvoiceInfo } from '../../components/sales/InvoiceInfo.tsx';
-import { productApi } from '../../api/productApi.ts';
-import { orderApi } from '../../api/orderApi.ts';
-import { ORDER_STATUS } from '../../constants/orderStatusConstants.ts';
+import type { Order, OrderItem } from '../../types/order';
+import type { Product } from '../../types/product';
+import { ProductCard } from '../../components/sales/ProductCard';
+import { OrderSummary } from '../../components/sales/OrderSummary';
+import { InvoiceInfo } from '../../components/sales/InvoiceInfo';
+import { productApi } from '../../api/productApi';
+import { orderApi } from '../../api/orderApi';
+import { ORDER_STATUS } from '../../constants/orderStatusConstants';
 
-const createNewOrder = (): Order => ({
+const createNewOrder = (index: number): Order => ({
+    tempId: index, // mã đơn hàng hiển thị cho FE
+    tempCode: `ĐH-${index}`,
     orderId: undefined,
     code: '',
     customerName: 'Khách lẻ',
     total: 0,
-    status: ORDER_STATUS.DRAFT,
+    status: 'DRAFT',
     createdDate: undefined,
     items: [],
     notes: '',
@@ -34,8 +36,9 @@ export const SalesScreen: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [searchLoading, setSearchLoading] = useState(false);
+    const [loadingOrder, setLoadingOrder] = useState(false);
 
-    const [orders, setOrders] = useState<Order[]>([createNewOrder()]);
+    const [orders, setOrders] = useState<Order[]>([createNewOrder(1)]);
     const [activeOrderIndex, setActiveOrderIndex] = useState(0);
     const [customerName, setCustomerName] = useState('Khách lẻ');
     const [notes, setNotes] = useState('---');
@@ -43,66 +46,52 @@ export const SalesScreen: React.FC = () => {
     const [paidOrder, setPaidOrder] = useState<Order | null>(null);
 
 
-    // Xử lý callback sau khi thanh toán MoMo/VNPay thành công
     useEffect(() => {
         const checkPaymentCallback = async () => {
             const urlParams = new URLSearchParams(window.location.search);
-            
-            // --- 1. XỬ LÝ VNPAY (LOGIC MỚI) ---
-            // Kiểm tra nếu URL có tham số đặc trưng của VNPay
+
             const vnp_ResponseCode = urlParams.get('vnp_ResponseCode');
-            
             if (vnp_ResponseCode) {
                 const pendingOrderId = localStorage.getItem('pendingPaymentOrderId');
-                
+
                 try {
-                    // Lấy tất cả params từ URL để gửi về Backend xác thực
                     const params = Object.fromEntries(urlParams.entries());
-                    
-                    // Gọi API xác thực chữ ký bảo mật ở Backend
-                    // (Lưu ý: Bạn cần import hàm verifyVNPayPayment từ paymentApi)
                     const { verifyVNPayPayment } = await import('../../api/paymentApi');
                     await verifyVNPayPayment(params);
-                    
-                    console.log('VNPay: Backend xác thực thành công.');
 
-                    // Nếu xác thực OK, nghĩa là Backend đã update status = COMPLETED
-                    // Ta chỉ cần lấy lại đơn hàng để hiển thị
                     if (pendingOrderId) {
                         const orderResult = await orderApi.getById(pendingOrderId);
-                        
+
                         if (orderResult.data && orderResult.data.status === ORDER_STATUS.COMPLETED) {
                             const orderData = orderResult.data;
-                            
-                            // Mapping dữ liệu (Copy từ logic cũ để đảm bảo hiển thị đúng)
+
                             const mappedOrder: Order = {
                                 orderId: orderData.orderId,
-                                code: orderData.code || '',
-                                customerName: orderData.customerName || 'Khách lẻ',
-                                total: orderData.total || 0,
+                                code: orderData.code,
+                                customerName: orderData.customerName,
+                                total: orderData.total,
                                 status: orderData.status,
                                 createdDate: orderData.createdDate,
                                 items: (orderData.items || []).map((item: any) => {
-                                    const unitPrice = item.price || item.unitPrice || 0;
-                                    const quantity = item.quantity || 0;
-                                    const discountedTotal = item.total || item.subtotal || 0;
-                                    const originalTotal = unitPrice * quantity;
-                                    const discountAmount = originalTotal - discountedTotal;
+                                    const unitPrice = item.price;
+                                    const quantity = item.quantity;
+                                    const total = item.total;
+                                    const subtotal = unitPrice * quantity;
                                     return {
                                         productId: item.productId,
                                         product: {
                                             id: item.productId,
-                                            name: item.productName || item.product?.name || 'Sản phẩm',
+                                            name: item.productName,
                                             price: unitPrice,
                                             discount: item.discount || 0,
                                         },
                                         quantity,
-                                        subtotal: originalTotal,
-                                        discountAmount,
-                                        total: discountedTotal,
+                                        subtotal,
+                                        discountAmount: subtotal - total,
+                                        total,
                                     };
                                 }),
-                                notes: orderData.notes || '',
+                                notes: orderData.notes,
                                 paymentMethod: orderData.paymentMethod,
                             };
 
@@ -111,65 +100,56 @@ export const SalesScreen: React.FC = () => {
                         }
                     }
 
-                    // Dọn dẹp URL và LocalStorage sau khi thành công
                     window.history.replaceState({}, document.title, window.location.pathname);
                     localStorage.removeItem('pendingPaymentOrderId');
                     localStorage.removeItem('pendingPaymentMethod');
-
                 } catch (error) {
-                    console.error("Lỗi xác thực VNPay:", error);
-                    alert("Thanh toán thất bại hoặc chữ ký không hợp lệ!");
-                    // Dọn dẹp để tránh kẹt
-                    localStorage.removeItem('pendingPaymentOrderId');
-                    localStorage.removeItem('pendingPaymentMethod');
+                    alert("Thanh toán thất bại!");
                 }
-                return; // Kết thúc xử lý VNPay
+                return;
             }
 
-            // --- 2. XỬ LÝ MOMO (LOGIC CŨ - GIỮ NGUYÊN) ---
             const resultCode = urlParams.get('resultCode');
             const pendingOrderId = localStorage.getItem('pendingPaymentOrderId');
             const pendingPaymentMethod = localStorage.getItem('pendingPaymentMethod');
-            const isPaymentSuccess = resultCode === '0' || resultCode === '9000';
+            const success = resultCode === '0' || resultCode === '9000';
 
-            if (isPaymentSuccess && pendingOrderId && pendingPaymentMethod === 'momo') {
-                console.log('MoMo payment successful. Loading invoice for order:', pendingOrderId);
-                
-                const fetchOrderWithRetry = async (retries = 5, delay = 1000) => {
+            if (success && pendingOrderId && pendingPaymentMethod === 'momo') {
+                const fetchOrderWithRetry = async (retries = 5) => {
                     for (let i = 0; i < retries; i++) {
                         try {
                             const orderResult = await orderApi.getById(pendingOrderId);
                             if (orderResult.data && orderResult.data.status === ORDER_STATUS.COMPLETED) {
-                                // Logic map cũ của MoMo
                                 const orderData = orderResult.data;
+
                                 const mappedOrder: Order = {
                                     orderId: orderData.orderId,
-                                    code: orderData.code || '',
-                                    customerName: orderData.customerName || 'Khách lẻ',
-                                    total: orderData.total || 0,
+                                    code: orderData.code,
+                                    customerName: orderData.customerName,
+                                    total: orderData.total,
                                     status: orderData.status,
                                     createdDate: orderData.createdDate,
                                     items: (orderData.items || []).map((item: any) => {
-                                        const unitPrice = item.price || item.unitPrice || 0;
-                                        const quantity = item.quantity || 0;
-                                        const discountedTotal = item.total || item.subtotal || 0;
-                                        const originalTotal = unitPrice * quantity;
-                                        const discountAmount = originalTotal - discountedTotal;
+                                        const unitPrice = item.price;
+                                        const quantity = item.quantity;
+                                        const total = item.total;
+                                        const subtotal = unitPrice * quantity;
+
                                         return {
                                             productId: item.productId,
                                             product: {
                                                 id: item.productId,
-                                                name: item.productName || item.product?.name || 'SP',
+                                                name: item.productName,
                                                 price: unitPrice,
                                                 discount: item.discount || 0,
                                             },
                                             quantity,
-                                            subtotal: originalTotal,
-                                            discountAmount,
-                                            total: discountedTotal,
+                                            subtotal,
+                                            discountAmount: subtotal - total,
+                                            total,
                                         };
                                     }),
-                                    notes: orderData.notes || '',
+                                    notes: orderData.notes,
                                     paymentMethod: orderData.paymentMethod,
                                 };
 
@@ -180,171 +160,82 @@ export const SalesScreen: React.FC = () => {
                                 window.history.replaceState({}, document.title, window.location.pathname);
                                 return;
                             }
-                        } catch (error) {
-                            console.error(`Lỗi khi lấy thông tin đơn hàng (lần thử ${i + 1}/${retries}):`, error);
-                        }
-                        if (i < retries - 1) await new Promise(resolve => setTimeout(resolve, delay));
+                        } catch (e) {}
                     }
-                    console.warn('Không thể lấy thông tin đơn hàng sau thanh toán sau nhiều lần thử');
+
                     localStorage.removeItem('pendingPaymentOrderId');
                     localStorage.removeItem('pendingPaymentMethod');
                 };
-                fetchOrderWithRetry();
 
-            } else if (resultCode && resultCode !== '0' && resultCode !== '9000') {
-                console.warn('Payment failed with resultCode:', resultCode);
-                alert('Thanh toán thất bại. Vui lòng thử lại.');
-                localStorage.removeItem('pendingPaymentOrderId');
-                localStorage.removeItem('pendingPaymentMethod');
+                fetchOrderWithRetry();
             }
         };
 
         checkPaymentCallback();
     }, [location.search]);
 
-    // Kiểm tra localStorage khi component mount (trường hợp redirect về mà không có query params hoặc chưa được xử lý)
-    useEffect(() => {
-        // Chỉ kiểm tra nếu không có query params (đã được xử lý ở useEffect trên)
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasQueryParams = urlParams.toString().length > 0;
-        
-        // Nếu đã có query params, useEffect trên sẽ xử lý, không cần xử lý ở đây
-        if (hasQueryParams) return;
-        
-        const pendingOrderId = localStorage.getItem('pendingPaymentOrderId');
-        const pendingPaymentMethod = localStorage.getItem('pendingPaymentMethod');
-        
-        if (pendingOrderId && (pendingPaymentMethod === 'momo' || pendingPaymentMethod === 'bank' || pendingPaymentMethod === 'tmck')) {
-            // Chỉ xử lý nếu chưa có InvoiceInfo đang hiển thị
-            if (!showInvoiceInfo) {
-                console.log('Checking pending payment on mount. Order:', pendingOrderId, 'Method:', pendingPaymentMethod);
-                const fetchOrderWithRetry = async (retries = 5, delay = 1000) => {
-                    for (let i = 0; i < retries; i++) {
-                        try {
-                            const orderResult = await orderApi.getById(pendingOrderId);
-                            if (orderResult.data && orderResult.data.status === ORDER_STATUS.COMPLETED) {
-                                const orderData = orderResult.data;
-                                const mappedOrder: Order = {
-                                    orderId: orderData.orderId,
-                                    code: orderData.code || '',
-                                    customerName: orderData.customerName || 'Khách lẻ',
-                                    total: orderData.total || 0,
-                                    status: orderData.status,
-                                    createdDate: orderData.createdDate,
-                                    items: (orderData.items || []).map((item: any) => {
-                                        const unitPrice = item.price || item.unitPrice || 0;
-                                        const quantity = item.quantity || 0;
-                                        const discountedTotal = item.total || item.subtotal || 0;
-                                        const originalTotal = unitPrice * quantity;
-                                        const discountAmount = originalTotal - discountedTotal;
-
-                                        return {
-                                            productId: item.productId,
-                                            product: {
-                                                id: item.productId,
-                                                name: item.productName || item.product?.name || 'Sản phẩm không xác định',
-                                                price: unitPrice,
-                                                discount: item.discount || 0,
-                                            },
-                                            quantity,
-                                            subtotal: originalTotal,
-                                            discountAmount,
-                                            total: discountedTotal,
-                                        };
-                                    }),
-                                    notes: orderData.notes || '',
-                                    paymentMethod: orderData.paymentMethod,
-                                };
-
-                                setPaidOrder(mappedOrder);
-                                setShowInvoiceInfo(true);
-                                localStorage.removeItem('pendingPaymentOrderId');
-                                localStorage.removeItem('pendingPaymentMethod');
-                                return;
-                            }
-                        } catch (error) {
-                            console.error(`Lỗi khi lấy thông tin đơn hàng (lần thử ${i + 1}/${retries}):`, error);
-                        }
-                        
-                        if (i < retries - 1) {
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                        }
-                    }
-                    
-                    localStorage.removeItem('pendingPaymentOrderId');
-                    localStorage.removeItem('pendingPaymentMethod');
-                };
-
-                fetchOrderWithRetry();
-            }
-        }
-    }, []); // Chỉ chạy khi component mount
-
-    // Xử lý khi có orderId trong URL (sau khi redirect từ MoMo)
+    // load order from URL
     useEffect(() => {
         const loadOrderFromUrl = async () => {
             if (orderIdParam) {
                 try {
-                    setLoading(true);
-                    const orderResult = await orderApi.getById(orderIdParam);
-                    
-                    if (orderResult.data) {
-                        const orderData = orderResult.data;
-                        
-                        // Map dữ liệu từ Backend về cấu trúc Frontend
+                    setLoadingOrder(true);
+                    const result = await orderApi.getById(orderIdParam);
+
+                    if (result.data) {
+                        const orderData = result.data;
+
                         const mappedOrder: Order = {
                             orderId: orderData.orderId,
                             code: orderData.code || '',
+                            tempCode: '', //orderID != null -> tempCode == null
                             customerName: orderData.customerName || 'Khách lẻ',
                             total: orderData.total || 0,
-                            status: orderData.status,
+                            status: orderData.status || ORDER_STATUS.DRAFT,
                             createdDate: orderData.createdDate,
                             items: (orderData.items || []).map((item: any) => {
-                                // Xử lý giá trị số an toàn
                                 const unitPrice = item.price || item.unitPrice || 0;
                                 const quantity = item.quantity || 0;
-                                const subtotal = item.subtotal || (unitPrice * quantity);
-                                const total = item.total || subtotal; // Tổng sau giảm giá
-                                const discountAmount = subtotal - total;
+                                const itemTotal = item.total || item.subtotal || item.totalPrice || 0;
+                                const subtotal = unitPrice * quantity;
+                                const discountAmount = Math.max(0, subtotal - itemTotal);
 
                                 return {
-                                    productId: item.productId, // Quan trọng: phải khớp ID để update/xóa hoạt động
+                                    productId: item.productId || '',
                                     product: {
-                                        id: item.productId,
-                                        name: item.productName || item.product?.name || 'Sản phẩm',
+                                        id: item.productId || '',
+                                        name: item.productName || item.product?.name || 'Sản phẩm không xác định',
                                         price: unitPrice,
-                                        image: item.product?.image || item.image || '', // Đảm bảo có ảnh nếu có
-                                        discount: item.product?.discount || 0,
-                                        stock: item.product?.stock || 999 // Fallback nếu thiếu stock
+                                        image: item.image || item.product?.image || '',
+                                        discount: item.discount || 0,
+                                        stock: item.stock || item.product?.stock || 999,
                                     },
-                                    quantity: quantity,
-                                    subtotal: subtotal,
-                                    discountAmount: discountAmount,
-                                    total: total,
+                                    quantity,
+                                    subtotal,
+                                    discountAmount,
+                                    total: itemTotal,
                                 };
                             }),
                             notes: orderData.notes || '',
                             paymentMethod: orderData.paymentMethod,
                         };
 
-                        // Cập nhật State
                         setOrders([mappedOrder]);
                         setActiveOrderIndex(0);
                         setCustomerName(mappedOrder.customerName);
-                        setNotes(mappedOrder.notes);
+                        setNotes(mappedOrder.notes || '---');
 
-                        // Nếu đơn đã hoàn thành thì hiện hóa đơn luôn
-                        if (orderData.status === 'COMPLETED') {
+                        if (orderData.status === ORDER_STATUS.COMPLETED) {
                             setPaidOrder(mappedOrder);
                             setShowInvoiceInfo(true);
                         }
                     }
                 } catch (error) {
-                    console.error('Lỗi tải đơn hàng:', error);
-                    alert('Không tìm thấy đơn hàng hoặc có lỗi xảy ra.');
-                    navigate('/user/sales'); // Quay về trang bán mới nếu lỗi
+                    console.error('Lỗi khi load order từ URL:', error);
+                    alert("Không tìm thấy đơn hàng");
+                    navigate('/user/sales');
                 } finally {
-                    setLoading(false);
+                    setLoadingOrder(false);
                 }
             }
         };
@@ -352,57 +243,13 @@ export const SalesScreen: React.FC = () => {
         loadOrderFromUrl();
     }, [orderIdParam, navigate]);
 
-    useEffect(() => {
-        if (location.state?.selectedOrder) {
-            const orderData = location.state.selectedOrder;
-
-            const mappedOrder: Order = {
-                orderId: orderData.id || undefined,
-                code: orderData.code || '',
-                customerName: orderData.customerName || 'Khách lẻ',
-                total: orderData.finalPrice || 0,
-                status: orderData.status || ORDER_STATUS.DRAFT,
-                createdDate: orderData.createdDate,
-                items: (orderData.items || orderData.orderDetails || []).map((item: any) => {
-                    const unitPrice = item.price || item.unitPrice || 0;
-                    const quantity = item.quantity || item.quantityProduct || 0;
-                    const discountedTotal = item.subtotal || item.totalPrice || 0;
-                    const originalTotal = unitPrice * quantity;
-                    const discountAmount = originalTotal - discountedTotal;
-
-                    return {
-                        productId: item.productId,
-                        product: {
-                            id: item.productId,
-                            name: item.productName,
-                            price: unitPrice,
-                            discount: item.discount || 0,
-                        },
-                        quantity,
-                        subtotal: originalTotal,
-                        discountAmount,
-                        total: discountedTotal,
-                    };
-                }),
-                notes: orderData.notes || '',
-                paymentMethod: orderData.paymentMethod,
-            };
-
-            setOrders([mappedOrder]);
-            setCustomerName(mappedOrder.customerName);
-            setNotes(mappedOrder.notes || '');
-            setActiveOrderIndex(0);
-        }
-    }, [location.state]);
-
-
+    // Load products
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await productApi.getAllProducts();
-                const productsData = response.result || [];
-                setProducts(productsData);
-                setFilteredProducts(productsData);
+                const res = await productApi.getAllProducts();
+                setProducts(res.result || []);
+                setFilteredProducts(res.result || []);
             } finally {
                 setLoading(false);
             }
@@ -410,32 +257,35 @@ export const SalesScreen: React.FC = () => {
         fetchProducts();
     }, []);
 
-
+    // Search product
     useEffect(() => {
         const searchProducts = async () => {
             if (!searchQuery.trim()) {
                 setFilteredProducts(products);
                 return;
             }
+
             try {
                 setSearchLoading(true);
-                const response = await productApi.searchProducts(searchQuery);
-                setFilteredProducts(response.result || []);
-            } catch {
-                const localFiltered = products.filter(p =>
-                    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-                );
-                setFilteredProducts(localFiltered);
+                const res = await productApi.searchProducts(searchQuery);
+                setFilteredProducts(res.result || []);
             } finally {
                 setSearchLoading(false);
             }
         };
-        const timeoutId = setTimeout(searchProducts, 300);
-        return () => clearTimeout(timeoutId);
+
+        const timer = setTimeout(searchProducts, 300);
+        return () => clearTimeout(timer);
     }, [searchQuery, products]);
 
-
+    // Add to order
     const addToOrder = (product: Product) => {
+        // ensure there is at least one order (safety)
+        if (orders.length === 0) {
+            setOrders([createNewOrder(1)]);
+            setActiveOrderIndex(0);
+        }
+
         const discount = product.discount ?? 0;
         const discounted = discount > 0 ? product.price - (product.price * discount) / 100 : product.price;
         const discountPerUnit = product.price - discounted;
@@ -448,13 +298,13 @@ export const SalesScreen: React.FC = () => {
         if (existingItem) {
             updatedItems = currentOrder.items.map(item =>
                 item.productId === product.id
-                    ? ({
+                    ? {
                         ...item,
                         quantity: item.quantity + 1,
                         subtotal: (item.quantity + 1) * product.price,
                         discountAmount: (item.quantity + 1) * discountPerUnit,
                         total: (item.quantity + 1) * discounted,
-                    })
+                    }
                     : item
             );
         } else {
@@ -467,13 +317,12 @@ export const SalesScreen: React.FC = () => {
                     subtotal: product.price,
                     discountAmount: discountPerUnit,
                     total: discounted,
-                }
+                },
             ];
         }
 
         updateOrder(updatedItems);
     };
-
 
     const updateOrder = (items: OrderItem[]) => {
         const totalAfterDiscount = items.reduce((sum, item) => sum + item.total, 0);
@@ -482,17 +331,23 @@ export const SalesScreen: React.FC = () => {
 
         setOrders(prev => {
             const updated = [...prev];
-            updated[activeOrderIndex] = { ...updated[activeOrderIndex], items, total };
+            // safety: if active index out of bounds, use 0
+            const idx = activeOrderIndex < updated.length ? activeOrderIndex : 0;
+            updated[idx] = {
+                ...updated[idx],
+                items,
+                total,
+            };
             return updated;
         });
     };
 
-
     const removeFromOrder = (productId: string) => {
-        const updatedItems = orders[activeOrderIndex].items.filter(item => item.productId !== productId);
+        const current = orders[activeOrderIndex];
+        if (!current) return;
+        const updatedItems = current.items.filter(item => item.productId !== productId);
         updateOrder(updatedItems);
     };
-
 
     const updateQuantity = (productId: string, quantity: number) => {
         if (quantity <= 0) {
@@ -500,12 +355,16 @@ export const SalesScreen: React.FC = () => {
             return;
         }
 
-        const updatedItems = orders[activeOrderIndex].items.map(item => {
+        const current = orders[activeOrderIndex];
+        if (!current) return;
+
+        const updatedItems = current.items.map(item => {
             if (item.productId === productId && item.product) {
                 const discount = item.product.discount ?? 0;
                 const discounted = discount > 0
                     ? item.product.price - (item.product.price * discount) / 100
                     : item.product.price;
+
                 const discountPerUnit = item.product.price - discounted;
 
                 return {
@@ -522,20 +381,19 @@ export const SalesScreen: React.FC = () => {
         updateOrder(updatedItems);
     };
 
-
+    // send data BE — không có tempCode
     const buildOrderData = (status: string, paymentMethod?: string, transferAmount?: number) => {
         const currentOrder = orders[activeOrderIndex];
-
-        const subtotal = currentOrder.items.reduce((sum, i) => sum + i.subtotal, 0);
-        const discount = currentOrder.items.reduce((sum, i) => sum + (i.subtotal - i.total), 0);
+        const subtotal = (currentOrder?.items || []).reduce((sum, i) => sum + i.subtotal, 0);
+        const discount = (currentOrder?.items || []).reduce((sum, i) => sum + (i.subtotal - i.total), 0);
         const totalAfterDiscount = subtotal - discount;
         const tax = totalAfterDiscount * 0.1;
         const total = totalAfterDiscount + tax;
 
         return {
-            id: currentOrder.orderId ?? null,
-            items: currentOrder.items.map(item => ({
-                productId: String(item.productId),
+            id: currentOrder?.orderId ?? null,
+            items: (currentOrder?.items || []).map(item => ({
+                productId: item.productId || '',
                 productName: item.product?.name || '',
                 price: item.product?.price || 0,
                 quantity: item.quantity,
@@ -554,14 +412,15 @@ export const SalesScreen: React.FC = () => {
         };
     };
 
-
+    // Save order draft
     const handleSaveOrder = async () => {
         try {
             const currentOrder = orders[activeOrderIndex];
             const payload = buildOrderData(ORDER_STATUS.DRAFT);
 
             let result;
-            if (currentOrder.orderId) {
+
+            if (currentOrder && currentOrder.orderId) {
                 result = await orderApi.updateOrder(currentOrder.orderId, payload);
             } else {
                 result = await orderApi.submitOrder(payload);
@@ -569,9 +428,11 @@ export const SalesScreen: React.FC = () => {
 
             setOrders(prev => {
                 const newOrders = [...prev];
-                newOrders[activeOrderIndex] = {
-                    ...newOrders[activeOrderIndex],
+                const idx = activeOrderIndex < newOrders.length ? activeOrderIndex : 0;
+                newOrders[idx] = {
+                    ...newOrders[idx],
                     orderId: result.data.orderId,
+                    code: result.data.code, // update code từ BE
                     status: ORDER_STATUS.DRAFT,
                     createdDate: result.data.createdDate,
                 };
@@ -584,87 +445,66 @@ export const SalesScreen: React.FC = () => {
         }
     };
 
-
-    const handleCheckout = async (paymentMethod?: string, transferAmount?: number): Promise<number | undefined> => {
+    // thanh toán
+    const handleCheckout = async (paymentMethod?: string, transferAmount?: number) => {
         try {
             const currentOrder = orders[activeOrderIndex];
             const payload = buildOrderData(ORDER_STATUS.COMPLETED, paymentMethod, transferAmount);
 
             let result;
 
-            if (currentOrder.orderId && currentOrder.status === ORDER_STATUS.DRAFT) {
+            if (currentOrder && currentOrder.orderId && currentOrder.status === ORDER_STATUS.DRAFT) {
                 result = await orderApi.updateOrder(currentOrder.orderId, payload);
             } else {
                 result = await orderApi.submitOrder(payload);
             }
 
-            // Debug: log response để kiểm tra
-            console.log('Checkout response:', result);
-            console.log('Result data:', result.data);
-            
-            if (!result.data) {
-                console.error('Response data is null or undefined:', result);
-                throw new Error('Không nhận được dữ liệu từ server');
-            }
-
-            const orderId = result.data.orderId || result.data.id; // Hỗ trợ cả orderId và id
-
-            if (!orderId) {
-                console.error('OrderId is missing in response:', result.data);
-                throw new Error('Không nhận được orderId từ server sau khi lưu đơn hàng');
-            }
+            const orderId = result.data.orderId;
+            const code = result.data.code;
 
             const updatedOrder: Order = {
                 ...orders[activeOrderIndex],
-                orderId: orderId,
+                orderId,
+                code,    // save code from BE response
                 status: ORDER_STATUS.COMPLETED,
                 paymentMethod,
-                createdDate: result.data.createdDate || result.data.createdAt,
+                createdDate: result.data.createdDate,
             };
 
             setOrders(prev => {
                 const updated = [...prev];
-                updated[activeOrderIndex] = updatedOrder;
+                const idx = activeOrderIndex < updated.length ? activeOrderIndex : 0;
+                updated[idx] = updatedOrder;
                 return updated;
             });
 
-            // Lưu orderId vào localStorage để xử lý callback sau khi thanh toán online
-            if (orderId) {
-                localStorage.setItem('pendingPaymentOrderId', String(orderId));
-                localStorage.setItem('pendingPaymentMethod', paymentMethod || '');
-            }
+            localStorage.setItem('pendingPaymentOrderId', String(orderId));
+            localStorage.setItem('pendingPaymentMethod', paymentMethod || '');
 
-            // Chỉ hiển thị InvoiceInfo cho thanh toán tiền mặt
-            // Các phương thức khác sẽ redirect đến cổng thanh toán
             if (paymentMethod === 'cash') {
                 setPaidOrder(updatedOrder);
                 setShowInvoiceInfo(true);
-                // Xóa localStorage vì đã xử lý xong
                 localStorage.removeItem('pendingPaymentOrderId');
                 localStorage.removeItem('pendingPaymentMethod');
             }
 
-            // Trả về orderId để PaymentModal sử dụng
             return orderId;
-
         } catch (err) {
             console.error(err);
             throw err;
         }
     };
-
+    // create invoice
     const handleCreateInvoice = () => {
-        // Có thể thêm logic in hóa đơn hoặc lưu PDF ở đây
-        // Hiện tại chỉ đóng và tạo đơn hàng mới
         window.print();
         handleCancelInvoice();
     };
 
+    // cancel invoice
     const handleCancelInvoice = () => {
         setShowInvoiceInfo(false);
         setPaidOrder(null);
-        // Tạo đơn hàng mới sau khi hủy
-        setOrders([createNewOrder()]);
+        setOrders([createNewOrder(1)]);
         setActiveOrderIndex(0);
         setCustomerName('Khách lẻ');
         setNotes('---');
@@ -723,65 +563,67 @@ export const SalesScreen: React.FC = () => {
                 </div>
 
                 {/* ORDER SUMMARY */}
-                <OrderSummary
-                    order={orders[activeOrderIndex]}
-                    orders={orders}
-                    activeOrderIndex={activeOrderIndex}
+                {/* safety: only render OrderSummary when we have at least one order and not loading order */}
+                {!loadingOrder && orders.length > 0 && orders[activeOrderIndex] && (
+                    <OrderSummary
+                        order={orders[activeOrderIndex]}
+                        orders={orders}
+                        activeOrderIndex={activeOrderIndex}
+                        customerName={customerName}
+                        notes={notes}
+                        onUpdateQuantity={updateQuantity}
+                        onRemoveItem={removeFromOrder}
+                        onCheckout={handleCheckout}
+                        onSaveOrder={handleSaveOrder}
+                        onCustomerNameChange={name => {
+                            setCustomerName(name);
+                            setOrders(prev => {
+                                const updated = [...prev];
+                                const idx = activeOrderIndex < updated.length ? activeOrderIndex : 0;
+                                updated[idx].customerName = name;
+                                return updated;
+                            });
+                        }}
+                        onNotesChange={text => {
+                            setNotes(text);
+                            setOrders(prev => {
+                                const updated = [...prev];
+                                const idx = activeOrderIndex < updated.length ? activeOrderIndex : 0;
+                                updated[idx].notes = text;
+                                return updated;
+                            });
+                        }}
+                        onAddOrder={() => {
+                            setOrders(prev => {
+                                const newIndex = prev.length + 1;
+                                const newOrder = createNewOrder(newIndex);
+                                return [...prev, newOrder];
+                            });
 
-                    customerName={customerName}
-                    notes={notes}
+                            setActiveOrderIndex(prev => prev + 1);
+                            setCustomerName('Khách lẻ');
+                            setNotes('---');
+                        }}
+                        onSwitchOrder={index => {
+                            setActiveOrderIndex(index);
+                            setCustomerName(orders[index]?.customerName || 'Khách lẻ');
+                            setNotes(orders[index]?.notes || '---');
+                        }}
+                        onDeleteOrder={index => {
+                            if (orders.length === 1) {
+                                alert('Không thể xóa đơn cuối cùng');
+                                return;
+                            }
 
-                    onUpdateQuantity={updateQuantity}
-                    onRemoveItem={removeFromOrder}
+                            const newOrders = orders.filter((_, i) => i !== index);
+                            setOrders(newOrders);
+                            setActiveOrderIndex(0);
+                            setCustomerName(newOrders[0]?.customerName || 'Khách lẻ');
+                            setNotes(newOrders[0]?.notes || '---');
+                        }}
+                    />
+                )}
 
-                    onCheckout={handleCheckout}
-                    onSaveOrder={handleSaveOrder}
-
-                    onCustomerNameChange={name => {
-                        setCustomerName(name);
-                        setOrders(prev => {
-                            const updated = [...prev];
-                            updated[activeOrderIndex].customerName = name;
-                            return updated;
-                        });
-                    }}
-
-                    onNotesChange={text => {
-                        setNotes(text);
-                        setOrders(prev => {
-                            const updated = [...prev];
-                            updated[activeOrderIndex].notes = text;
-                            return updated;
-                        });
-                    }}
-
-                    onAddOrder={() => {
-                        setOrders(prev => [...prev, createNewOrder()]);
-                        setActiveOrderIndex(orders.length);
-                        setCustomerName('Khách lẻ');
-                        setNotes('---');
-                    }}
-
-                    onSwitchOrder={index => {
-                        setActiveOrderIndex(index);
-                        setCustomerName(orders[index].customerName || 'Khách lẻ');
-                        setNotes(orders[index].notes || '---');
-                    }}
-
-                    onDeleteOrder={index => {
-                        if (orders.length === 1) {
-                            alert('Không thể xóa đơn cuối cùng');
-                            return;
-                        }
-                        const newOrders = orders.filter((_, i) => i !== index);
-                        setOrders(newOrders);
-                        setActiveOrderIndex(0);
-                        setCustomerName(newOrders[0].customerName || 'Khách lẻ');
-                        setNotes(newOrders[0].notes || '---');
-                    }}
-                />
-
-                {/* Invoice Info Modal - chỉ hiển thị sau khi thanh toán thành công */}
                 {paidOrder && (
                     <InvoiceInfo
                         order={paidOrder}
