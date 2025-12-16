@@ -59,44 +59,102 @@ export const SalesScreen: React.FC = () => {
                     const { verifyVNPayPayment } = await import('../../api/paymentApi');
                     await verifyVNPayPayment(params);
 
+                    const isPaymentSuccess = vnp_ResponseCode === '00';
+
+                    if (!isPaymentSuccess) {
+                        alert("Thanh toán thất bại! Mã lỗi: " + vnp_ResponseCode);
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        localStorage.removeItem('pendingPaymentOrderId');
+                        localStorage.removeItem('pendingPaymentMethod');
+                        return;
+                    }
+
                     if (pendingOrderId) {
+                        // Lấy thông tin order hiện tại
                         const orderResult = await orderApi.getById(pendingOrderId);
+                        const orderData = orderResult.data;
 
-                        if (orderResult.data && orderResult.data.status === ORDER_STATUS.COMPLETED) {
-                            const orderData = orderResult.data;
+                        if (orderData) {
+                            // Chỉ update khi thanh toán thành công (vnp_ResponseCode === "00")
+                            if (orderData.status === ORDER_STATUS.DRAFT) {
+                                // Build payload từ orderData hiện có, chỉ thay đổi status
+                                const items = (orderData.items || []).map((item: any) => ({
+                                    productId: item.productId || '',
+                                    productName: item.productName || '',
+                                    price: item.price || item.unitPrice || 0,
+                                    quantity: item.quantity || 0,
+                                    subtotal: item.total || item.subtotal || 0,
+                                }));
+                                const subtotal = items.reduce((sum: number, item: any) => sum + (item.subtotal || 0), 0);
+                                // Tính discount từ items (tổng subtotal - tổng total của từng item)
+                                const calculatedDiscount = items.reduce((sum: number, item: any) => {
+                                    const itemSubtotal = (item.price || 0) * (item.quantity || 0);
+                                    return sum + (itemSubtotal - (item.subtotal || 0));
+                                }, 0);
+                                const discount = (orderData as any).discount || calculatedDiscount || 0;
+                                const totalAfterDiscount = subtotal - discount;
+                                const tax = totalAfterDiscount * 0.1;
+                                const total = totalAfterDiscount + tax;
 
-                            const mappedOrder: Order = {
-                                orderId: orderData.orderId,
-                                code: orderData.code,
-                                customerName: orderData.customerName,
-                                total: orderData.total,
-                                status: orderData.status,
-                                createdDate: orderData.createdDate,
-                                items: (orderData.items || []).map((item: any) => {
-                                    const unitPrice = item.price;
-                                    const quantity = item.quantity;
-                                    const total = item.total;
-                                    const subtotal = unitPrice * quantity;
-                                    return {
-                                        productId: item.productId,
-                                        product: {
-                                            id: item.productId,
-                                            name: item.productName,
-                                            price: unitPrice,
-                                            discount: item.discount || 0,
-                                        },
-                                        quantity,
-                                        subtotal,
-                                        discountAmount: subtotal - total,
-                                        total,
-                                    };
-                                }),
-                                notes: orderData.notes,
-                                paymentMethod: orderData.paymentMethod,
-                            };
+                                // Lấy transferAmount từ localStorage hoặc orderData
+                                const storedTransferAmount = localStorage.getItem('pendingTransferAmount');
+                                const transferAmount = (orderData as any).transferAmount 
+                                    || (storedTransferAmount ? Number(storedTransferAmount) : 0);
 
-                            setPaidOrder(mappedOrder);
-                            setShowInvoiceInfo(true);
+                                const updatePayload = {
+                                    id: Number(pendingOrderId),
+                                    items,
+                                    subtotal,
+                                    discount,
+                                    tax,
+                                    total,
+                                    customerName: orderData.customerName || 'Khách lẻ',
+                                    notes: orderData.notes || '',
+                                    status: ORDER_STATUS.COMPLETED,
+                                    paymentMethod: orderData.paymentMethod,
+                                    cashAmount: orderData.paymentMethod === 'cash' ? total : 0,
+                                    transferAmount: orderData.paymentMethod !== 'cash' ? transferAmount : 0,
+                                };
+                                await orderApi.updateOrder(pendingOrderId, updatePayload);
+                            }
+
+                            const updatedOrderResult = await orderApi.getById(pendingOrderId);
+                            const updatedOrderData = updatedOrderResult.data;
+
+                            if (updatedOrderData && updatedOrderData.status === ORDER_STATUS.COMPLETED) {
+                                const mappedOrder: Order = {
+                                    orderId: updatedOrderData.orderId,
+                                    code: updatedOrderData.code,
+                                    customerName: updatedOrderData.customerName,
+                                    total: updatedOrderData.total,
+                                    status: updatedOrderData.status,
+                                    createdDate: updatedOrderData.createdDate,
+                                    items: (updatedOrderData.items || []).map((item: any) => {
+                                        const unitPrice = item.price;
+                                        const quantity = item.quantity;
+                                        const total = item.total;
+                                        const subtotal = unitPrice * quantity;
+                                        return {
+                                            productId: item.productId,
+                                            product: {
+                                                id: item.productId,
+                                                name: item.productName,
+                                                price: unitPrice,
+                                                discount: item.discount || 0,
+                                            },
+                                            quantity,
+                                            subtotal,
+                                            discountAmount: subtotal - total,
+                                            total,
+                                        };
+                                    }),
+                                    notes: updatedOrderData.notes,
+                                    paymentMethod: updatedOrderData.paymentMethod,
+                                };
+
+                                setPaidOrder(mappedOrder);
+                                setShowInvoiceInfo(true);
+                            }
                         }
                     }
 
@@ -119,48 +177,99 @@ export const SalesScreen: React.FC = () => {
                     for (let i = 0; i < retries; i++) {
                         try {
                             const orderResult = await orderApi.getById(pendingOrderId);
-                            if (orderResult.data && orderResult.data.status === ORDER_STATUS.COMPLETED) {
-                                const orderData = orderResult.data;
+                            const orderData = orderResult.data;
 
-                                const mappedOrder: Order = {
-                                    orderId: orderData.orderId,
-                                    code: orderData.code,
-                                    customerName: orderData.customerName,
-                                    total: orderData.total,
-                                    status: orderData.status,
-                                    createdDate: orderData.createdDate,
-                                    items: (orderData.items || []).map((item: any) => {
-                                        const unitPrice = item.price;
-                                        const quantity = item.quantity;
-                                        const total = item.total;
-                                        const subtotal = unitPrice * quantity;
+                            if (orderData) {
+                                // Nếu order đang ở trạng thái DRAFT, update lên COMPLETED
+                                if (orderData.status === ORDER_STATUS.DRAFT) {
+                                    // Build payload từ orderData hiện có, chỉ thay đổi status
+                                    const items = (orderData.items || []).map((item: any) => ({
+                                        productId: item.productId || '',
+                                        productName: item.productName || '',
+                                        price: item.price || item.unitPrice || 0,
+                                        quantity: item.quantity || 0,
+                                        subtotal: item.total || item.subtotal || 0,
+                                    }));
+                                    const subtotal = items.reduce((sum: number, item: any) => sum + (item.subtotal || 0), 0);
+                                    // Tính discount từ items (tổng subtotal - tổng total của từng item)
+                                    const calculatedDiscount = items.reduce((sum: number, item: any) => {
+                                        const itemSubtotal = (item.price || 0) * (item.quantity || 0);
+                                        return sum + (itemSubtotal - (item.subtotal || 0));
+                                    }, 0);
+                                    const discount = (orderData as any).discount || calculatedDiscount || 0;
+                                    const totalAfterDiscount = subtotal - discount;
+                                    const tax = totalAfterDiscount * 0.1;
+                                    const total = totalAfterDiscount + tax;
 
-                                        return {
-                                            productId: item.productId,
-                                            product: {
-                                                id: item.productId,
-                                                name: item.productName,
-                                                price: unitPrice,
-                                                discount: item.discount || 0,
-                                            },
-                                            quantity,
-                                            subtotal,
-                                            discountAmount: subtotal - total,
-                                            total,
-                                        };
-                                    }),
-                                    notes: orderData.notes,
-                                    paymentMethod: orderData.paymentMethod,
-                                };
+                                    // Lấy transferAmount từ localStorage hoặc orderData
+                                    const storedTransferAmount = localStorage.getItem('pendingTransferAmount');
+                                    const transferAmount = (orderData as any).transferAmount 
+                                        || (storedTransferAmount ? Number(storedTransferAmount) : 0);
 
-                                setPaidOrder(mappedOrder);
-                                setShowInvoiceInfo(true);
-                                localStorage.removeItem('pendingPaymentOrderId');
-                                localStorage.removeItem('pendingPaymentMethod');
-                                window.history.replaceState({}, document.title, window.location.pathname);
-                                return;
+                                    const updatePayload = {
+                                        id: Number(pendingOrderId),
+                                        items,
+                                        subtotal,
+                                        discount,
+                                        tax,
+                                        total,
+                                        customerName: orderData.customerName || 'Khách lẻ',
+                                        notes: orderData.notes || '',
+                                        status: ORDER_STATUS.COMPLETED,
+                                        paymentMethod: orderData.paymentMethod,
+                                        cashAmount: orderData.paymentMethod === 'cash' ? total : 0,
+                                        transferAmount: orderData.paymentMethod !== 'cash' ? transferAmount : 0,
+                                    };
+                                    await orderApi.updateOrder(pendingOrderId, updatePayload);
+                                }
+
+                                // Lấy lại order sau khi update
+                                const updatedOrderResult = await orderApi.getById(pendingOrderId);
+                                const updatedOrderData = updatedOrderResult.data;
+
+                                if (updatedOrderData && updatedOrderData.status === ORDER_STATUS.COMPLETED) {
+                                    const mappedOrder: Order = {
+                                        orderId: updatedOrderData.orderId,
+                                        code: updatedOrderData.code,
+                                        customerName: updatedOrderData.customerName,
+                                        total: updatedOrderData.total,
+                                        status: updatedOrderData.status,
+                                        createdDate: updatedOrderData.createdDate,
+                                        items: (updatedOrderData.items || []).map((item: any) => {
+                                            const unitPrice = item.price;
+                                            const quantity = item.quantity;
+                                            const total = item.total;
+                                            const subtotal = unitPrice * quantity;
+
+                                            return {
+                                                productId: item.productId,
+                                                product: {
+                                                    id: item.productId,
+                                                    name: item.productName,
+                                                    price: unitPrice,
+                                                    discount: item.discount || 0,
+                                                },
+                                                quantity,
+                                                subtotal,
+                                                discountAmount: subtotal - total,
+                                                total,
+                                            };
+                                        }),
+                                        notes: updatedOrderData.notes,
+                                        paymentMethod: updatedOrderData.paymentMethod,
+                                    };
+
+                                    setPaidOrder(mappedOrder);
+                                    setShowInvoiceInfo(true);
+                                    localStorage.removeItem('pendingPaymentOrderId');
+                                    localStorage.removeItem('pendingPaymentMethod');
+                                    window.history.replaceState({}, document.title, window.location.pathname);
+                                    return;
+                                }
                             }
-                        } catch (e) {}
+                        } catch (e) {
+                            console.error('Error fetching/updating order:', e);
+                        }
                     }
 
                     localStorage.removeItem('pendingPaymentOrderId');
@@ -449,7 +558,11 @@ export const SalesScreen: React.FC = () => {
     const handleCheckout = async (paymentMethod?: string, transferAmount?: number) => {
         try {
             const currentOrder = orders[activeOrderIndex];
-            const payload = buildOrderData(ORDER_STATUS.COMPLETED, paymentMethod, transferAmount);
+            // Nếu thanh toán tiền mặt → COMPLETED, còn lại → DRAFT (chờ thanh toán thành công)
+            const initialStatus = paymentMethod === 'cash' 
+                ? ORDER_STATUS.COMPLETED 
+                : ORDER_STATUS.DRAFT;
+            const payload = buildOrderData(initialStatus, paymentMethod, transferAmount);
 
             let result;
 
@@ -466,7 +579,7 @@ export const SalesScreen: React.FC = () => {
                 ...orders[activeOrderIndex],
                 orderId,
                 code,    // save code from BE response
-                status: ORDER_STATUS.COMPLETED,
+                status: initialStatus, // DRAFT hoặc COMPLETED tùy paymentMethod
                 paymentMethod,
                 createdDate: result.data.createdDate,
             };
